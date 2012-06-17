@@ -1,238 +1,241 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" href="css/epub-reader.css"></link>
-<link type="text/css" href="css/ui-lightness/jquery-ui-1.7.1.custom.css"
-	rel="stylesheet" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<link rel="stylesheet" href="css/epub-reader.css"/>
+<link type="text/css" href="css/ui-lightness/jquery-ui-1.7.1.custom.css" rel="stylesheet"/>
 <script type="text/javascript" src="zip/jszip.js"></script>
 <script type="text/javascript" src="zip/jszip-load.js"></script>
 <script type="text/javascript" src="zip/jszip-deflate.js"></script>
 <script type="text/javascript" src="zip/jszip-inflate.js"></script>
 
+
 <script type="text/javascript">
-	// TODO chapterwise progressbar not working for epub 3.0
-	// TODO process_content support for 3.0
-	var unzip;
-	var zipFileName = 'epubs/people-of-the-abyss2.epub';
+// TODO blank pages
+// TODO JSLINT
+// TODO to infusion
+var unzip;
+var zipFileName = 'epubs/carroll-alice-in-wonderland-illustrations.epub';
 
-	function trim(str) {
-		return str.replace(/^\s+|\s+$/g, '');
-	}
+function trim(str) {
+    return str.replace(/^\s+|\s+$/g, '');
+}
 
-	function getDataFromEpub(filename, callback) {
+function getDataFromEpub(filename, callback) {
 
-		console.log(filename);
-		var answer;
+    console.log(filename);
+    var answer;
 
-		if (isImage(filename)) {
-			answer = getImageFromEpub(filename);
-		} else if(isCSS(filename)){
-			answer = getCSSFromEpub(filename);
-		} else {
-			answer = unzip.file(filename).asText();
-		}
+    if (isImage(filename)) {
+        answer = getImageFromEpub(filename);
+    } else if (isCSS(filename)) {
+        answer = getCSSFromEpub(filename);
+    } else {
+        answer = unzip.file(filename).asText();
+    }
 
-		if (callback !== undefined) {
-			callback(answer);
-		} else {
-			return answer; // to load page
-		}
-	}
+    if (callback !== undefined) {
+        callback(answer);
+    }
 
-	function getImageFromEpub(imgpath) {
-		if (!imgpath) {
-			return;
-		}
-		return 'data:image/' + getExtension(imgpath) + ';base64,'
-				+ escape(JSZipBase64.encode(unzip.file(imgpath).data));
-		
-	}
+    return answer; // to load page
+}
 
-	function getFolder(filepath) {
-		filepath = trim(filepath);
-		if (filepath === '') {
-			return '';
-		}
-		var temp = filepath.split('/');
-		var retpath = '';
-		for ( var i = 0; i < temp.length - 1; i++) {
-			retpath = retpath + temp[i] + '/';
-		}
-		return retpath;
-	}
+function getImageFromEpub(imgpath) {
+    if (!imgpath) {
+        return null;
+    }
+    return 'data:image/' + getExtension(imgpath) + ';base64,'
+            + (JSZipBase64.encode(unzip.file(imgpath).data));
 
-	function getCSSFromEpub(csspath) {
-		if (!csspath) {
-			return;
-		}
-		var result = unzip.file(csspath);
-		var csslocation = getFolder(csspath);
-		if (!result) {
-			return;
-		}
-		result = processCSS(result.asText(), csslocation);
+}
 
-		return result;
-	}
+function getFolder(filepath) {
+    filepath = trim(filepath);
+    if (filepath === '') {
+        return '';
+    }
+    var temp = filepath.split('/');
+    var retpath = '';
+    for (var i = 0; i < temp.length - 1; i++) {
+        retpath = retpath + temp[i] + '/';
+    }
+    return retpath;
+}
 
-	function processCSS(result, csslocation) {
-		if (!result) {
-			return '';
-		}
-		result = result.replace(/url\((.*?)\)/gi, function(str, url) {
-			if (/^data/i.test(url)) {
-				// Don't replace data strings as it is already in data URI form
-				return str;
-			} else {
-				var dataUri = getImageFromEpub(csslocation + url);
-				return "url(" + dataUri + ")";
-			}
-		});
+function getCSSFromEpub(csspath) {
+    if (!csspath) {
+        return  null;
+    }
+    var result = unzip.file(csspath);
+    var csslocation = getFolder(csspath);
+    if (!result) {
+        return null;
+    }
+    result = processCSS(result.asText(), csslocation);
 
-		return result;
-	}
+    return result;
+}
 
-	function getExtension(filename) {
-		if (!filename) {
-			return '';
+function processCSS(result, csslocation) {
+    if (!result) {
+        return '';
+    }
+    result = result.replace(/url\((.*?)\)/gi, function (str, url) {
+        if (/^data/i.test(url)) {
+            // Don't replace data strings as it is already in data URI form
+            return str;
+        } else {
+            var dataUri = getImageFromEpub(csslocation + url);
+            return "url(" + dataUri + ")";
+        }
+    });
 
-		}
-		return filename.split('.').pop();
-	}
+    return result;
+}
 
-	function isImage(src) {
-		if (!src) {
-			return false;
-		}
-		src = getExtension(src).toLowerCase();
+function getExtension(filename) {
+    if (!filename) {
+        return '';
 
-		if (src === 'jpg' || src === 'png' || src === 'jpeg' || src === 'gif') {
-			return true;
-		}
-		return false;
-	}
+    }
+    return filename.split('.').pop();
+}
 
-	function isCSS(src) {
-		if (!src) {
-			return false;
-		}
-		if (getExtension(src).toLowerCase() === 'css') {
-			return true;
-		}
-		return false;
-	}
+function isImage(src) {
+    if (!src) {
+        return false;
+    }
+    src = getExtension(src).toLowerCase();
 
-	function imageToDataURI(htmlCode, htmlFileLocation) {
-		if (htmlCode === '') {
-			return;
-		}
-		//console.log(htmlCode);
-		
-		var domCode = $(htmlCode);
+    if (src === 'jpg' || src === 'png' || src === 'jpeg' || src === 'gif') {
+        return true;
+    }
+    return false;
+}
 
-		//  for each img tag in html code create an attribute original_src and set it to original source
-		//  and modify src to dataURI using jszip
-		domCode.find('img').each(function() {
-			var src = $(this).attr('src');
-			if (src !== false) {
-				$(this).attr('original_src', src);
-				$(this).attr('src', getImageFromEpub(htmlFileLocation + src));
-			}
-		});
+function isCSS(src) {
+    if (!src) {
+        return false;
+    }
+    if (getExtension(src).toLowerCase() === 'css') {
+        return true;
+    }
+    return false;
+}
 
-		domCode = $('<div/>').append(domCode);
+function imageToDataURI(htmlCode, htmlFileLocation) {
+    if (htmlCode === '') {
+        return;
+    }
+    //console.log(htmlCode);
 
-		// applying stylesheets of current chapter to our ebook
-		// everything is going to be added to #content which will be overwritten for eah chapter
-		// Hence no need to track stylesheets
-		domCode.find('link').each(
-				function() {
-					if ($(this).attr('type') === "text/css") {
-						var inlineStyle = $('<style></style>');
-						inlineStyle.attr("type", "text/css");
-						inlineStyle.attr("original_href", $(this).attr("href"));
-						inlineStyle.append(getCSSFromEpub(htmlFileLocation + $(this).attr("href")));
-						$(this).replaceWith(inlineStyle);
-					}
-				});
+    var domCode = $(htmlCode);
+    var styleCode = $('<div/>');
 
-		// remove head tags manually
-		domCode.find('title').remove();
-		domCode.find('link').remove();
-		domCode.find('meta').remove();
-		htmlCode = domCode.html();
-		
-		//console.log(htmlCode);
-		return htmlCode;
-	}
+    //  for each img tag in html code create an attribute original_src and set it to original source
+    //  and modify src to dataURI using jszip
 
-	function onZipReceived(data) {
-		unzip = new JSZip();
-		unzip.load(data, {
-			base64 : false
-		});
-		getDataFromEpub('META-INF/container.xml', function(response) {
-			container(response);
-		});
-	}
+    domCode.find('img').each(function () {
+        var src = $(this).attr('src');
+        if (src !== false) {
+            $(this).attr('original_src', src);
+            $(this).attr('src', getImageFromEpub(htmlFileLocation + src));
+        }
+    });
 
-	function useMSXHR() {
-		return typeof ActiveXObject == "function";
-	}
+    domCode = $('<div/>').append(domCode);
 
-	function getBinaryFile(url, callback) {
-		var request = useMSXHR() ? new ActiveXObject("Msxml2.XmlHttp.6.0")
-				: new XMLHttpRequest();
-		request.onreadystatechange = function() {
-			if (request.readyState == 1) {
-				if (request.overrideMimeType) {
-					request
-							.overrideMimeType('text/plain; charset=x-user-defined');
-				}
-				request.send();
-			}
+    // applying stylesheets of current chapter to our ebook
+    // everything is going to be added to #content which will be overwritten for eah chapter
+    // Hence no need to track stylesheets
+    domCode.find('link').each(
+            function () {
+                if ($(this).attr('type') === "text/css") {
+                    var inlineStyle = $('<style></style>');
+                    inlineStyle.attr("type", "text/css");
+                    inlineStyle.attr("original_href", $(this).attr("href"));
+                    inlineStyle.append(getCSSFromEpub(htmlFileLocation + $(this).attr("href")));
+                    styleCode.append(inlineStyle);
+                }
+            });
 
-			if (request.readyState == 4) {
-				if (request.status == 200) {
-					var data;
-					if (useMSXHR()) {
-						var data = new VBArray(request.responseBody).toArray();
-						for ( var j = 0; j < data.length; ++j)
-							data[j] = String.fromCharCode(data[j]);
-						callback(data.join(''));
-						request.abort();
-					} else {
-						callback(request.responseText);
-					}
-				} else {
-					console.log('Failed to get file ' + url + '<br>');
-				}
-			}
-		}
-		request.open("GET", url, true);
-	}
+    // remove head tags manually
+    domCode.find('title').remove();
+    domCode.find('link').remove();
+    domCode.find('meta').remove();
+    //htmlCode = domCode.html();
 
-	function runTest() {
-		getBinaryFile(zipFileName, onZipReceived);
-	}
+    return { content:domCode.html(), styles:styleCode.html() };
+}
+
+function onZipReceived(data) {
+    unzip = new JSZip();
+    unzip.load(data, {
+        base64:false
+    });
+    getDataFromEpub('META-INF/container.xml', function (response) {
+        container(response);
+    });
+}
+
+function useMSXHR() {
+    return typeof ActiveXObject == "function";
+}
+
+function getBinaryFile(url, callback) {
+    var request = useMSXHR() ? new ActiveXObject("Msxml2.XmlHttp.6.0")
+            : new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if (request.readyState == 1) {
+            if (request.overrideMimeType) {
+                request
+                        .overrideMimeType('text/plain; charset=x-user-defined');
+            }
+            request.send();
+        }
+
+        if (request.readyState == 4) {
+            if (request.status == 200) {
+                var data;
+                if (useMSXHR()) {
+                    var data = new VBArray(request.responseBody).toArray();
+                    for (var j = 0; j < data.length; ++j)
+                        data[j] = String.fromCharCode(data[j]);
+                    callback(data.join(''));
+                    request.abort();
+                } else {
+                    callback(request.responseText);
+                }
+            } else {
+                console.log('Failed to get file ' + url + '<br>');
+            }
+        }
+    }
+    request.open("GET", url, true);
+}
+
+function runTest() {
+    getBinaryFile(zipFileName, onZipReceived);
+}
 </script>
 <script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.7.1.custom.min.js"></script>
-<script type="text/javascript" src="js/mousewheel.js"></script>
 <script type="text/javascript" src="js/epubjs.js"></script>
 </head>
 <body>
 
-	<div id="book" class="clear">
-		<div id="toc-container">
-			<ol id="toc"></ol>
-		</div>
-		<h1 id="content-title"></h1>
-		<div id="total-size">
-			<div id="remaining"></div>
-		</div>
-		<div id="content"></div>
-	</div>
+<div id="book" class="clear">
+    <div id="toc-container">
+        <ol id="toc"></ol>
+    </div>
+    <h1 id="content-title"></h1>
+
+    <div id="total-size">
+        <div id="remaining"></div>
+    </div>
+    <div id="chapter_style"></div>
+    <div id="content"></div>
+</div>
 </body>
 </html>
