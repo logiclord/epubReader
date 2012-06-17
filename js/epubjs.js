@@ -1,4 +1,4 @@
-var page_stack = new Array();
+"use strict";
 var oebps_dir = '';
 var opf_file = '';
 var ncx_file = '';
@@ -7,30 +7,33 @@ var epub_version = 2;
 var current_chapter = {};
 var current_selection_height = 600;
 var current_selection = {};//= {from : 0, to : current_selection_height};
-var pagination = []; // to keep track about forward and backword pagination ranges
+var pagination = []; // to keep track about forward and backward pagination ranges
 
 function manageImageSize() {
-    var obj = $(this);
     var maxWidth = 400;
     var maxHeight = 300;
-    if (obj.width() > maxWidth) {
-        obj.height((maxWidth * obj.attr("height")) / obj.attr("width"));
-        obj.width(maxWidth);
+    if ( $(this).width() > maxWidth) {
+        $(this).height((maxWidth *  $(this).height()) /  $(this).width());
+        $(this).width(maxWidth);
     }
-    if (obj.height() > maxHeight) {
-        obj.width((obj.attr("width") * maxHeight) / obj.attr("height"));
-        obj.height(maxHeight);
+    if ( $(this).height() > maxHeight) {
+        $(this).width(( $(this).width() * maxHeight) /  $(this).height());
+        $(this).height(maxHeight);
     }
 }
 
 function selectionWrapper() {
     $('#content :hidden').show();
     var toHide = [];
-    createSelection($('#content'), toHide);
+    var ret = createSelection($('#content'), toHide);
     for (var i = 0; i < toHide.length; i++) {
         toHide[i].hide();
     }
-    console.log(current_selection.to + " hh " + current_chapter.height);
+    updateProgressbar();
+    return ret;
+}
+
+function updateProgressbar(){
     var progress = 500 * ((current_selection.to > current_chapter.height) ? 1 : (current_selection.to / current_chapter.height));
     $('#remaining').css('width', progress + 'px');
 }
@@ -72,13 +75,12 @@ function createSelection(node, toHide) {
 }
 
 function resetSelection() {
-    console.log(current_selection);
     current_selection.from = $('#content').offset().top;
     current_selection.to = current_selection.from + current_selection_height;
 }
 
 function load_content() {
-    page = $(this).attr('href');
+    var page = $(this).attr('href');
     resetSelection();
     pagination = [];
 
@@ -86,23 +88,23 @@ function load_content() {
     $('.selected').attr('class', 'unselected');
     $(this).attr('class', 'selected');
 
-    current_chapter = imageToDataURI(getDataFromEpub(page), getFolder(page));
+    current_chapter = preProcessChapter(getDataFromEpub(page), getFolder(page));
     $('#content').html(current_chapter.content);
     $('#chapter_style').html(current_chapter.styles);
 
     //TODO Improve on load listener for already cached images
 
+    // image already cached
     if ($('#content img:last').height() !== 0) {
         $('#content img').each(manageImageSize);
         current_chapter.height = $('#content').height();
-        selectionWrapper()
+        selectionWrapper();
     }
-    else {
+    else { //non-caching case
         $('#content img:last').load(function () {
-            // manage size of images
             $('#content img').each(manageImageSize);
             current_chapter.height = $('#content').height();
-            selectionWrapper()
+            selectionWrapper();
         });
     }
 
@@ -115,7 +117,9 @@ function next() {
     current_selection.to = current_selection.from + current_selection_height;
 
     if (current_selection.from < current_chapter.height) {
-        selectionWrapper();
+        if(selectionWrapper()===false) {
+            next();
+        }
     } else {
         next_chapter();
     }
@@ -124,7 +128,9 @@ function next() {
 function previous() {
     current_selection = pagination.pop();
     if (current_selection !== undefined && current_selection.to > $('#content').offset().top) {
-        selectionWrapper();
+        if(selectionWrapper() === false) {
+            previous();
+        }
     } else {
         current_selection = {};
         previous_chapter();
@@ -133,7 +139,7 @@ function previous() {
 
 function next_chapter() {
 
-    if ($('a.selected').parent().next('li').length === 0) {
+    if($('a.selected').parent().next('li').length === 0) {
         return;
     }
 
@@ -167,15 +173,13 @@ function container(f) {
 
     opf_file = $(f).find('rootfile').attr('full-path');
     // Get the OEPBS dir, if there is one
-    if (opf_file.indexOf('/') != -1) {
+    if (opf_file.indexOf('/') !== -1) {
         oebps_dir = opf_file.substr(0, opf_file.lastIndexOf('/'));
     }
 
     // opf_file = epub_dir + '/' + opf_file;
     // jQuery.get(opf_file, {}, opf);
-    getDataFromEpub(opf_file, function (response) {
-        opf(response);
-    });
+    getDataFromEpub(opf_file, opf);
 }
 
 /* Open the TOC, get the first item and open it */
@@ -189,7 +193,7 @@ function toc(f) {
         var content_tag = 'ns\\:content';
         var text_tag = 'ns\\:text';
 
-        if ($(f).find('ns\\:navPoint').length == 0) {
+        if ($(f).find('ns\\:navPoint').length === 0) {
             nav_tag = 'navPoint';
             content_tag = 'content';
             text_tag = 'text';
@@ -197,17 +201,11 @@ function toc(f) {
 
         $(f).find(nav_tag).each(
             function () {
-
                 var s = $('<span/>').text(
                     $(this).find(text_tag + ':first').text());
-                var a = $('<a/>').attr(
-                    'href',
-                    oebps_dir
-                        + '/'
-                        + $(this).find(content_tag).attr(
-                        'src'));
+                var a = $('<a/>').attr('href',oebps_dir + '/'+ $(this).find(content_tag).attr('src'));
                 // If 's' has a parent navPoint, indent it
-                if ($(this).parent()[0].tagName.toLowerCase() == nav_tag) {
+                if ($(this).parent()[0].tagName.toLowerCase() === nav_tag) {
                     s.addClass('indent');
                 }
                 s.appendTo(a);
@@ -245,16 +243,15 @@ function opf(f) {
 
     $('#content-title').html(title + ' by ' + author);
     // Firefox
-    if (title == null || title == '') {
+    if (title === null || title === '') {
         $('#content-title').html(
-            $(f).find('dc\\:title').text() + ' by '
-                + $(f).find('dc\\:creator').text());
+            $(f).find('dc\\:title').text() + ' by ' + $(f).find('dc\\:creator').text());
     }
     // Get the NCX
     var opf_item_tag = 'opf\\:item';
     var epub_version_tag = 'opf\\:package';
 
-    if ($(f).find('opf\\:item').length == 0) {
+    if ($(f).find('opf\\:item').length === 0) {
         opf_item_tag = 'item';
         epub_version_tag = 'package';
     }
@@ -265,14 +262,9 @@ function opf(f) {
         function () {
             // Cheat and find the first file ending in NCX
             // modified to include ePub 3 support
-            if ($(this).attr('href').indexOf('.ncx') != -1
-                || $(this).attr('id').toLowerCase() === 'toc') {
+            if ($(this).attr('href').indexOf('.ncx') !== -1 || $(this).attr('id').toLowerCase() === 'toc') {
                 ncx_file = oebps_dir + '/' + $(this).attr('href');
-                // jQuery.get(ncx_file, {}, toc);
-                // console.log(ncx_file);
-                getDataFromEpub(ncx_file, function (response) {
-                    toc(response);
-                });
+                getDataFromEpub(ncx_file, toc);
             }
         });
 
@@ -285,16 +277,16 @@ jQuery(document).ready(function () {
 
     $(document).bind('keydown', function (e) {
         var code = (e.keyCode ? e.keyCode : e.which);
-        if (code == 39) { // 'n'
+        if (code === 39) { // 'n'
             next();
         }
-        if (code == 37) { // 'p'
+        if (code === 37) { // 'p'
             previous();
         }
-        if (code == 40) { // 'j'
+        if (code === 40) { // 'j'
             next_chapter();
         }
-        if (code == 38) { // 'k'
+        if (code === 38) { // 'k'
             previous_chapter();
         }
     });
