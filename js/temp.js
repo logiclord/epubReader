@@ -1,13 +1,9 @@
 "use strict";
-// TODO JSHINT-JSLINT, jquery ui remove, test, create errors
+// TODO JSHINT-JSLINT, create error types
 // TODO to infusion
 
 var unzip;
 var zipFileName = 'epubs/carroll-alice-in-wonderland-illustrations.epub';
-
-function trim(str) {
-    return str.replace(/^\s+|\s+$/g, '');
-}
 
 function getDataFromEpub(filename, callback) {
     var answer;
@@ -34,7 +30,7 @@ function getImageFromEpub(imgpath) {
 }
 
 function getFolder(filepath) {
-    filepath = trim(filepath);
+    filepath =  $.trim(filepath);
     if (filepath === '') {
         return '';
     }

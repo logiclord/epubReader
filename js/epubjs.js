@@ -5,7 +5,7 @@ var ncx_file = '';
 var abs_container_bottom = 600; // height of TOC widget
 var epub_version = 2;
 var current_chapter = {};
-var current_selection_height = 600;
+var current_selection_height = 500;
 var current_selection = {};//= {from : 0, to : current_selection_height};
 var pagination = []; // to keep track about forward and backward pagination ranges
 
