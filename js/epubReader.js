@@ -7,7 +7,6 @@
 var fluid_1_5 = fluid_1_5 || {};
 
 /*
-
 configuration params to be added
 bookpath
 imagemaxheight
@@ -441,8 +440,9 @@ selectors - parser
         // TODO remove fileobj
         that.load_content = function (chapter_content) {
             current_chapter = chapter_content;
-            that.resetSelection();
             pagination = [];
+            that.resetSelection();
+
             $('#content').html(current_chapter.content);
             $('#chapter_style').html(current_chapter.styles);
 
@@ -549,11 +549,12 @@ selectors - parser
 
         var zipFileName = '../epubs/potter-tale-of-peter-rabbit-illustrations.epub';
 
-        $('#toc a').live('click', function () {
+        $('#toc a').live('click', function (event) {
             var page = $(this).attr('href');
             $('.selected').attr('class', 'unselected');
             $(this).attr('class', 'selected');
             that.navigator.load_content(that.filefacilitator.preProcessChapter(that.filefacilitator.getDataFromEpub(page), that.filefacilitator.getFolder(page)));
+            event.preventDefault();
         });
 
         $(document).bind('keydown', function (e) {
