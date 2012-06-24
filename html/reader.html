@@ -44,12 +44,24 @@
         <div id="remaining"></div>
     </div>
     <div id="chapter_style"></div>
-    <div id="content"></div>
+    <div id="chapter_content"></div>
 </div>
 
 
 <script type="text/javascript">
-    var temp = fluid.epubReader();
+    var temp = fluid.epubReader("#book",{
+        book:{
+            epubPath : "../epubs/carroll-alice-in-wonderland-illustrations.epub"
+         },
+        constraints :{
+            maxImageHeight : 400,
+            maxImageWidth : 300
+        },
+        selectors:{
+            chapterContent: "#chapter_content"
+        }
+    });
 </script>
+
 </body>
 </html>

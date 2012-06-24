@@ -1,16 +1,19 @@
-web-based-epub-reader
+What Is web-based-epub-reader?
 =====================
+web-based-epub-reader is a fluid infusion component. This project is about implementing a 
+web based ePub reader component based on open web technologies for infusion framework. Final ePub
+reader developed will be screen reader accessible utilizing tools for customizing user experience.
+Having a highly customizable reading experience on the web will contribute to a growing number
+of new learning tools in the educational domain. It is currently in the very early stages of 
+development and is being carried out as a Google Summer of Code Project for the fluid project. 
 
-It will be a web based epub reader using infusion framework.
 
-A primitive ePub reader in javascript with following key features at the moment :-
-1 ePub 3 and 2 compatibility
-2 Image parsing to data URI
-3 Css parsing
-4 Read from .epub file and not an extracted folder
-5 Pagination in individual chapter 
+Can I see web-based-epub-reader in Action?
+=================================
 
-Issues :-
-Convert it into Fluid Infusion component structure 
-Blank pages bug 
-previous button from first page of chapter navigates to first page of preious chapter
+You can see the current web-based-epub-reader in action by deploying it using a local server. Just
+get the fluid infusion source from https://github.com/fluid-project/infusion and add 
+web-based-epub-reader as a component to the infusion/src/webapp/components/ directory. 
+
+After deploying fluid on local server, you can access the demo by opening web-based-epub-reader/html/
+reader.html in the browser.

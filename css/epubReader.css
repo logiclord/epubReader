@@ -29,9 +29,7 @@ body {
     margin: auto;
     border: 1px dotted rgb(210, 210, 210);
     padding: 20px;
-    /*	height: 600px;
-     overflow: hidden;
-     */
+    overflow: hidden;
     background-color: white;
 }
 
@@ -56,21 +54,13 @@ h1 {
     padding: 1em 1em 10em 1em;
 }
 
-#content {
+#chapter_content {
     float: right;
     width: 800px;
     padding-right: 1em;
     padding-left: 1em;
     border-left: 2px solid rgb(210, 210, 210);
     font-size: 12px;
-}
-
-#content img {
-
-}
-
-#content-title {
-
 }
 
 a.selected {
