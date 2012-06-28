@@ -1,22 +1,30 @@
 // Declare dependencies
-/*global fluid_1_5:true, jQuery*/
-
-// JSLint options
-/*jslint white: true, funcinvoke: true, undef: true, newcap: true, nomen: true, regexp: true, bitwise: true, browser: true, forin: true, maxerr: 100, indent: 4 */
+/*global fluid_1_5:true, jQuery, JSZip, JSZipBase64*/
 
 var fluid_1_5 = fluid_1_5 || {};
 
 (function ($, fluid) {
 
-    function XHRException(message) {
-        this.message = message;
-        this.name = "XHRException";
+    fluid.setLogging(true);
+    function useMSXHR() {
+        return typeof ActiveXObject === 'function';
     }
-
-    function InvalidParamException(message) {
-        this.message = message;
-        this.name = "InvalidParamException";
-    }
+    var epubReaderErrors = {
+        XHRException: function (message) {
+            var error = {};
+            error.message = message;
+            error.name = 'XHRException';
+            fluid.log(message, error);
+            alert(message);
+        },
+        InvalidParamException: function (message) {
+            var error = {};
+            error.message = message;
+            error.name = 'InvalidParamException';
+            fluid.log(message, error);
+            alert(message);
+        }
+    };
 
     /*
      To facilitate file availability
@@ -25,39 +33,56 @@ var fluid_1_5 = fluid_1_5 || {};
      Parse CSS, Image and HTML content
      */
 
-    fluid.defaults("fluid.epubReader.bookHandler.fileFacilitator", {
-        gradeNames:["fluid.littleComponent", "autoInit"],
-        finalInitFunction:"fluid.epubReader.bookHandler.fileFacilitator.finalInit"
+    fluid.defaults('fluid.JSZipWrapper', {
+        gradeNames: ['fluid.littleComponent', 'autoInit'],
+        isBase64: false,
+        finalInitFunction: 'fluid.JSZipWrapper.finalInit'
+    });
+
+    fluid.JSZipWrapper.finalInit = function (that) {
+        var unzip = new JSZip();
+
+        that.epubLoad = function (data) {
+            unzip.load(data, {base64: that.options.isBase64});
+            //getDataFromEpub('META-INF/container.xml', container);
+        };
+
+        that.getZipText = function (filename) {
+            return unzip.file(filename).asText();
+        };
+
+        that.getZipRawData = function (imgpath) {
+            return unzip.file(imgpath).data;
+        };
+
+        that.encodeBase64 = function (data) {
+            return JSZipBase64.encode(data);
+        };
+    };
+
+
+    fluid.defaults('fluid.epubReader.bookHandler.fileFacilitator', {
+        gradeNames: ['fluid.eventedComponent', 'autoInit'],
+        components: {
+            JSZipWrapper: {
+                type: 'fluid.JSZipWrapper',
+                options: {
+                    isBase64: '{bookHandler}.options.book.isBase64'
+                }
+            }
+        },
+        events: {
+            afterEpubReady: null
+        },
+        finalInitFunction: 'fluid.epubReader.bookHandler.fileFacilitator.finalInit'
     });
 
     fluid.epubReader.bookHandler.fileFacilitator.finalInit = function (that) {
 
-        var unzip = new JSZip();
-
-        var useMSXHR = function () {
-            return typeof ActiveXObject === "function";
-        }
-
-        var epubLoad = function (data, isBase64) {
-            unzip.load(data, {base64:isBase64});
-            //getDataFromEpub('META-INF/container.xml', container);
-        }
-
-        var getZipText = function (filename) {
-            return  unzip.file(filename).asText();
-        }
-
-        var getZipRawData = function (imgpath) {
-            return unzip.file(imgpath).data;
-        }
-
-        var encodeBase64 = function (data) {
-            return JSZipBase64.encode(data);
-        }
-
         that.getDataFromEpub = function (filename, callback) {
             if (!filename) {
-                throw new InvalidParamException("Invalid filename : " + filename + " passed to getDataFromEpub");
+                epubReaderErrors.InvalidParamException('Invalid filename : ' + filename + ' passed to getDataFromEpub');
+                return null;
             }
             var answer;
             if (that.isImage(filename)) {
@@ -65,46 +90,50 @@ var fluid_1_5 = fluid_1_5 || {};
             } else if (that.isCSS(filename)) {
                 answer = that.getCSSFromEpub(filename);
             } else {
-                answer = getZipText(filename);
+                answer = that.JSZipWrapper.getZipText(filename);
             }
             if (callback !== undefined) {
                 callback(answer);
             }
             return answer; // to load page
-        }
+        };
 
         that.getImageFromEpub = function (imgpath) {
             if (!imgpath) {
-                throw new InvalidParamException("Invalid image path : " + imgpath + " passed to getImageFromEpub");
+                epubReaderErrors.InvalidParamException('Invalid image path : ' + imgpath + ' passed to getImageFromEpub');
+                return null;
             }
-            return 'data:image/' + that.getExtension(imgpath) + ';base64,' + (encodeBase64(getZipRawData(imgpath)));
-        }
+            return 'data:image/' + that.getExtension(imgpath) + ';base64,' + (that.JSZipWrapper.encodeBase64(that.JSZipWrapper.getZipRawData(imgpath)));
+        };
 
         that.getFolder = function (filepath) {
             if (!filepath) {
-                throw new InvalidParamException("Invalid filepath : " + filepath + " passed to getFolder");
+                epubReaderErrors.InvalidParamException('Invalid filepath : ' + filepath + ' passed to getFolder');
+                return null;
             }
             filepath = $.trim(filepath);
-            var temp = filepath.split('/');
-            var retpath = '';
-            for (var i = 0; i < temp.length - 1; i++) {
+            var temp = filepath.split('/'),
+                retpath = '',
+                i = 0;
+            for (i = 0; i < temp.length - 1; i = i + 1) {
                 retpath = retpath + temp[i] + '/';
             }
             return retpath;
-        }
+        };
 
         that.getCSSFromEpub = function (csspath) {
             if (!csspath) {
-                throw new InvalidParamException("Invalid csspath  : " + csspath + " passed to getCSSFromEpub");
+                epubReaderErrors.InvalidParamException('Invalid csspath  : ' + csspath + ' passed to getCSSFromEpub');
+                return null;
             }
-            var result = getZipText(csspath);
-            var csslocation = that.getFolder(csspath);
+            var result = that.JSZipWrapper.getZipText(csspath),
+                csslocation = that.getFolder(csspath);
             if (!result) {
                 return '';
             }
             result = that.processCSS(result, csslocation);
             return result;
-        }
+        };
 
         that.processCSS = function (result, csslocation) {
             if (!result) {
@@ -116,18 +145,19 @@ var fluid_1_5 = fluid_1_5 || {};
                     return str;
                 } else {
                     var dataUri = that.getImageFromEpub(csslocation + url);
-                    return "url(" + dataUri + ")";
+                    return 'url(' + dataUri + ')';
                 }
             });
             return result;
-        }
+        };
 
         that.getExtension = function (filename) {
             if (!filename) {
-                throw new InvalidParamException("Invalid filename  : " + filename + " passed to getExtension");
+                epubReaderErrors.InvalidParamException('Invalid filename  : ' + filename + ' passed to getExtension');
+                return null;
             }
             return filename.split('.').pop();
-        }
+        };
 
         that.isImage = function (src) {
             if (!src) {
@@ -135,22 +165,22 @@ var fluid_1_5 = fluid_1_5 || {};
             }
             src = that.getExtension(src).toLowerCase();
             return src === 'jpg' || src === 'png' || src === 'jpeg' || src === 'gif';
-        }
+        };
 
         that.isCSS = function (src) {
             if (!src) {
                 return false;
             }
             return that.getExtension(src).toLowerCase() === 'css';
-        }
+        };
 
         that.preProcessChapter = function (htmlCode, htmlFileLocation) {
             if (htmlCode === '') {
                 return '';
             }
 
-            var domCode = $(htmlCode);
-            var styleCode = $('<div/>');
+            var domCode = $(htmlCode),
+                styleCode = $('<div/>');
 
             //  for each img tag in html code create an attribute original_src and set it to original source
             //  and modify src to dataURI using jszip
@@ -170,25 +200,26 @@ var fluid_1_5 = fluid_1_5 || {};
             // Hence no need to track stylesheets
             domCode.find('link').each(
                 function () {
-                    if ($(this).attr('type') === "text/css") {
+                    if ($(this).attr('type') === 'text/css') {
                         var inlineStyle = $('<style></style>');
-                        inlineStyle.attr("type", "text/css");
-                        inlineStyle.attr("original_href", $(this).attr("href"));
-                        inlineStyle.append(that.getCSSFromEpub(htmlFileLocation + $(this).attr("href")));
+                        inlineStyle.attr('type', 'text/css');
+                        inlineStyle.attr('original_href', $(this).attr('href'));
+                        inlineStyle.append(that.getCSSFromEpub(htmlFileLocation + $(this).attr('href')));
                         styleCode.append(inlineStyle);
                     }
-                });
+                }
+            );
 
             // remove head tags manually
             domCode.find('title').remove();
             domCode.find('link').remove();
             domCode.find('meta').remove();
 
-            return { content:domCode.html(), styles:styleCode.html() };
-        }
+            return { content: domCode.html(), styles: styleCode.html() };
+        };
 
-        that.getEpubFile = function (url, isBase64, callback) {
-            var request = useMSXHR() ? new ActiveXObject("Msxml2.XmlHttp.6.0") : new XMLHttpRequest();
+        that.getEpubFile = function (url) {
+            var request = useMSXHR() ? new ActiveXObject('Msxml2.XmlHttp.6.0') : new XMLHttpRequest();
             request.onreadystatechange = function () {
                 if (request.readyState === 1) {
                     if (request.overrideMimeType) {
@@ -199,69 +230,66 @@ var fluid_1_5 = fluid_1_5 || {};
 
                 if (request.readyState === 4) {
                     if (request.status === 200) {
-                        var data;
+                        var data, j;
                         if (useMSXHR()) {
                             data = new VBArray(request.responseBody).toArray();
-                            for (var j = 0; j < data.length; ++j) {
+                            for (j = 0; j < data.length; j = j + 1) {
                                 data[j] = String.fromCharCode(data[j]);
                             }
-                            epubLoad(data.join(''), isBase64);
-                            callback();
+                            that.JSZipWrapper.epubLoad(data.join(''));
+                            that.events.afterEpubReady.fire();
                             request.abort();
                         } else {
-                            epubLoad(request.responseText, isBase64);
-                            callback();
+                            that.JSZipWrapper.epubLoad(request.responseText);
+                            that.events.afterEpubReady.fire();
                         }
                     } else {
-                        throw new XHRException('Failed to get file ' + url);
+                        epubReaderErrors.XHRException('Failed to get file ' + url);
+                        return null;
                     }
                 }
             };
-            request.open("GET", url, true);
-        }
-    }
+            request.open('GET', url, true);
+        };
+    };
 
-    fluid.defaults("fluid.epubReader.bookHandler.parser", {
-        gradeNames:["fluid.viewComponent", "autoInit"],
-        selectors : {
-            toc : "#toc",
-            contentTitle : "#content-title"
+    fluid.defaults('fluid.epubReader.bookHandler.parser', {
+        gradeNames: ['fluid.viewComponent', 'autoInit'],
+        selectors: {
+            toc: '#toc',
+            contentTitle: '#content-title'
         },
-        finalInitFunction:"fluid.epubReader.bookHandler.parser.finalInit"
+        epubVersion: 2,
+        finalInitFunction: 'fluid.epubReader.bookHandler.parser.finalInit'
     });
 
     fluid.epubReader.bookHandler.parser.finalInit = function (that) {
 
-        var oebps_dir = '';
-        var opf_file = '';
-        var ncx_file = '';
-        var epub_version = 2;
-
-        that.getEpubVersion = function () {
-            return epub_version;
-        }
+        var oebps_dir = '',
+            opf_file = '',
+            ncx_file = '';
 
         /* Open the container file to find the resources */
-        that.container = function (f) {
+        that.getContainerFile = function (f) {
 
             opf_file = $(f).find('rootfile').attr('full-path');
-            // Get the OEPBS dir, if there is one
+            // Get the OEpBS dir, if there is one
             if (opf_file.indexOf('/') !== -1) {
                 oebps_dir = opf_file.substr(0, opf_file.lastIndexOf('/'));
             }
             return opf_file;
-        }
+        };
 
         /* Open the TOC, get the first item and open it */
         that.toc = function (f) {
 
             // ePub 2 compatibility to parse toc.ncx file
-            if (epub_version === 2) {
+            if (that.options.epubVersion === 2) {
 
                 // Some ebooks use navPoint while others use ns:navPoint tags
-                var nav_tag = 'ns\\:navPoint';
-                var content_tag = 'ns\\:content';
-                var text_tag = 'ns\\:text';
+                var nav_tag = 'ns\\:navPoint',
+                    content_tag = 'ns\\:content',
+                    text_tag = 'ns\\:text';
 
                 if ($(f).find('ns\\:navPoint').length === 0) {
                     nav_tag = 'navPoint';
@@ -271,61 +299,63 @@ var fluid_1_5 = fluid_1_5 || {};
 
                 $(f).find(nav_tag).each(
                     function () {
-                        var s = $('<span/>').text(
-                            $(this).find(text_tag + ':first').text());
-                        var a = $('<a/>').attr('href', oebps_dir + '/' + $(this).find(content_tag).attr('src'));
+                        var s = $('<span/>').text($(this).find(text_tag + ':first').text()),
+                            a = $('<a/>').attr('href', oebps_dir + '/' + $(this).find(content_tag).attr('src'));
+
                         // If 's' has a parent navPoint, indent it
                         if ($(this).parent()[0].tagName.toLowerCase() === nav_tag) {
                             s.addClass('indent');
                         }
                         s.appendTo(a);
-                        a.appendTo($('<li/>').appendTo(that.locate("toc")));
-                    });
+                        a.appendTo($('<li/>').appendTo(that.locate('toc')));
+                    }
+                );
             }
 
             // ePub 3 compatibility to parse toc.xhtml file
-            if (epub_version === 3) {
-                $(f).filter('nav[epub:type="toc"]').find('li').each(
+            if (that.options.epubVersion === 3) {
+                $(f).filter('nav[epub:type=\'toc\']').find('li').each(
                     function () {
-                        var s = $('<span/>').text($(this).find('a:first').text());
-                        var a = $('<a/>').attr('href', oebps_dir + '/' + $(this).find('a:first').attr('href'));
+                        var s = $('<span/>').text($(this).find('a:first').text()),
+                            a = $('<a/>').attr('href', oebps_dir + '/' + $(this).find('a:first').attr('href'));
 
                         // If 's' has a parent navPoint, indent it
                         if ($(this).parent().parent()[0].tagName.toLowerCase() === 'li') {
                             s.addClass('indent');
                         }
                         s.appendTo(a);
-                        a.appendTo($('<li/>').appendTo(that.locate("toc")));
-                    });
+                        a.appendTo($('<li/>').appendTo(that.locate('toc')));
+                    }
+                );
             }
 
             // Click on the desired first item link
-             that.locate("toc").find('a:eq(0)').click();
-        }
+            that.locate('toc').find('a:eq(0)').click();
+        };
         /* Open the OPF file and read some useful metadata from it */
         that.opf = function (f) {
 
             // Get the document title
-            // Depending on the browser, namespaces may or may not be handled here
-            var title = $(f).find('title').text(); // Safari
-            var author = $(f).find('creator').text();
+            var title = $(f).find('title').text(), // Safari
+                author = $(f).find('creator').text(),
+                // Get the NCX
+                opf_item_tag = 'opf\\:item',
+                epub_version_tag = 'opf\\:package';
 
-            that.locate("contentTitle").html(title + ' by ' + author);
+            that.locate('contentTitle').html(title + ' by ' + author);
 
             // Firefox
             if (title === null || title === '') {
-                that.locate("contentTitle").html($(f).find('dc\\:title').text() + ' by ' + $(f).find('dc\\:creator').text());
+                that.locate('contentTitle').html($(f).find('dc\\:title').text() + ' by ' + $(f).find('dc\\:creator').text());
             }
-            // Get the NCX
-            var opf_item_tag = 'opf\\:item';
-            var epub_version_tag = 'opf\\:package';
+
 
             if ($(f).find('opf\\:item').length === 0) {
                 opf_item_tag = 'item';
                 epub_version_tag = 'package';
             }
 
-            epub_version = parseInt($('<div/>').append($(f)).find(epub_version_tag).attr('version'), 10);
+            that.options.epubVersion = parseInt($('<div/>').append($(f)).find(epub_version_tag).attr('version'), 10);
 
             $(f).find(opf_item_tag).each(function () {
                 // Cheat and find the first file ending in NCX
@@ -335,35 +365,34 @@ var fluid_1_5 = fluid_1_5 || {};
                 }
             });
             return ncx_file;
-        }
-    }
+        };
+    };
 
-    fluid.defaults("fluid.epubReader.bookHandler.navigator", {
-        gradeNames:["fluid.viewComponent", "autoInit"],
-        constraints:{
-            maxImageHeight:300,
-            maxImageWidth:400
+    fluid.defaults('fluid.epubReader.bookHandler.navigator', {
+        gradeNames: ['fluid.viewComponent', 'autoInit'],
+        constraints: {
+            maxImageHeight: '{epubReader}.options.constraints.maxImageHeight',
+            maxImageWidth: '{epubReader}.options.constraints.maxImageWidth'
         },
-        selectors : {
-            remaining : "#remaining",
-            chapterStyle : "#chapter_style",
-            chapterContent: "#content"
+        selectors: {
+            remaining: '#remaining',
+            chapterStyle: '#chapter_style',
+            chapterContent: '#content'
         },
-        finalInitFunction:"fluid.epubReader.bookHandler.navigator.finalInit"
+        finalInitFunction: 'fluid.epubReader.bookHandler.navigator.finalInit'
 
     });
 
     fluid.epubReader.bookHandler.navigator.finalInit = function (that) {
-
-        var abs_container_bottom = 600; // height of TOC widget
-        var current_selection_height = 500;
-        var current_chapter = {};
-        var current_selection = {};//= {from : 0, to : current_selection_height};
-        var pagination = []; // to keep track about forward and backward pagination ranges
+        var abs_container_bottom = 600, // height of TOC widget
+            current_selection_height = 500,
+            current_chapter = {},
+            current_selection = {},//= {from : 0, to : current_selection_height};
+            pagination = []; // to keep track about forward and backward pagination ranges
 
         that.manageImageSize = function (elm) {
-            var maxWidth = that.options.constraints.maxImageWidth;
-            var maxHeight = that.options.constraints.maxImageHeight;
+            var maxWidth = that.options.constraints.maxImageWidth,
+                maxHeight = that.options.constraints.maxImageHeight;
             if (elm.width() > maxWidth) {
                 elm.height((maxWidth * elm.height()) / elm.width());
                 elm.width(maxWidth);
@@ -372,38 +401,38 @@ var fluid_1_5 = fluid_1_5 || {};
                 elm.width((elm.width() * maxHeight) / elm.height());
                 elm.height(maxHeight);
             }
-        }
+        };
 
         that.selectionWrapper = function () {
-            that.locate("chapterContent").find(':hidden').show();
-            var toHide = [];
-            var ret = that.createSelection(that.locate("chapterContent"), toHide);
-            for (var i = 0; i < toHide.length; i++) {
+            that.locate('chapterContent').find(':hidden').show();
+            var toHide = [],
+                ret = that.createSelection(that.locate('chapterContent'), toHide),
+                i = 0;
+            for (i = 0; i < toHide.length; i = i + 1) {
                 toHide[i].hide();
             }
             that.updateProgressbar();
             return ret;
-        }
+        };
 
         that.updateProgressbar = function () {
             var progress = 500 * ((current_selection.to > current_chapter.height) ? 1 : (current_selection.to / current_chapter.height));
-            that.locate("remaining").css('width', progress + 'px');
-        }
+            that.locate('remaining').css('width', progress + 'px');
+        };
 
         that.createSelection = function (node, toHide) {
             if (!node) {
                 return null;
             }
-            var top = node.offset().top;
-            var bottom = top + node.height();
-
+            var top = node.offset().top,
+                bottom = top + node.height(),
+                ret = false,
+                kid = node.children();
             if (current_selection.to <= top || current_selection.from >= bottom) {
                 return false;
             } else if (current_selection.from <= top && current_selection.to >= bottom) {
                 return true;
             } else {
-                var ret = false;
-                var kid = node.children();
                 kid.each(function () {
                     var temp = that.createSelection($(this), toHide);
                     if (temp === true) {
@@ -421,48 +450,44 @@ var fluid_1_5 = fluid_1_5 || {};
                     return ret;
                 }
             }
-        }
+        };
 
         that.resetSelection = function () {
-            current_selection.from = that.locate("chapterContent").offset().top;
+            current_selection.from = that.locate('chapterContent').offset().top;
             current_selection.to = current_selection.from + current_selection_height;
-        }
+        };
 
         that.load_content = function (chapter_content) {
             current_chapter = chapter_content;
             pagination = [];
             that.resetSelection();
 
-            that.locate("chapterContent").html(current_chapter.content);
-            that.locate("chapterStyle").html(current_chapter.styles);
+            that.locate('chapterContent').html(current_chapter.content);
+            that.locate('chapterStyle').html(current_chapter.styles);
+            that.locate('chapterContent').find('img').css({'max-width': '400px', 'max-height': '300px', 'height': 'auto', 'width': 'auto'});
 
             //TODO Improve on load listener for already cached images
-
-            //  $('#content img').css({'max-width': '400px', 'max-height': '300px', 'height':'auto','width':'auto'});
-
             // undefined case for firefox
-            if (that.locate("chapterContent").find('img:first').height() === 0 || that.locate("chapterContent").find('img:first').attr('height') === undefined) {
-                that.locate("chapterContent").find('img:last').load(function () {
-                    that.locate("chapterContent").find('img').each(function () {
+            if (that.locate('chapterContent').find('img:first').height() === 0 || that.locate('chapterContent').find('img:first').attr('height') === undefined) {
+                that.locate('chapterContent').find('img:last').load(function () {
+                    that.locate('chapterContent').find('img').each(function () {
                         that.manageImageSize($(this));
                     });
-                    current_chapter.height = that.locate("chapterContent").height();
+                    current_chapter.height = that.locate('chapterContent').height();
                     that.selectionWrapper();
                 });
-            }
-            else { //non-caching case
-                that.locate("chapterContent").find('img').each(function () {
+            } else { //non-caching case
+                that.locate('chapterContent').find('img').each(function () {
                     that.manageImageSize($(this));
                 });
-                current_chapter.height = that.locate("chapterContent").height();
+                current_chapter.height = that.locate('chapterContent').height();
                 that.selectionWrapper();
             }
-
             return false;
-        }
+        };
 
         that.next = function () {
-            pagination.push({from:current_selection.from, to:current_selection.to});
+            pagination.push({from: current_selection.from, to: current_selection.to});
             current_selection.from = current_selection.to + 1;
             current_selection.to = current_selection.from + current_selection_height;
 
@@ -473,12 +498,11 @@ var fluid_1_5 = fluid_1_5 || {};
             } else {
                 that.next_chapter();
             }
-
-        }
+        };
 
         that.previous = function () {
             current_selection = pagination.pop();
-            if (current_selection !== undefined && current_selection.to > that.locate("chapterContent").offset().top) {
+            if (current_selection !== undefined && current_selection.to > that.locate('chapterContent').offset().top) {
                 if (that.selectionWrapper() === false) {
                     that.previous();
                 }
@@ -486,104 +510,111 @@ var fluid_1_5 = fluid_1_5 || {};
                 current_selection = {};
                 that.previous_chapter();
             }
-        }
+        };
 
         that.next_chapter = function () {
 
-            if (that.locate("toc").find('a.selected').parent().next('li').length === 0) {
+            if (that.locate('toc').find('a.selected').parent().next('li').length === 0) {
                 return;
             }
 
             // Simulate a click event on the next chapter after the selected one
-            that.locate("toc").find('a.selected').parent().next('li').find('a').click();
+            that.locate('toc').find('a.selected').parent().next('li').find('a').click();
 
             // How far is the selected chapter now from the bottom border?
-            var selected_position = that.locate("toc").find('a.selected').position().top;
-            var height_of_toc = that.locate("toc").find('a.selected').height();
+            var selected_position = that.locate('toc').find('a.selected').position().top,
+                height_of_toc = that.locate('toc').find('a.selected').height();
 
             if (selected_position - (height_of_toc * 2) > abs_container_bottom / 2) {
                 // Hide the first visible chapter item
-                 that.locate("toc").find('a:visible:eq(0)').hide();
+                that.locate('toc').find('a:visible:eq(0)').hide();
             }
-        }
+        };
 
         that.previous_chapter = function () {
-            if (that.locate("toc").find('a.selected').parent().prev('li').length === 0) {
+            if (that.locate('toc').find('a.selected').parent().prev('li').length === 0) {
                 return;
             }
 
             // Simulate a click event on the next chapter after the selected one
-            that.locate("toc").find('a.selected').parent().prev('li').find('a').click();
+            that.locate('toc').find('a.selected').parent().prev('li').find('a').click();
 
             // Have we hidden any chapters that we now want to show?
-            that.locate("toc").find('a:visible:eq(0)').parent().prev('li').find('a').show();
-        }
-    }
+            that.locate('toc').find('a:visible:eq(0)').parent().prev('li').find('a').show();
+        };
+    };
 
-    fluid.defaults("fluid.epubReader.bookHandler", {
-        gradeNames:["fluid.viewComponent", "autoInit"],
-        components:{
-            parser:{
-                type:"fluid.epubReader.bookHandler.parser",
-                container:"{bookHandler}.container",
-                options : {
+    fluid.defaults('fluid.epubReader.bookHandler', {
+        gradeNames: ['fluid.viewComponent', 'autoInit'],
+        components: {
+            parser: {
+                type: 'fluid.epubReader.bookHandler.parser',
+                container: '{bookHandler}.container',
+                options: {
                     selectors: {
-                        contentTitle : "{bookHandler}.options.selectors.contentTitle",
-                        toc : "{bookHandler}.options.selectors.toc"
+                        contentTitle: '{bookHandler}.options.selectors.contentTitle',
+                        toc: '{bookHandler}.options.selectors.toc'
                     }
                 }
             },
-            filefacilitator:{
-                type:"fluid.epubReader.bookHandler.fileFacilitator"
+            filefacilitator: {
+                type: 'fluid.epubReader.bookHandler.fileFacilitator',
+                options: {
+                    listeners: {
+                        afterEpubReady: '{bookHandler}.parseEpub'
+                    }
+                }
             },
-            navigator:{
-                type:"fluid.epubReader.bookHandler.navigator",
-                container:"{bookHandler}.container",
-                options:{
-                    constraints:{
-                        maxImageHeight:"{bookHandler}.options.constraints.maxImageHeight",
-                        maxImageWidth:"{bookHandler}.options.constraints.maxImageWidth"
-                    },
+            navigator: {
+                type: 'fluid.epubReader.bookHandler.navigator',
+                container: '{bookHandler}.container',
+                options: {
                     selectors: {
-                        remaining : "{bookHandler}.options.selectors.remaining",
-                        chapterStyle : "{bookHandler}.options.selectors.chapterStyle",
-                        chapterContent: "{bookHandler}.options.selectors.chapterContent",
-                        toc : "{bookHandler}.options.selectors.toc"
+                        remaining: '{bookHandler}.options.selectors.remaining',
+                        chapterStyle: '{bookHandler}.options.selectors.chapterStyle',
+                        chapterContent: '{bookHandler}.options.selectors.chapterContent',
+                        toc: '{bookHandler}.options.selectors.toc'
                     }
                 }
             }
         },
-        selectors : {
-            contentTitle : "#content-title",
-            remaining : "#remaining",
-            chapterStyle : "#chapter_style",
-            chapterContent: "#content",
-            toc : "#toc"
+        book: {
+            epubPath: '{epubReader}.options.book.epubPath',
+            isBase64: '{epubReader}.options.book.isBase64'
         },
-        book:{
-            epubPath:"",
-            isBase64:false
+        selectors: {
+            contentTitle: '{epubReader}.options.selectors.contentTitle',
+            remaining: '{epubReader}.options.selectors.remaining',
+            chapterStyle: '{epubReader}.options.selectors.chapterStyle',
+            chapterContent: '{epubReader}.options.selectors.chapterContent',
+            toc: '{epubReader}.options.selectors.toc'
         },
-        constraints:{
-            maxImageHeight:300,
-            maxImageWidth:400
-        },
-        finalInitFunction:"fluid.epubReader.bookHandler.finalInit"
+        preInitFunction: 'fluid.epubReader.bookHandler.preInitFunction',
+        finalInitFunction: 'fluid.epubReader.bookHandler.finalInit'
     });
+
+    fluid.epubReader.bookHandler.preInitFunction = function (that) {
+        that.parseEpub = function () {
+            var opf_file = that.parser.getContainerFile(that.filefacilitator.getDataFromEpub('META-INF/container.xml')),
+                ncx_file = that.parser.opf(that.filefacilitator.getDataFromEpub(opf_file));
+            that.parser.toc(that.filefacilitator.getDataFromEpub(ncx_file));
+        };
+    };
 
     fluid.epubReader.bookHandler.finalInit = function (that) {
 
         // TODO handle this inside navigator if possible
-        that.locate("toc").find('a').live('click', function (event) {
+        that.locate('toc').find('a').live('click', function (event) {
             var page = $(this).attr('href');
-            that.locate("toc").find('.selected').attr('class', 'unselected');
+            that.locate('toc').find('.selected').attr('class', 'unselected');
             $(this).attr('class', 'selected');
             that.navigator.load_content(that.filefacilitator.preProcessChapter(that.filefacilitator.getDataFromEpub(page), that.filefacilitator.getFolder(page)));
             event.preventDefault();
         });
 
         $(document).bind('keydown', function (e) {
-            var code = (e.keyCode ? e.keyCode : e.which);
+            //var code = (e.keyCode? e.keyCode : e.which);
+            var code = e.keyCode || e.which;
             if (code === 39) { //  right
                 that.navigator.next();
             }
@@ -599,59 +630,33 @@ var fluid_1_5 = fluid_1_5 || {};
         });
 
         // Parsing ebook onload
-        // TODO remove callback approach if possible
-        that.filefacilitator.getEpubFile(that.options.book.epubPath, that.options.book.isBase64, function () {
-            var opf_file = that.parser.container(that.filefacilitator.getDataFromEpub('META-INF/container.xml'));
-            var ncx_file = that.parser.opf(that.filefacilitator.getDataFromEpub(opf_file));
-            that.parser.toc(that.filefacilitator.getDataFromEpub(ncx_file));
-        });
-    }
+        that.filefacilitator.getEpubFile(that.options.book.epubPath);
 
-    fluid.defaults("fluid.epubReader", {
-        gradeNames:["fluid.viewComponent", "autoInit"],
-        components:{
-            bookhandle:{
-                type:"fluid.epubReader.bookHandler",
-                container:"{epubReader}.container",
-                options:{
-                    book:{
-                        epubPath:"{epubReader}.options.book.epubPath",
-                        isBase64:"{epubReader}.options.book.isBase64"
-                    },
-                    constraints:{
-                        maxImageHeight:"{epubReader}.options.constraints.maxImageHeight",
-                        maxImageWidth:"{epubReader}.options.constraints.maxImageWidth"
-                    },
-                    selectors: {
-                        contentTitle : "{epubReader}.options.selectors.contentTitle",
-                        remaining : "{epubReader}.options.selectors.remaining",
-                        chapterStyle : "{epubReader}.options.selectors.chapterStyle",
-                        chapterContent: "{epubReader}.options.selectors.chapterContent",
-                        toc : "{epubReader}.options.selectors.toc"
-                    }
-                }
+    };
+
+    fluid.defaults('fluid.epubReader', {
+        gradeNames: ['fluid.viewComponent', 'autoInit'],
+        components: {
+            bookhandle: {
+                type: 'fluid.epubReader.bookHandler',
+                container: '{epubReader}.container'
             }
         },
-        selectors : {
-            contentTitle : "#content-title",
-            remaining : "#remaining",
-            chapterStyle : "#chapter_style",
-            chapterContent: "#content",
-            toc : "#toc"
+        selectors: {
+            contentTitle: '#content-title',
+            remaining: '#remaining',
+            chapterStyle: '#chapter_style',
+            chapterContent: '#content',
+            toc: '#toc'
         },
-        book:{
-            epubPath:"../epubs/potter-tale-of-peter-rabbit-illustrations.epub",
-            isBase64:false
+        book: {
+            epubPath: '../epubs/potter-tale-of-peter-rabbit-illustrations.epub',
+            isBase64: false
         },
-        constraints:{
-            maxImageHeight:300,
-            maxImageWidth:400
-        },
-        finalInitFunction:"fluid.epubReader.finalInit"
+        constraints: {
+            maxImageHeight: 300,
+            maxImageWidth: 400
+        }
     });
-
-    fluid.epubReader.finalInit = function (that) {
-
-    }
 
 })(jQuery, fluid_1_5);

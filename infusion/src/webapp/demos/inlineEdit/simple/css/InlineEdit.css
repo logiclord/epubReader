@@ -1,0 +1,22 @@
+/* Themed Appearance + Themed States */
+
+.demo-inlineEdit-padding {
+    padding-top : 0.5cm;
+}
+
+.demo-inlineEdit-title, .demo-inlineEdit-title-edit {
+    font-size : 2em;
+}
+
+.demo-inlineEdit-indent {
+    margin: 1em;
+}
+
+.demo-undoContainer :focus,
+.demo-redoContainer :focus {
+    outline: 1px solid black;
+}
+
+.demo-inlineEdit-p {
+	margin-bottom: 1em;
+}
