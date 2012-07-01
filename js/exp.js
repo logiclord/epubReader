@@ -10,7 +10,7 @@ It won't be a part of final component.
 /*jslint white: true, funcinvoke: true, undef: true, newcap: true, nomen: true, regexp: true, bitwise: true, browser: true, forin: true, maxerr: 100, indent: 4 */
 
 
-var fluid_1_5 = fluid_1_5 || {};
+var fluid_1_4 = fluid_1_4 || {};
 
 (function ($, fluid) {
 
@@ -82,4 +82,4 @@ var fluid_1_5 = fluid_1_5 || {};
         }
     }
 
-})(jQuery, fluid_1_5);
+})(jQuery, fluid_1_4);

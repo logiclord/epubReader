@@ -1,7 +1,7 @@
 // Declare dependencies
 /*global fluid_1_5:true, jQuery, JSZip, JSZipBase64*/
 
-var fluid_1_5 = fluid_1_5 || {};
+var fluid_1_4 = fluid_1_4 || {};
 
 (function ($, fluid) {
 
@@ -666,4 +666,4 @@ var fluid_1_5 = fluid_1_5 || {};
         that.filefacilitator.getEpubFile(that.options.book.epubPath);
     };
 
-})(jQuery, fluid_1_5);
+})(jQuery, fluid_1_4);
