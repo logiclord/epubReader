@@ -15,29 +15,50 @@ var fluid_1_5 = fluid_1_5 || {};
 (function ($, fluid) {
 
     // Define one subcomponent
+    fluid.defaults("tutorials.subcomponent3", {
+        gradeNames: ["fluid.littleComponent", "autoInit"],
+        finalInitFunction:"tutorials.subcomponent3.postInit",
+        val : "{subcomponent1}.options.cutre"
+    });
+
+    tutorials.subcomponent3.postInit = function (that){
+        that.who = function (){
+            alert("its me subcomponent3 comp");
+            alert("{subcomponent1}.options.cutre");
+        }
+    }
+
+    // Define one subcomponent
     fluid.defaults("tutorials.subcomponent1", {
         gradeNames: ["fluid.littleComponent", "autoInit"],
-        finalInitFunction:"tutorials.subcomponent1.postInit"
+        finalInitFunction:"tutorials.subcomponent1.postInit",
+        cutre : 987654567876545678
     });
 
     tutorials.subcomponent1.postInit = function (that){
-        that.titu = function (th) {
-            alert("titu");
-            th();
+        that.who = function (){
+            alert("its me subcomponent1 comp");
         }
     }
 
 // Define another subcomponent
     fluid.defaults("tutorials.subcomponent2", {
         gradeNames: ["fluid.littleComponent", "autoInit"],
-        tempvar : 12345767887656787656,
+        components: {
+            child3: {
+                type: "tutorials.subcomponent3"
+            }
+        },
+        cutre : 123456789,
         finalInitFunction:"tutorials.subcomponent2.postInit"
     });
 
     tutorials.subcomponent2.postInit = function (that){
-        that.papu = function () {
-            alert(that.options.tempvar);
+        that.who = function (){
+            alert("its me subcomponent2 comp");
+            that.child3.who();
         }
+        that.who();
     }
 
 // Define the parent component, to use the subcomponents
@@ -56,9 +77,9 @@ var fluid_1_5 = fluid_1_5 || {};
 
 
     tutorials.parentComponent.postInit = function (that) {
-        that.child1.titu(that.child2.papu);
-        //console.log(that.child2);
-        //that.child2.papu();
+        that.who = function (){
+            alert("its me parent comp");
+        }
     }
 
 })(jQuery, fluid_1_5);

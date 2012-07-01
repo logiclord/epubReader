@@ -5,23 +5,23 @@ var fluid_1_5 = fluid_1_5 || {};
 
 (function ($, fluid) {
 
-    fluid.setLogging(true);
+   // fluid.setLogging(true);
     function useMSXHR() {
         return typeof ActiveXObject === 'function';
     }
     var epubReaderErrors = {
         XHRException: function (message) {
-            var error = {};
-            error.message = message;
-            error.name = 'XHRException';
-            fluid.log(message, error);
+            var errors = {};
+            errors.message = message;
+            errors.name = 'XHRException';
+            fluid.log(message, errors);
             alert(message);
         },
         InvalidParamException: function (message) {
-            var error = {};
-            error.message = message;
-            error.name = 'InvalidParamException';
-            fluid.log(message, error);
+            var errors = {};
+            errors.message = message;
+            errors.name = 'InvalidParamException';
+            fluid.log(message, errors);
             alert(message);
         }
     };
@@ -61,23 +61,23 @@ var fluid_1_5 = fluid_1_5 || {};
     };
 
 
-    fluid.defaults('fluid.epubReader.bookHandler.fileFacilitator', {
+    fluid.defaults('fluid.epubReader.fileFacilitator', {
         gradeNames: ['fluid.eventedComponent', 'autoInit'],
         components: {
             JSZipWrapper: {
                 type: 'fluid.JSZipWrapper',
                 options: {
-                    isBase64: '{bookHandler}.options.book.isBase64'
+                    isBase64: '{epubReader}.options.book.isBase64'
                 }
             }
         },
         events: {
             afterEpubReady: null
         },
-        finalInitFunction: 'fluid.epubReader.bookHandler.fileFacilitator.finalInit'
+        finalInitFunction: 'fluid.epubReader.fileFacilitator.finalInit'
     });
 
-    fluid.epubReader.bookHandler.fileFacilitator.finalInit = function (that) {
+    fluid.epubReader.fileFacilitator.finalInit = function (that) {
 
         that.getDataFromEpub = function (filename, callback) {
             if (!filename) {
@@ -377,7 +377,11 @@ var fluid_1_5 = fluid_1_5 || {};
         selectors: {
             remaining: '#remaining',
             chapterStyle: '#chapter_style',
-            chapterContent: '#content'
+            chapterContent: '#content',
+            toc: '#toc'
+        },
+        events: {
+            onContentLoad: null
         },
         finalInitFunction: 'fluid.epubReader.bookHandler.navigator.finalInit'
 
@@ -389,6 +393,15 @@ var fluid_1_5 = fluid_1_5 || {};
             current_chapter = {},
             current_selection = {},//= {from : 0, to : current_selection_height};
             pagination = []; // to keep track about forward and backward pagination ranges
+
+
+        that.locate('toc').find('a').live('click', function (event) {
+            event.preventDefault();
+            var page = $(this).attr('href');
+            that.locate('toc').find('.selected').attr('class', 'unselected');
+            $(this).attr('class', 'selected');
+            that.events.onContentLoad.fire(page);
+        });
 
         that.manageImageSize = function (elm) {
             var maxWidth = that.options.constraints.maxImageWidth,
@@ -557,14 +570,6 @@ var fluid_1_5 = fluid_1_5 || {};
                     }
                 }
             },
-            filefacilitator: {
-                type: 'fluid.epubReader.bookHandler.fileFacilitator',
-                options: {
-                    listeners: {
-                        afterEpubReady: '{bookHandler}.parseEpub'
-                    }
-                }
-            },
             navigator: {
                 type: 'fluid.epubReader.bookHandler.navigator',
                 container: '{bookHandler}.container',
@@ -574,13 +579,12 @@ var fluid_1_5 = fluid_1_5 || {};
                         chapterStyle: '{bookHandler}.options.selectors.chapterStyle',
                         chapterContent: '{bookHandler}.options.selectors.chapterContent',
                         toc: '{bookHandler}.options.selectors.toc'
+                    },
+                    listeners: {
+                        onContentLoad: '{epubReader}.loadContent'
                     }
                 }
             }
-        },
-        book: {
-            epubPath: '{epubReader}.options.book.epubPath',
-            isBase64: '{epubReader}.options.book.isBase64'
         },
         selectors: {
             contentTitle: '{epubReader}.options.selectors.contentTitle',
@@ -589,31 +593,11 @@ var fluid_1_5 = fluid_1_5 || {};
             chapterContent: '{epubReader}.options.selectors.chapterContent',
             toc: '{epubReader}.options.selectors.toc'
         },
-        preInitFunction: 'fluid.epubReader.bookHandler.preInitFunction',
         finalInitFunction: 'fluid.epubReader.bookHandler.finalInit'
     });
 
-    fluid.epubReader.bookHandler.preInitFunction = function (that) {
-        that.parseEpub = function () {
-            var opf_file = that.parser.getContainerFile(that.filefacilitator.getDataFromEpub('META-INF/container.xml')),
-                ncx_file = that.parser.opf(that.filefacilitator.getDataFromEpub(opf_file));
-            that.parser.toc(that.filefacilitator.getDataFromEpub(ncx_file));
-        };
-    };
-
     fluid.epubReader.bookHandler.finalInit = function (that) {
-
-        // TODO handle this inside navigator if possible
-        that.locate('toc').find('a').live('click', function (event) {
-            var page = $(this).attr('href');
-            that.locate('toc').find('.selected').attr('class', 'unselected');
-            $(this).attr('class', 'selected');
-            that.navigator.load_content(that.filefacilitator.preProcessChapter(that.filefacilitator.getDataFromEpub(page), that.filefacilitator.getFolder(page)));
-            event.preventDefault();
-        });
-
         $(document).bind('keydown', function (e) {
-            //var code = (e.keyCode? e.keyCode : e.which);
             var code = e.keyCode || e.which;
             if (code === 39) { //  right
                 that.navigator.next();
@@ -628,15 +612,19 @@ var fluid_1_5 = fluid_1_5 || {};
                 that.navigator.previous_chapter();
             }
         });
-
-        // Parsing ebook onload
-        that.filefacilitator.getEpubFile(that.options.book.epubPath);
-
     };
 
     fluid.defaults('fluid.epubReader', {
         gradeNames: ['fluid.viewComponent', 'autoInit'],
         components: {
+            filefacilitator: {
+                type: 'fluid.epubReader.fileFacilitator',
+                options: {
+                    listeners: {
+                        afterEpubReady: '{epubReader}.parseEpub'
+                    }
+                }
+            },
             bookhandle: {
                 type: 'fluid.epubReader.bookHandler',
                 container: '{epubReader}.container'
@@ -656,7 +644,26 @@ var fluid_1_5 = fluid_1_5 || {};
         constraints: {
             maxImageHeight: 300,
             maxImageWidth: 400
-        }
+        },
+        preInitFunction: 'fluid.epubReader.preInitFunction',
+        finalInitFunction: "fluid.epubReader.finalInit"
     });
+
+    fluid.epubReader.preInitFunction = function (that) {
+
+        that.parseEpub = function () {
+            var opf_file = that.bookhandle.parser.getContainerFile(that.filefacilitator.getDataFromEpub('META-INF/container.xml')),
+                ncx_file = that.bookhandle.parser.opf(that.filefacilitator.getDataFromEpub(opf_file));
+            that.bookhandle.parser.toc(that.filefacilitator.getDataFromEpub(ncx_file));
+        };
+        that.loadContent = function (page) {
+            that.bookhandle.navigator.load_content(that.filefacilitator.preProcessChapter(that.filefacilitator.getDataFromEpub(page), that.filefacilitator.getFolder(page)));
+        };
+    };
+
+    fluid.epubReader.finalInit = function (that) {
+        // Parsing ebook onload
+        that.filefacilitator.getEpubFile(that.options.book.epubPath);
+    };
 
 })(jQuery, fluid_1_5);
