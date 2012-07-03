@@ -9,6 +9,7 @@ var fluid_1_4 = fluid_1_4 || {};
     function useMSXHR() {
         return typeof ActiveXObject === 'function';
     }
+
     var epubReaderErrors = {
         XHRException: function (message) {
             var errors = {};
@@ -74,6 +75,7 @@ var fluid_1_4 = fluid_1_4 || {};
         events: {
             afterEpubReady: null
         },
+        epubReaderContainer: '{epubReader}.options.selectors.chapterContent',
         finalInitFunction: 'fluid.epubReader.fileFacilitator.finalInit'
     });
 
@@ -147,6 +149,9 @@ var fluid_1_4 = fluid_1_4 || {};
                     var dataUri = that.getImageFromEpub(csslocation + url);
                     return 'url(' + dataUri + ')';
                 }
+            });
+            result = result.replace(/^.*\{/gm, function (str){
+                return that.options.epubReaderContainer + str;
             });
             return result;
         };
@@ -257,7 +262,7 @@ var fluid_1_4 = fluid_1_4 || {};
         gradeNames: ['fluid.viewComponent', 'autoInit'],
         selectors: {
             toc: '#toc',
-            contentTitle: '#content-title'
+            contentTitle: '.content-title'
         },
         epubVersion: 2,
         finalInitFunction: 'fluid.epubReader.bookHandler.parser.finalInit'
@@ -591,13 +596,15 @@ var fluid_1_4 = fluid_1_4 || {};
             remaining: '{epubReader}.options.selectors.remaining',
             chapterStyle: '{epubReader}.options.selectors.chapterStyle',
             chapterContent: '{epubReader}.options.selectors.chapterContent',
-            toc: '{epubReader}.options.selectors.toc'
+            toc: '{epubReader}.options.selectors.toc',
+            bookContainer: '{epubReader}.options.selectors.bookContainer'
         },
         finalInitFunction: 'fluid.epubReader.bookHandler.finalInit'
     });
 
     fluid.epubReader.bookHandler.finalInit = function (that) {
-        $(document).bind('keydown', function (e) {
+
+        that.locate('bookContainer').bind('keydown', function (e) {
             var code = e.keyCode || e.which;
             if (code === 39) { //  right
                 that.navigator.next();
@@ -628,14 +635,24 @@ var fluid_1_4 = fluid_1_4 || {};
             bookhandle: {
                 type: 'fluid.epubReader.bookHandler',
                 container: '{epubReader}.container'
+            },
+            uiController: {
+                type: 'fluid.epubReader.uiController'
             }
         },
         selectors: {
-            contentTitle: '#content-title',
+            contentTitle: '.content-title',
             remaining: '#remaining',
             chapterStyle: '#chapter_style',
             chapterContent: '#content',
-            toc: '#toc'
+            toc: '#toc',
+            bookContainer: '#book',
+            uiOptionsContainer: '#epubUIOptions',
+            uiOptionsButton: '#uiOptions-button'
+        },
+        strings: {
+            uiOptionShowText: '+ UI Options',
+            uiOptionHideText: '- UI Options'
         },
         book: {
             epubPath: '../epubs/potter-tale-of-peter-rabbit-illustrations.epub',
@@ -646,7 +663,7 @@ var fluid_1_4 = fluid_1_4 || {};
             maxImageWidth: 400
         },
         preInitFunction: 'fluid.epubReader.preInitFunction',
-        finalInitFunction: "fluid.epubReader.finalInit"
+        finalInitFunction: 'fluid.epubReader.finalInit'
     });
 
     fluid.epubReader.preInitFunction = function (that) {
@@ -662,6 +679,9 @@ var fluid_1_4 = fluid_1_4 || {};
     };
 
     fluid.epubReader.finalInit = function (that) {
+        // keyboard accessibility experiment
+        that.locate('bookContainer').fluid("tabbable");
+
         // Parsing ebook onload
         that.filefacilitator.getEpubFile(that.options.book.epubPath);
     };
