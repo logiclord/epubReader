@@ -39,8 +39,7 @@ var fluid_1_4 = fluid_1_4 || {};
                             $('.flc-uiOptions-page-mode').val('split');
                             uiOptions.save();
                         },
-                        onSave: '{fluid.uiOptions.epubReaderOptions}.onSaveHandler',
-                        onUIOptionsRefresh:  '{fluid.uiOptions.epubReaderOptions}.restoreChoice'
+                        onSave: '{fluid.uiOptions.epubReaderOptions}.onSaveHandler'
                     }
                 }
             }
@@ -56,9 +55,6 @@ var fluid_1_4 = fluid_1_4 || {};
             fluid.log('Updating settings:', selection);
             pageMode = $('.flc-uiOptions-page-mode').val();
             that.events.onUIOptionsUpdate.fire(pageMode);
-        };
-        that.restoreChoice = function () {
-            $('.flc-uiOptions-page-mode').val(pageMode);
         };
     };
 
