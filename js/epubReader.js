@@ -557,6 +557,10 @@ var fluid_1_4 = fluid_1_4 || {};
                 } else {
                     that.next_chapter();
                 }
+            } else if (that.options.pageMode === 'scroll' && (that.locate('bookContainer')[0].offsetHeight + that.locate('bookContainer').scrollTop())  >= that.locate('bookContainer')[0].scrollHeight) {
+                // continous scroll till the end of book
+                that.next_chapter();
+                that.locate('bookContainer').scrollTop(0);
             }
         };
 
@@ -571,6 +575,11 @@ var fluid_1_4 = fluid_1_4 || {};
                     current_selection = {};
                     that.previous_chapter();
                 }
+            } else if (that.options.pageMode === 'scroll' && that.locate('bookContainer').scrollTop() === 0) {
+                // continous scroll till the beginning  of book
+                current_selection = {};
+                that.previous_chapter();
+                that.locate('bookContainer').scrollTop(that.locate('bookContainer')[0].scrollHeight - that.locate('bookContainer')[0].offsetHeight);
             }
         };
 
