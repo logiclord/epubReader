@@ -5,7 +5,7 @@ var fluid_1_4 = fluid_1_4 || {};
 
 (function ($, fluid) {
 
-   // fluid.setLogging(true);
+    //fluid.setLogging(true);
     function useMSXHR() {
         return typeof ActiveXObject === 'function';
     }
@@ -379,18 +379,50 @@ var fluid_1_4 = fluid_1_4 || {};
             maxImageHeight: '{epubReader}.options.constraints.maxImageHeight',
             maxImageWidth: '{epubReader}.options.constraints.maxImageWidth'
         },
+        pageMode: 'split',
         selectors: {
             remaining: '#remaining',
             chapterStyle: '#chapter_style',
             chapterContent: '#content',
-            toc: '#toc'
+            toc: '#toc',
+            bookContainer: '#book',
+            remainingWrapper: '#total-size'
         },
         events: {
-            onContentLoad: null
+            onContentLoad: null,
+            onUIOptionsUpdate: '{bookHandler}.events.onUIOptionsUpdate'
         },
-        finalInitFunction: 'fluid.epubReader.bookHandler.navigator.finalInit'
-
+        listeners: {
+            onUIOptionsUpdate: '{navigator}.requestContentLoad'
+        },
+        finalInitFunction: 'fluid.epubReader.bookHandler.navigator.finalInit',
+        preInitFunction: 'fluid.epubReader.bookHandler.navigator.preInit'
     });
+
+    fluid.epubReader.bookHandler.navigator.preInit = function (that) {
+        // to adjust navigator according to page mode
+
+        that.requestContentLoad = function (newMode) {
+            if (that.options.pageMode === 'scroll' && newMode === 'scroll') {
+                return;
+            } else if (that.options.pageMode === 'split' && newMode === 'split') {
+                // readjust current chapter pages and bounce to first page
+                that.locate('toc').find('.selected').click();
+            } else {
+                that.options.pageMode = newMode;
+                if (that.options.pageMode === 'split') {
+                    that.locate('remainingWrapper').show();
+                    that.locate('chapterContent').css('overflow', 'hidden');
+                    that.locate('bookContainer').css('overflow-y', 'hidden');
+                } else if (that.options.pageMode === 'scroll') {
+                    that.locate('remainingWrapper').hide();
+                    that.locate('chapterContent').css('overflow', 'visible');
+                    that.locate('bookContainer').css('overflow-y', 'auto');
+                }
+                that.locate('toc').find('.selected').click();
+            }
+        };
+    };
 
     fluid.epubReader.bookHandler.navigator.finalInit = function (that) {
         var abs_container_bottom = 600, // height of TOC widget
@@ -399,6 +431,8 @@ var fluid_1_4 = fluid_1_4 || {};
             current_selection = {},//= {from : 0, to : current_selection_height};
             pagination = []; // to keep track about forward and backward pagination ranges
 
+        // global variable
+        that.options.pageMode = "split"; // scroll is also possible
 
         that.locate('toc').find('a').live('click', function (event) {
             event.preventDefault();
@@ -422,15 +456,19 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.selectionWrapper = function () {
-            that.locate('chapterContent').find(':hidden').show();
-            var toHide = [],
-                ret = that.createSelection(that.locate('chapterContent'), toHide),
-                i = 0;
-            for (i = 0; i < toHide.length; i = i + 1) {
-                toHide[i].hide();
+            if (that.options.pageMode === 'split') {
+                that.locate('chapterContent').find(':hidden').show();
+                var toHide = [],
+                    ret = that.createSelection(that.locate('chapterContent'), toHide),
+                    i = 0;
+                for (i = 0; i < toHide.length; i = i + 1) {
+                    toHide[i].hide();
+                }
+                that.updateProgressbar();
+                return ret;
+            } else if (that.options.pageMode === 'scroll') {
+                return true;
             }
-            that.updateProgressbar();
-            return ret;
         };
 
         that.updateProgressbar = function () {
@@ -486,6 +524,7 @@ var fluid_1_4 = fluid_1_4 || {};
 
             //TODO Improve on load listener for already cached images
             // undefined case for firefox
+
             if (that.locate('chapterContent').find('img:first').height() === 0 || that.locate('chapterContent').find('img:first').attr('height') === undefined) {
                 that.locate('chapterContent').find('img:last').load(function () {
                     that.locate('chapterContent').find('img').each(function () {
@@ -501,32 +540,37 @@ var fluid_1_4 = fluid_1_4 || {};
                 current_chapter.height = that.locate('chapterContent').height();
                 that.selectionWrapper();
             }
+
             return false;
         };
 
         that.next = function () {
-            pagination.push({from: current_selection.from, to: current_selection.to});
-            current_selection.from = current_selection.to + 1;
-            current_selection.to = current_selection.from + current_selection_height;
+            if (that.options.pageMode === 'split') {
+                pagination.push({from: current_selection.from, to: current_selection.to});
+                current_selection.from = current_selection.to + 1;
+                current_selection.to = current_selection.from + current_selection_height;
 
-            if (current_selection.from < current_chapter.height) {
-                if (that.selectionWrapper() === false) {
-                    that.next();
+                if (current_selection.from < current_chapter.height) {
+                    if (that.selectionWrapper() === false) {
+                        that.next();
+                    }
+                } else {
+                    that.next_chapter();
                 }
-            } else {
-                that.next_chapter();
             }
         };
 
         that.previous = function () {
-            current_selection = pagination.pop();
-            if (current_selection !== undefined && current_selection.to > that.locate('chapterContent').offset().top) {
-                if (that.selectionWrapper() === false) {
-                    that.previous();
+            if (that.options.pageMode === 'split') {
+                current_selection = pagination.pop();
+                if (current_selection !== undefined && current_selection.to > that.locate('chapterContent').offset().top) {
+                    if (that.selectionWrapper() === false) {
+                        that.previous();
+                    }
+                } else {
+                    current_selection = {};
+                    that.previous_chapter();
                 }
-            } else {
-                current_selection = {};
-                that.previous_chapter();
             }
         };
 
@@ -583,7 +627,9 @@ var fluid_1_4 = fluid_1_4 || {};
                         remaining: '{bookHandler}.options.selectors.remaining',
                         chapterStyle: '{bookHandler}.options.selectors.chapterStyle',
                         chapterContent: '{bookHandler}.options.selectors.chapterContent',
-                        toc: '{bookHandler}.options.selectors.toc'
+                        toc: '{bookHandler}.options.selectors.toc',
+                        bookContainer: '{bookHandler}.options.selectors.bookContainer',
+                        remainingWrapper: '{epubReader}.options.selectors.remainingWrapper'
                     },
                     listeners: {
                         onContentLoad: '{epubReader}.loadContent'
@@ -599,6 +645,9 @@ var fluid_1_4 = fluid_1_4 || {};
             toc: '{epubReader}.options.selectors.toc',
             bookContainer: '{epubReader}.options.selectors.bookContainer'
         },
+        events: {
+            onUIOptionsUpdate: null
+        },
         finalInitFunction: 'fluid.epubReader.bookHandler.finalInit'
     });
 
@@ -606,16 +655,16 @@ var fluid_1_4 = fluid_1_4 || {};
 
         that.locate('bookContainer').bind('keydown', function (e) {
             var code = e.keyCode || e.which;
-            if (code === 39) { //  right
+            if (code === 40) { //  right 40
                 that.navigator.next();
             }
-            if (code === 37) { // left
+            if (code === 38) { // left 38
                 that.navigator.previous();
             }
-            if (code === 40) { // down
+            if (code === 39) { // down 39
                 that.navigator.next_chapter();
             }
-            if (code === 38) { // up
+            if (code === 37) { // up 37
                 that.navigator.previous_chapter();
             }
         });
@@ -643,6 +692,7 @@ var fluid_1_4 = fluid_1_4 || {};
         selectors: {
             contentTitle: '.content-title',
             remaining: '#remaining',
+            remainingWrapper: '#total-size',
             chapterStyle: '#chapter_style',
             chapterContent: '#content',
             toc: '#toc',

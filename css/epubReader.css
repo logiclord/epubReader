@@ -30,6 +30,7 @@
     height: 600px;
     background-color: #FFFFFF;
     padding: 0;
+    overflow: hidden;
 }
 
 a:visited, a:link {
@@ -74,15 +75,15 @@ h1 {
     width: 750px;
     /*height: 500px;*/
     min-height: 500px;
-    overflow: hidden;
     position: absolute;
     padding: 25px;
+    overflow: hidden;
 }
 
 #total-size {
     margin-left: auto;
     margin-right: auto;
-    margin-top: 20px;
+    margin-top: 10px;
     width: 500px;
     height: 5px;
     border: 1px solid rgb(200, 200, 200);
