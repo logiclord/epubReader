@@ -402,7 +402,10 @@ var fluid_1_4 = fluid_1_4 || {};
     fluid.epubReader.bookHandler.navigator.preInit = function (that) {
         // to adjust navigator according to page mode
 
-        that.requestContentLoad = function (newMode) {
+        that.requestContentLoad = function (selection) {
+            console.log("inside new selection");
+            console.log(selection);
+            var newMode = selection.pageMode;
             if (that.options.pageMode === 'scroll' && newMode === 'scroll') {
                 return;
             } else if (that.options.pageMode === 'split' && newMode === 'split') {

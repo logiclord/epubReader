@@ -57,9 +57,6 @@ var fluid_1_4 = fluid_1_4 || {};
     fluid.defaults('fluid.uiOptions.epubReaderOptions', {
         gradeNames: ['fluid.uiOptions.inline'],
         container: '{epubReader}.container',
-        events: {
-            onUIOptionsUpdate: '{bookHandler}.events.onUIOptionsUpdate'
-        },
         derivedDefaults: {
             templateLoader: {
                 options: {
@@ -104,27 +101,20 @@ var fluid_1_4 = fluid_1_4 || {};
                             }
                         }
                     },
+                    events: {
+                        onSave  : '{bookHandler}.events.onUIOptionsUpdate'
+                    },
                     listeners: {
                         onReset: function (uiOptions) {
                             uiOptions.save();
-                        },
-                        onSave: '{fluid.uiOptions.epubReaderOptions}.onSaveHandler'
+                        }
                     }
                 }
             }
-        },
-        preInitFunction: 'fluid.uiOptions.epubReaderOptions.preInit'
+        }
     });
 
     fluid.uiOptions.inline.makeCreator('fluid.uiOptions.epubReaderOptions', fluid.identity);
-
-    fluid.uiOptions.epubReaderOptions.preInit = function (that) {
-           that.onSaveHandler = function (selection) {
-               console.log("inside selection");
-               console.log(selection);
-               that.events.onUIOptionsUpdate.fire(selection.pageMode);
-        };
-    };
 
     fluid.defaults('fluid.epubReader.uiController', {
         gradeNames: ['fluid.littleComponent', 'autoInit'],
