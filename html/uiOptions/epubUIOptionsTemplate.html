@@ -1,11 +1,36 @@
 <form id="options" action="" class="fl-uiOptions fl-uiOptions-optionPanel">
-    <div class="flc-uiOptions-controls">
-        <h2 class="fl-uiOptions-h2tag fl-col-fixed fl-force-left fl-uiOptions-text-icon">CUSTOMIZE</h2>
-        <div class="fl-uiOptions-text fl-clearfix flc-uiOptions-text-controls"></div>
-        <div class="fl-uiOptions-text fl-clearfix flc-uiOptions-epub-controls"></div>
-        <div class="fl-uiOptions-buttons fl-clearfix">
-            <input class="flc-uiOptions-reset fl-uiOptions-reset fl-force-right" type="button" value="Reset and apply" />
-            <input class="flc-uiOptions-save fl-uiOptions-save fl-force-right" type="button" value="Save and apply" />
+        <div class="flc-uiOptions-controls">
+            <div class="fl-uiOptions-buttons fl-clearfix fl-force-right">
+                <input class="flc-uiOptions-reset fl-uiOptions-reset fl-force-right" type="button" value="Reset and apply" />
+                <input class="flc-uiOptions-save fl-uiOptions-save fl-force-right" type="button" value="Save and apply" />
+            </div>
+            <ul class="fl-tabs fl-tabs-left fl-clearfix fl-inverted-color">
+                <li><a href="#tab1" class="fl-tab-text">Text and display</a></li>
+                <li><a href="#tab2" class="fl-tab-layout">eBook Settings</a></li>
+            </ul>
+            <div id="tab1" class="fl-uiOptions-text fl-clearfix flc-uiOptions-text-controls"></div>
+            <div id="tab2" class="fl-uiOptions-text fl-clearfix flc-uiOptions-epub-controls"></div>
         </div>
-    </div>
 </form>
+<!--
+
+<form id="options" action="" class="flc-uiOptions-fatPanel-tabs fl-uiOptions fl-uiOptions-fatPanel">
+    <div class="flc-uiOptions-controls">
+        <div class="fl-force-right fl-inverted-color">
+            <a id="reset" class="flc-uiOptions-reset fl-uiOptions-reset" href="#">Reset All</a>
+        </div>
+        <ul class="fl-tabs fl-tabs-left fl-clearfix fl-inverted-color">
+            <li><a href="#tab1" class="fl-tab-text">Text and display</a></li>
+            <li><a href="#tab2" class="fl-tab-layout">Layout and navigation</a></li>
+            <li><a href="#tab3" class="fl-tab-links">Links and buttons</a></li>
+        </ul>
+
+        <div id="tab1" class="flc-uiOptions-text-controls fl-uiOptions-text"></div>
+        <div id="tab2" class="flc-uiOptions-layout-controls fl-uiOptions-layout"></div>
+        <div id="tab3" class="flc-uiOptions-links-controls fl-uiOptions-links"></div>
+    </div>
+
+</form>
+
+
+-->

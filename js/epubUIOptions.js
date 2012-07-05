@@ -107,6 +107,13 @@ var fluid_1_4 = fluid_1_4 || {};
                     listeners: {
                         onReset: function (uiOptions) {
                             uiOptions.save();
+                        },
+                        onUIOptionsComponentReady: {
+                            listener: function(that){
+                                // activating tabs
+                                that.container.find('form').filter('.fl-uiOptions-optionPanel').tabs({ fx: { height: 'toggle' } });
+                            },
+                            priority: 'last'
                         }
                     }
                 }
