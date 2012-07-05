@@ -544,6 +544,9 @@ var fluid_1_4 = fluid_1_4 || {};
                 that.selectionWrapper();
             }
 
+            if (that.options.pageMode === 'scroll') {
+                that.locate('bookContainer').scrollTop(0);
+            }
             return false;
         };
 
@@ -563,7 +566,6 @@ var fluid_1_4 = fluid_1_4 || {};
             } else if (that.options.pageMode === 'scroll' && (that.locate('bookContainer')[0].offsetHeight + that.locate('bookContainer').scrollTop())  >= that.locate('bookContainer')[0].scrollHeight) {
                 // continous scroll till the end of book
                 that.next_chapter();
-                that.locate('bookContainer').scrollTop(0);
             }
         };
 
