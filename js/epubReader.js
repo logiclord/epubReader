@@ -403,7 +403,7 @@ var fluid_1_4 = fluid_1_4 || {};
         // to adjust navigator according to page mode
 
         that.requestContentLoad = function (selection) {
-            console.log("inside new selection");
+            console.log('inside new selection');
             console.log(selection);
             var newMode = selection.pageMode;
             if (that.options.pageMode === 'scroll' && newMode === 'scroll') {
@@ -435,7 +435,7 @@ var fluid_1_4 = fluid_1_4 || {};
             pagination = []; // to keep track about forward and backward pagination ranges
 
         // global variable
-        that.options.pageMode = "split"; // scroll is also possible
+        that.options.pageMode = 'split'; // scroll is also possible
 
         that.locate('toc').find('a').live('click', function (event) {
             event.preventDefault();
@@ -742,7 +742,7 @@ var fluid_1_4 = fluid_1_4 || {};
 
     fluid.epubReader.finalInit = function (that) {
         // keyboard accessibility experiment
-        that.locate('bookContainer').fluid("tabbable");
+        that.locate('bookContainer').fluid('tabbable');
 
         // Parsing ebook onload
         that.filefacilitator.getEpubFile(that.options.book.epubPath);

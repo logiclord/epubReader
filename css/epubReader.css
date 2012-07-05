@@ -7,22 +7,6 @@
     left: 0;
 }
 
-.clear:after, .book:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
-    visibility: hidden;
-}
-.centerAlign {
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.clear {
-    display: block;
-}
-
 #book {
     position: relative;
     top: 0;
@@ -54,7 +38,6 @@ a.selected {
     margin: 0;
     padding: 1em 1em 10em 1em;
 }
-
 
 h1 {
     line-height: 1em;

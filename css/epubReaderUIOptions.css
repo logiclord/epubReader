@@ -16,33 +16,12 @@
     border-bottom: 1px solid #ccc;
 }
 
-/* IFrame */
-.fl-uiOptions-optionPanel-iframe {
-    border: 0;
-    background-color: #fff;
-    height: 0;
-}
-
-.fl-uiOptions .fl-uiOptions-buttons {
-    margin-top: -20px;
-    float: none;
-    margin-bottom: 5px;
-    margin-right: 5px;
-}
-
 .flc-uiOptions-text-controls li,
 .flc-uiOptions-epub-controls li {
     display: table-cell;
     vertical-align: top;
     text-align: left;
     padding-left: 15px;
-}
-
-.fl-uiOptions h2 {
-    vertical-align: top;
-    font-size: 20px;
-    font-weight: bold;
-    margin-right: 10px;
 }
 
 .fl-theme-bw #remaining {
@@ -69,12 +48,6 @@
     text-align: left;
 }
 
-.fl-uiOptions-h2tag {
-    margin-top: 0;
-    margin-left: 25px;
-    margin-bottom: 5px;
-}
-
 .flc-font-custom {
     font-family: arial;
     font-weight: bold;
@@ -83,9 +56,9 @@
 .fl-uiOptions-optionPanel ul.fl-tabs {
     background-color: #333333;
     color: #fff;
-    margin-top: 0px;
+    margin-top: 0;
     border-bottom: none;
-    font-size: 17px;
+    font-size: 16px;
 }
 
 .fl-uiOptions-optionPanel .fl-tabs li a {
@@ -93,7 +66,7 @@
     color: #fff;
     text-transform: uppercase;
     font-weight: bold;
-    border: 0px;
+    border: 0;
     padding: 0.5em 1em 0.5em 2em !important;
 }
 

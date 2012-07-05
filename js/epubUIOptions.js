@@ -2,48 +2,49 @@ var fluid_1_4 = fluid_1_4 || {};
 
 (function ($, fluid) {
 
-    fluid.demands("fluid.uiOptions.epubControls", ["fluid.uiOptions"], {
+    fluid.demands('fluid.uiOptions.epubControls', ['fluid.uiOptions'], {
         options: {
-            classnameMap: "{uiEnhancer}.options.classnameMap"
+            classnameMap: '{uiEnhancer}.options.classnameMap'
         }
     });
 
-    fluid.defaults("fluid.uiOptions.epubControls", {
-        gradeNames: ["fluid.rendererComponent", "autoInit"],
+    fluid.defaults('fluid.uiOptions.epubControls', {
+        gradeNames: ['fluid.rendererComponent', 'autoInit'],
         strings: {
-            pageMode: ["Split Pages", "Scroll Pages"]
+            pageMode: ['Split Pages', 'Scroll Pages']
         },
         controlValues: {
-            pageMode: ["split", "scroll"]
+            pageMode: ['split', 'scroll']
         },
         selectors: {
-            pageMode: ".flc-uiOptions-page-mode"
+            pageMode: '.flc-uiOptions-page-mode'
         },
         events: {
             onUIOptionsRefresh: null
         },
         listeners: {
-            onUIOptionsRefresh: "{epubControls}.refreshView"
+            onUIOptionsRefresh: '{epubControls}.refreshView'
         },
-        preInitFunction: "fluid.uiOptions.lateRefreshViewBinder",
-        finalInitFunction: "fluid.uiOptions.controlsFinalInit",
-        produceTree: "fluid.uiOptions.epubControls.produceTree",
+        preInitFunction: 'fluid.uiOptions.lateRefreshViewBinder',
+        finalInitFunction: 'fluid.uiOptions.controlsFinalInit',
+        produceTree: 'fluid.uiOptions.epubControls.produceTree',
         resources: {
-            template: "{templateLoader}.resources.epubControls"
+            template: '{templateLoader}.resources.epubControls'
         }
     });
 
     fluid.uiOptions.epubControls.produceTree = function (that) {
-        var tree = {};
-        for (var item in that.model.selections) {
-            if (item === "pageMode") {
+        var tree = {},
+            item;
+        for (item in that.model.selections) {
+            if (that.model.selections.hasOwnProperty(item) && item === 'pageMode') {
                 tree[item] = {
-                    optionnames: "${labelMap." + item + ".names}",
-                    optionlist: "${labelMap." + item + ".values}",
-                    selection: "${selections." + item + "}",
+                    optionnames: '${labelMap.' + item + '.names}',
+                    optionlist: '${labelMap.' + item + '.values}',
+                    selection: '${selections.' + item + '}',
                     decorators: {
-                        type: "fluid",
-                        func: "fluid.uiOptions.selectDecorator",
+                        type: 'fluid',
+                        func: 'fluid.uiOptions.selectDecorator',
                         options: {
                             styles: that.options.classnameMap[item]
                         }
@@ -62,7 +63,7 @@ var fluid_1_4 = fluid_1_4 || {};
                 options: {
                     components: {
                         templatePath: {
-                            options:{
+                            options: {
                                 value: '../html/uiOptions/'
                             }
                         }
@@ -89,14 +90,14 @@ var fluid_1_4 = fluid_1_4 || {};
                             type: 'fluid.emptySubcomponent'
                         },
                         epubControls: {
-                            type: "fluid.uiOptions.epubControls",
-                            container: "{uiOptions}.dom.epubControls",
-                            createOnEvent: "onUIOptionsComponentReady",
+                            type: 'fluid.uiOptions.epubControls',
+                            container: '{uiOptions}.dom.epubControls',
+                            createOnEvent: 'onUIOptionsComponentReady',
                             options: {
-                                model: "{uiOptions}.model",
-                                applier: "{uiOptions}.applier",
+                                model: '{uiOptions}.model',
+                                applier: '{uiOptions}.applier',
                                 events: {
-                                    onUIOptionsRefresh: "{uiOptions}.events.onUIOptionsRefresh"
+                                    onUIOptionsRefresh: '{uiOptions}.events.onUIOptionsRefresh'
                                 }
                             }
                         }
@@ -109,7 +110,7 @@ var fluid_1_4 = fluid_1_4 || {};
                             uiOptions.save();
                         },
                         onUIOptionsComponentReady: {
-                            listener: function(that){
+                            listener: function (that) {
                                 // activating tabs
                                 that.container.find('form').filter('.fl-uiOptions-optionPanel').tabs({ fx: { height: 'toggle' } });
                             },
