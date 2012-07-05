@@ -47,6 +47,8 @@
     <script type="text/javascript" src="../infusion/components/uiOptions/js/Store.js"></script>  <!-- New in v1.4 -->
     <script type="text/javascript" src="../infusion/components/uiOptions/js/UIEnhancer.js"></script>
     <script type="text/javascript" src="../infusion/components/uiOptions/js/UIOptions.js"></script>
+    <script type="text/javascript" src="../infusion/components/uiOptions/js/FatPanelUIOptions.js"></script>
+    <script type="text/javascript" src="../infusion/components/uiOptions/js/URLUtilities.js"></script>
     <script type="text/javascript" src="../infusion/components/tableOfContents/js/TableOfContents.js"></script>
     <script type="text/javascript" src="../infusion/components/uiOptions/js/SlidingPanel.js"></script>  <!-- New in v1.4 -->
     <!-- ui options -->
@@ -94,7 +96,31 @@
 
 <script type="text/javascript">
 
-    fluid.staticEnvironment.uiEnhancer = fluid.uiEnhancer("#book");
+    // extended to include my custom UI option
+    fluid.staticEnvironment.uiEnhancer = fluid.uiEnhancer("#book", {
+        components: {
+            pageMode: {
+                type: "fluid.uiEnhancer.classSwapper",
+                container: "{uiEnhancer}.container",
+                options: {
+                    classes: "{uiEnhancer}.options.classnameMap.pageMode"
+                }
+            },
+            settingsStore: {
+                options:{
+                    defaultSiteSettings: {
+                        pageMode: "split"
+                    }
+                }
+            }
+        },
+        classnameMap: {
+            "pageMode": {
+                "split": "",
+                "scroll": "fl-font-uio-times"
+            }
+        }
+    });
 
     var temp = fluid.epubReader(".epubReaderContainer",{
         book:{
