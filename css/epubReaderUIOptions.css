@@ -31,7 +31,7 @@
 }
 
 .flc-uiOptions-text-controls li,
-.flc-uiOptions-epub-controls li{
+.flc-uiOptions-epub-controls li {
     display: table-cell;
     vertical-align: top;
     text-align: left;
@@ -211,4 +211,28 @@
 
 .fl-uiOptions-optionPanel .ui-tabs-selected .fl-tab-layout {
     background-image: url('../images/uio_icon_layoutandnavigation_default_16x16.png');
+}
+
+.fl-uiOptions-optionPanel #reset,
+.fl-uiOptions-optionPanel #save {
+    background-color: #333333;
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 1px 20px 1px 27px;
+    text-decoration: underline;
+}
+
+.fl-uiOptions-optionPanel #reset {
+    background-image: url('../images/uio_icon_reset_defaultInverted_16x16.png');
+    background-repeat: no-repeat;
+}
+
+.fl-uiOptions-optionPanel #save {
+    background-image: url('../images/uio_icon_save_default_13x13.png');
+    background-repeat: no-repeat;
+}
+
+.flc-padding-top8 {
+    padding-top: 8px;
 }
