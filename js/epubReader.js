@@ -1,5 +1,5 @@
 // Declare dependencies
-/*global fluid_1_5:true, jQuery, JSZip, JSZipBase64*/
+/*global fluid_1_4:true, jQuery, JSZip, JSZipBase64*/
 
 var fluid_1_4 = fluid_1_4 || {};
 
@@ -201,7 +201,7 @@ var fluid_1_4 = fluid_1_4 || {};
             domCode = $('<div/>').append(domCode);
 
             // applying stylesheets of current chapter to our ebook
-            // everything is going to be added to #content which will be overwritten for eah chapter
+            // everything is going to be added to .flc-epubReader-chapter-content which will be overwritten for eah chapter
             // Hence no need to track stylesheets
             domCode.find('link').each(
                 function () {
@@ -262,7 +262,7 @@ var fluid_1_4 = fluid_1_4 || {};
         gradeNames: ['fluid.viewComponent', 'autoInit'],
         selectors: {
             toc: '#toc',
-            contentTitle: '.content-title'
+            contentTitle: '.flc-epubReader-chapter-title'
         },
         epubVersion: 2,
         finalInitFunction: 'fluid.epubReader.bookHandler.parser.finalInit'
@@ -381,12 +381,12 @@ var fluid_1_4 = fluid_1_4 || {};
         },
         pageMode: 'split',
         selectors: {
-            remaining: '#remaining',
-            chapterStyle: '#chapter_style',
-            chapterContent: '#content',
+            remaining: '.flc-epubReader-progressIndicator-completed',
+            chapterStyle: '.flc-epubReader-chapter-styles',
+            chapterContent: '.flc-epubReader-chapter-content',
             toc: '#toc',
-            bookContainer: '#book',
-            remainingWrapper: '#total-size'
+            bookContainer: '.fl-epubReader-bookContainer',
+            remainingWrapper: '.fl-epubReader-progressIndicator'
         },
         events: {
             onContentLoad: null,
@@ -525,9 +525,8 @@ var fluid_1_4 = fluid_1_4 || {};
             that.locate('chapterStyle').html(current_chapter.styles);
             that.locate('chapterContent').find('img').css({'max-width': '400px', 'max-height': '300px', 'height': 'auto', 'width': 'auto'});
 
-            //TODO Improve on load listener for already cached images
+            //TODO Improve on load listener for already cached images if possible
             // undefined case for firefox
-
             if (that.locate('chapterContent').find('img:first').height() === 0 || that.locate('chapterContent').find('img:first').attr('height') === undefined) {
                 that.locate('chapterContent').find('img:last').load(function () {
                     that.locate('chapterContent').find('img').each(function () {
@@ -704,15 +703,15 @@ var fluid_1_4 = fluid_1_4 || {};
             }
         },
         selectors: {
-            contentTitle: '.content-title',
-            remaining: '#remaining',
-            remainingWrapper: '#total-size',
-            chapterStyle: '#chapter_style',
-            chapterContent: '#content',
+            contentTitle: '.flc-epubReader-chapter-title',
+            remaining: '.flc-epubReader-progressIndicator-completed',
+            remainingWrapper: '.fl-epubReader-progressIndicator',
+            chapterStyle: '.flc-epubReader-chapter-styles',
+            chapterContent: '.flc-epubReader-chapter-content',
             toc: '#toc',
-            bookContainer: '#book',
-            uiOptionsContainer: '#epubUIOptions',
-            uiOptionsButton: '#uiOptions-button'
+            bookContainer: '.fl-epubReader-bookContainer',
+            uiOptionsContainer: '.flc-epubReader-uiOptions-container',
+            uiOptionsButton: '.fl-epubReader-uiOptions-button'
         },
         strings: {
             uiOptionShowText: '+ UI Options',
@@ -723,7 +722,7 @@ var fluid_1_4 = fluid_1_4 || {};
             isBase64: false
         },
         constraints: {
-            maxImageHeight: 300,
+            maxImageHeight: 400,
             maxImageWidth: 400
         },
         preInitFunction: 'fluid.epubReader.preInitFunction',
@@ -743,8 +742,14 @@ var fluid_1_4 = fluid_1_4 || {};
     };
 
     fluid.epubReader.finalInit = function (that) {
+
         // keyboard accessibility experiment
         that.locate('bookContainer').fluid('tabbable');
+
+        that.locate('bookContainer').focus(function () {
+            $('html, body').animate({ scrollTop: $(this).offset().top }, 500);
+        });
+
 
         // Parsing ebook onload
         that.filefacilitator.getEpubFile(that.options.book.epubPath);

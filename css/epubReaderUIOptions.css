@@ -24,19 +24,19 @@
     padding-left: 15px;
 }
 
-.fl-theme-bw #remaining {
+.fl-theme-bw .flc-epubReader-progressIndicator-completed {
     background-color: #000000 !important;
 }
 
-.fl-theme-wb #remaining {
+.fl-theme-wb .flc-epubReader-progressIndicator-completed {
     background-color: #fff !important;
 }
 
-.fl-theme-by #remaining {
+.fl-theme-by .flc-epubReader-progressIndicator-completed {
     background-color: #000 !important;
 }
 
-.fl-theme-yb #remaining {
+.fl-theme-yb .flc-epubReader-progressIndicator-completed {
     background-color: #ffff00 !important;
 }
 

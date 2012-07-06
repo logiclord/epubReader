@@ -1,3 +1,5 @@
+/*global fluid_1_4:true, jQuery, JSZip, JSZipBase64*/
+
 var fluid_1_4 = fluid_1_4 || {};
 
 (function ($, fluid) {
@@ -112,7 +114,11 @@ var fluid_1_4 = fluid_1_4 || {};
                         onUIOptionsComponentReady: {
                             listener: function (that) {
                                 // activating tabs
-                                that.container.find('form').filter('.fl-uiOptions-optionPanel').tabs({ fx: { height: 'toggle' } });
+                                fluid.tabs('form.fl-uiOptions-optionPanel', {
+                                    tabOptions: {
+                                        fx: { height: 'toggle' }
+                                    }
+                                });
                             },
                             priority: 'last'
                         }
