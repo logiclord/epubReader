@@ -5,7 +5,7 @@ var fluid_1_4 = fluid_1_4 || {};
 
 (function ($, fluid) {
 
-    //fluid.setLogging(true);
+    fluid.setLogging(true);
 
     fluid.defaults('fluid.epubReader.bookHandler.parser', {
         gradeNames: ['fluid.viewComponent', 'autoInit'],
@@ -221,10 +221,10 @@ var fluid_1_4 = fluid_1_4 || {};
                     toHide[i].hide();
                 }
                 that.updateProgressbar();
-                that.locate('bookContainer').fluid("activate");
+                that.locate('bookContainer').fluid('activate');
                 return ret;
             } else if (that.options.pageMode === 'scroll') {
-                that.locate('bookContainer').fluid("activate");
+                that.locate('bookContainer').fluid('activate');
                 return true;
             }
         };
@@ -430,12 +430,13 @@ var fluid_1_4 = fluid_1_4 || {};
         });
 
         // to activate individual elements
-        that.locate('bookContainer').fluid("activatable",  function (evt) {
-            that.locate('bookContainer').fluid("selectable", {
+        that.locate('bookContainer').fluid('activatable',  function (evt) {
+            that.locate('bookContainer').fluid('selectable', {
                 selectableSelector: that.options.selectors.chapterContent + ' :visible'
             });
         });
 
+        // shift + arrow keys for navigation
         that.locate('bookContainer').bind('keydown', function (e) {
             var code = e.keyCode || e.which;
             if (code  === 40 && e.shiftKey) {
@@ -451,6 +452,7 @@ var fluid_1_4 = fluid_1_4 || {};
             if (code  === 37 && e.shiftKey) {
                 that.navigator.previous_chapter();
             }
+            $(this).focus();
         });
 
     };
@@ -483,11 +485,17 @@ var fluid_1_4 = fluid_1_4 || {};
             toc: '#toc',
             bookContainer: '.fl-epubReader-bookContainer',
             uiOptionsContainer: '.flc-epubReader-uiOptions-container',
-            uiOptionsButton: '.fl-epubReader-uiOptions-button'
+            uiOptionsButton: '.fl-epubReader-uiOptions-button',
+            navigationContainer: '.fl-epubReader-navigationContaniner',
+            navigationButton: '.fl-epubReader-navigation-button',
+            epubControls: '.flc-uiOptions-epub-controls',
+            slidingTabsSelector: '.fl-epubReader-tabsPanel'
         },
         strings: {
             uiOptionShowText: '+ UI Options',
-            uiOptionHideText: '- UI Options'
+            uiOptionHideText: '- UI Options',
+            navigationShowText: '+ Navigation',
+            navigationHideText: '- Navigation'
         },
         book: {
             epubPath: '../epubs/potter-tale-of-peter-rabbit-illustrations.epub',

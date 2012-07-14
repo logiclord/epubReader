@@ -74,98 +74,11 @@
     margin-left: 50px;
 }
 
-/* Tabs */
-.fl-uiOptions-optionPanel ul.fl-tabs {
-    background-color: #333333;
-    color: #fff;
-    margin-top: 0px;
-    border-bottom: none;
-}
-
-.fl-uiOptions-optionPanel .fl-tabs li a {
-    background-color: #333333;
-    color: #fff;
-    text-transform: uppercase;
-    font-weight: bold;
-    border: 0px;
-}
-
-.fl-uiOptions-optionPanel ul.fl-tabs li:first-child a {
-    margin-left: -10px;
-}
-
-.fl-uiOptions-optionPanel .fl-tabs .ui-tabs-selected a {
-    background-color: #fff;
-    color: #000;
-}
-
-/* jQuery UI Tabs styles */
-.fl-uiOptions-optionPanel.ui-tabs {
-    position: relative;
-    zoom: 1;
-    padding: 0px;
-}
-
-/* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") */
-.fl-uiOptions-optionPanel.ui-tabs .ui-tabs-panel {
-    display: block;
-    border-width: 0;
-    padding: 0em 0em 1.2em 1.4em;
-    background: #FFFFFF;
-}
-
-.fl-uiOptions-optionPanel.ui-tabs .ui-tabs-hide {
-    display: none !important;
-}
-
-.fl-uiOptions-optionPanel.ui-tabs .ui-tabs-nav {
-    padding: 0px;
-}
-
-.fl-uiOptions-optionPanel.ui-tabs .ui-tabs-nav li {
-    top: 0px;
-    margin: 0px;
-}
-
-.fl-uiOptions-optionPanel.ui-tabs .ui-tabs-nav li a {
-    float: left;
-    padding: 1em 1.5em 1em 3em;
-}
-
-.fl-uiOptions-optionPanel.ui-tabs .ui-state-default {
-    border: none;
-}
-
-.fl-uiOptions-optionPanel.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
-    padding-bottom: 0px;
-}
-
-.fl-uiOptions-optionPanel .fl-tabs .ui-corner-top {
-    -moz-border-radius-topleft: 0px;
-    -moz-border-radius-topright: 0px;
-}
-
-.fl-uiOptions-optionPanel .fl-tabs .ui-corner-all {
-    -moz-border-radius: 0px;
-}
-
-.fl-uiOptions-optionPanel.ui-widget-content {
-    border: none;
-}
-
-.fl-uiOptions-optionPanel.ui-tabs .ui-widget-header {
-    background: none;
-    border: 0px;
-    background-color: #333333;
-}
-
-.fl-uiOptions-optionPanel.ui-tabs .ui-tabs-panel ul {
-    margin: 0em;
-    padding-top: 1.5em;
-}
-
 /* Tab images */
-.fl-uiOptions-optionPanel .fl-tab-text, .fl-uiOptions-optionPanel .fl-tab-layout, .fl-uiOptions-optionPanel .fl-tab-links, .fl-uiOptions-optionPanel #reset {
+.fl-uiOptions-optionPanel .fl-tab-text,
+.fl-uiOptions-optionPanel .fl-tab-ebookSetting,
+.fl-uiOptions-optionPanel .fl-tab-links,
+.fl-uiOptions-optionPanel #reset {
     background-repeat: no-repeat;
     background-position: 8% 50%;
 }
@@ -174,16 +87,16 @@
     background-image: url('../images/uio_icon_textanddisplay_defaultInverted_16x16.png');
 }
 
-.fl-uiOptions-optionPanel .fl-tab-layout {
-    background-image: url('../images/uio_icon_layoutandnavigation_defaultInverted_16x16.png');
+.fl-uiOptions-optionPanel .fl-tab-ebookSetting {
+    background-image: url('../images/epubReader_icon_ebookSetting_defaultInverted_16x16.png');
 }
 
 .fl-uiOptions-optionPanel .ui-tabs-selected .fl-tab-text {
     background-image: url('../images/uio_icon_textanddisplay_default_16x16.png');
 }
 
-.fl-uiOptions-optionPanel .ui-tabs-selected .fl-tab-layout {
-    background-image: url('../images/uio_icon_layoutandnavigation_default_16x16.png');
+.fl-uiOptions-optionPanel .ui-tabs-selected .fl-tab-ebookSetting {
+    background-image: url('../images/epubReader_icon_ebookSetting_default_16x16.png');
 }
 
 .fl-uiOptions-optionPanel #reset,

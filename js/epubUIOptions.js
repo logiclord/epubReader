@@ -57,6 +57,18 @@ var fluid_1_4 = fluid_1_4 || {};
         return tree;
     };
 
+    fluid.demands('fluid.navigationOptions.slidingPanel', ['fluid.epubReader.uiController'], {
+        funcName: 'fluid.slidingPanel'
+    });
+
+    fluid.demands('fluid.navigationOptions.tabs', ['fluid.epubReader.uiController'], {
+        funcName: 'fluid.tabs'
+    });
+
+    fluid.demands('fluid.epubReaderOptions.slidingPanel', ['fluid.epubReader.uiController'], {
+        funcName: 'fluid.slidingPanel'
+    });
+
     fluid.defaults('fluid.uiOptions.epubReaderOptions', {
         gradeNames: ['fluid.uiOptions.inline'],
         container: '{epubReader}.container',
@@ -79,7 +91,8 @@ var fluid_1_4 = fluid_1_4 || {};
             uiOptions: {
                 options: {
                     selectors: {
-                        epubControls: '.flc-uiOptions-epub-controls'
+                        epubControls: '{epubReader}.options.selectors.epubControls',
+                        slidingTabsSelector: '{epubReader}.options.selectors.slidingTabsSelector'
                     },
                     components: {
                         preview: {
@@ -114,7 +127,7 @@ var fluid_1_4 = fluid_1_4 || {};
                         onUIOptionsComponentReady: {
                             listener: function (that) {
                                 // activating tabs
-                                fluid.tabs('form.fl-uiOptions-optionPanel', {
+                                fluid.tabs(that.container.selector + ' ' + that.options.selectors.slidingTabsSelector, {
                                     tabOptions: {
                                         fx: { height: 'toggle' }
                                     }
@@ -130,6 +143,38 @@ var fluid_1_4 = fluid_1_4 || {};
 
     fluid.uiOptions.inline.makeCreator('fluid.uiOptions.epubReaderOptions', fluid.identity);
 
+    fluid.defaults('fluid.epubReader.uiController.navigationOptions', {
+        gradeNames: ['fluid.littleComponent', 'autoInit'],
+        components: {
+            navigationslider: {
+                type: 'fluid.navigationOptions.slidingPanel',
+                container: '{epubReader}.container',
+                options: {
+                    selectors: {
+                        panel: '{epubReader}.options.selectors.navigationContainer',
+                        toggleButton: '{epubReader}.options.selectors.navigationButton'
+                    },
+                    hideByDefault: true,
+                    strings: {
+                        showText: '{epubReader}.options.strings.navigationShowText',
+                        hideText: '{epubReader}.options.strings.navigationHideText'
+                    }
+                }
+            },
+            navigationtabs: {
+                type: 'fluid.navigationOptions.tabs',
+                container: '{epubReader}.options.selectors.navigationContainer',
+                options: {
+                    tabOptions: {
+                        fx: {
+                            height: 'toggle'
+                        }
+                    }
+                }
+            }
+        }
+    });
+
     fluid.defaults('fluid.epubReader.uiController', {
         gradeNames: ['fluid.littleComponent', 'autoInit'],
         components: {
@@ -138,7 +183,7 @@ var fluid_1_4 = fluid_1_4 || {};
                 container: '{epubReader}.options.selectors.uiOptionsContainer'
             },
             uioptionslider: {
-                type: 'fluid.slidingPanel',
+                type: 'fluid.epubReaderOptions.slidingPanel',
                 container: '{epubReader}.container',
                 options: {
                     selectors: {
@@ -151,6 +196,9 @@ var fluid_1_4 = fluid_1_4 || {};
                         hideText: '{epubReader}.options.strings.uiOptionHideText'
                     }
                 }
+            },
+            navigationoptions: {
+                type: 'fluid.epubReader.uiController.navigationOptions'
             }
         }
     });

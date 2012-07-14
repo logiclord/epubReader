@@ -40,14 +40,25 @@
 
         <div class="flc-epubReader-uiOptions-container flc-slidingPanel-panel"></div>
 
-        <!--TODO temporary place holder for table of contents --->
-        <div id="toc-container">
-            <ol id="toc"></ol>
+
+        <div class="fl-epubReader-navigationContaniner  fl-epubReader-tabsPanel">
+                <ul class="fl-tabs fl-tabs-left fl-clearfix fl-inverted-color">
+                    <li><a href="#tabg" class="fl-tab-general">General</a></li>
+                    <li><a href="#tabb" class="fl-tab-bookmarks">Bookmarks</a></li>
+                    <li><a href="#tabn" class="fl-tab-notes" >Notes</a></li>
+                </ul>
+                <div id="tabg" class="fl-clearfix" > hello
+                    <div id="toc-container">
+                        <ol id="toc"></ol>
+                    </div>
+                </div>
+                <div id="tabb" class="fl-clearfix" >Dude</div>
+                <div id="tabn" class="fl-clearfix" >Hi</div>
         </div>
 
         <div class="fl-panelBar">
             <button class="fl-epubReader-uiOptions-button flc-slidingPanel-toggleButton fl-toggleButton"></button>
-            <button  id="toc-button" class="flc-slidingPanel-toggleButton fl-toggleButton" ></button>
+            <button class="fl-epubReader-navigation-button flc-slidingPanel-toggleButton fl-toggleButton" ></button>
         </div>
     </div>
 
@@ -60,7 +71,6 @@
         <div class="flc-epubReader-chapter-styles"></div>
         <div class="flc-epubReader-chapter-content" ></div>
     </div>
-
 </div>
 
 
@@ -97,20 +107,25 @@
             epubPath : "../tests/epubs/carroll-alice-in-wonderland-illustrations.epub"
         }
     });
-
-    fluid.slidingPanel(".fl-epubReader-container",{
-        selectors: {
-            panel: "#toc-container",
-            toggleButton: "#toc-button"
-        },
-        hideByDefault: true,
-        strings: {
-            showText: "+ Index",
-            hideText: "- Index"
+    /*
+    fluid.tabs('.fl-epubReader-navigationContaniner', {
+        tabOptions: {
+            fx: { height: 'toggle' }
         }
     });
 
-
+    fluid.slidingPanel(".fl-epubReader-container",{
+        selectors: {
+            panel: ".fl-epubReader-navigationContaniner",
+            toggleButton: ".fl-epubReader-navigation-button"
+        },
+        hideByDefault: true,
+        strings: {
+            showText: "+ Navigation",
+            hideText: "- Navigation"
+        }
+    });
+*/
 </script>
 
 </body>
