@@ -1,4 +1,4 @@
-/*global fluid_1_4:true, jQuery, JSZip, JSZipBase64*/
+/*global fluid_1_4:true, jQuery */
 
 var fluid_1_4 = fluid_1_4 || {};
 

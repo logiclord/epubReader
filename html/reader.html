@@ -27,10 +27,11 @@
     <script type="text/javascript" src="../lib/JSZip/jszip-load.js"></script>
     <script type="text/javascript" src="../lib/JSZip/jszip-deflate.js"></script>
     <script type="text/javascript" src="../lib/JSZip/jszip-inflate.js"></script>
-    <script type="text/javascript" src="../js/epubReaderFileFacilitator.js"></script>
-    <script type="text/javascript" src="../js/epubUIOptions.js"></script>
-    <script type="text/javascript" src="../js/epubReader.js"></script>
 
+    <script type="text/javascript" src="../js/epubUIOptions.js"></script>
+    <script type="text/javascript" src="../js/epubReaderFileFacilitator.js"></script>
+    <script type="text/javascript" src="../js/epubReaderNavigator.js"></script>
+    <script type="text/javascript" src="../js/epubReader.js"></script>
 
 </head>
 <body>
@@ -47,12 +48,16 @@
                     <li><a href="#tabb" class="fl-tab-bookmarks">Bookmarks</a></li>
                     <li><a href="#tabn" class="fl-tab-notes" >Notes</a></li>
                 </ul>
-                <div id="tabg" class="fl-clearfix" > hello
-                    <div id="toc-container">
-                        <ol id="toc"></ol>
-                    </div>
+                <div id="tabg" class="fl-clearfix" >
+                    <ul class="fl-clearfix">
+                        <li class="fl-epubReader-tocContainer">
+                            <label for="toc">Table of Content</label>
+                            <select class="flc-epubReader-toc" id="toc">
+                            </select>
+                        </li>
+                    </ul>
                 </div>
-                <div id="tabb" class="fl-clearfix" >Dude</div>
+                <div id="tabb" class="fl-clearfix" >hello</div>
                 <div id="tabn" class="fl-clearfix" >Hi</div>
         </div>
 
@@ -107,25 +112,7 @@
             epubPath : "../tests/epubs/carroll-alice-in-wonderland-illustrations.epub"
         }
     });
-    /*
-    fluid.tabs('.fl-epubReader-navigationContaniner', {
-        tabOptions: {
-            fx: { height: 'toggle' }
-        }
-    });
 
-    fluid.slidingPanel(".fl-epubReader-container",{
-        selectors: {
-            panel: ".fl-epubReader-navigationContaniner",
-            toggleButton: ".fl-epubReader-navigation-button"
-        },
-        hideByDefault: true,
-        strings: {
-            showText: "+ Navigation",
-            hideText: "- Navigation"
-        }
-    });
-*/
 </script>
 
 </body>

@@ -4,7 +4,6 @@
 /*
  To facilitate file availability
  Detect and parse ePub 2 and 3
- Populate TOC (current in UI but it will be changed in next milestone)
  Parse CSS, Image and HTML content
  */
 
