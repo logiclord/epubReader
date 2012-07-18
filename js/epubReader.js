@@ -1,11 +1,32 @@
 // Declare dependencies
-/*global fluid_1_4:true, jQuery*/
+/*global fluid_1_4:true, jQuery,noty*/
 
 var fluid_1_4 = fluid_1_4 || {};
 
 (function ($, fluid) {
 
-   // fluid.setLogging(true);
+    /* Add fluid logging */
+    //fluid.setLogging(true);
+
+    function showNoty(msg, type) {
+        noty({
+            "text": msg,
+            "layout": "center",
+            "type": type,
+            "animateOpen": {
+                "height": "toggle"
+            },
+            "animateClose": {
+                "height": "toggle"
+            },
+            "speed": 500,
+            "timeout": 1000,
+            "closeButton": false,
+            "closeOnSelfClick": true,
+            "closeOnSelfOver": false,
+            "modal": false
+        });
+    }
 
     fluid.defaults('fluid.epubReader.bookHandler.parser', {
         gradeNames: ['fluid.viewComponent', 'autoInit'],
@@ -169,6 +190,18 @@ var fluid_1_4 = fluid_1_4 || {};
 
     fluid.epubReader.bookHandler.finalInit = function (that) {
 
+        var bookmarkKeyboardHandler =  function (e) {
+            var code = e.keyCode || e.which;
+            if (code  === 66 && e.shiftKey) {
+                // prevent input texbox to be filled with B
+                e.preventDefault();
+                that.addBookmarkHandler();
+            }
+            if (code  === 66 && e.shiftKey) {
+                //that.addNotes();
+            }
+        };
+
         // keyboard accessibility for reading region
         that.locate('bookContainer').fluid('tabbable');
 
@@ -180,8 +213,15 @@ var fluid_1_4 = fluid_1_4 || {};
         // to activate individual elements
         that.locate('bookContainer').fluid('activatable',  function (evt) {
             that.locate('bookContainer').fluid('selectable', {
-                selectableSelector: that.options.selectors.chapterContent + ' :visible'
+                selectableSelector: that.options.selectors.chapterContent + ' :visible',
+                onSelect: function (evt) {
+                    that.locate('bookContainer').find(evt).bind('keydown', bookmarkKeyboardHandler);
+                },
+                onUnselect: function (evt) {
+                    that.locate('bookContainer').find(evt).unbind('keydown', bookmarkKeyboardHandler);
+                }
             });
+
         });
 
         // shift + arrow keys for navigation
@@ -201,6 +241,55 @@ var fluid_1_4 = fluid_1_4 || {};
             }
         });
 
+        that.addBookmarkHandler = function () {
+            var tempForm = $('<div/>'),
+                inputBox = $('<input/>'),
+                currentSelectable = that.locate('bookContainer').fluid("selectable.currentSelection"),
+                dialogOffset = currentSelectable.offset();
+
+            /* TODO set title as an option string */
+            tempForm.attr('title', 'Enter Bookmark Identifier');
+            inputBox.attr('type', 'text');
+            tempForm.append(inputBox);
+            that.container.append(tempForm);
+
+            tempForm.dialog({
+                autoOpen: true,
+                modal: false,
+                height: 90,
+                width: 240,
+                draggable: false,
+                resizable: false,
+                position: [dialogOffset.left, dialogOffset.top + currentSelectable.height()],
+                show: 'slide',
+                hide: 'slide',
+                buttons: {
+                    "Create": function () {
+                        var bookmarkId = $.trim($(this).find('input').val());
+                        if (bookmarkId.length === 0) {
+                            showNoty('Please enter an identifier', 'error');
+                        } else {
+                            if (that.navigator.addBookmark(bookmarkId, currentSelectable)) {
+                                $(this).dialog("close");
+                                showNoty('Bookmark Added', 'success');
+                                currentSelectable.focus();
+                            } else {
+                                showNoty('This Bookmark identifier already exist', 'error');
+                            }
+                        }
+                    },
+                    Cancel: function () {
+                        $(this).dialog("close");
+                    }
+                },
+                open: function (event, ui) {
+                    $(this).parent().children().children('.ui-dialog-titlebar-close').hide();
+                },
+                close: function () {
+                    tempForm.remove();
+                }
+            });
+        };
     };
 
     fluid.defaults('fluid.epubReader', {
@@ -230,6 +319,12 @@ var fluid_1_4 = fluid_1_4 || {};
             chapterContent: '.flc-epubReader-chapter-content',
             tocSelector: '.flc-epubReader-toc',
             tocContainer: '.fl-epubReader-tocContainer',
+            bookmarkContainer: '.fl-epubReader-bookmarkContainer',
+            bookmarkRow: '.flc-epubReader-bookmark-tableRow',
+            bookmarkId : '.flc-epubReader-bookmark-id',
+            bookmarkChapter: '.flc-epubReader-bookmark-chapter',
+            bookmarkEdit: '.flc-epubReader-bookmark-edit',
+            bookmarkDelete: '.flc-epubReader-bookmark-delete',
             bookContainer: '.fl-epubReader-bookContainer',
             uiOptionsContainer: '.flc-epubReader-uiOptions-container',
             uiOptionsButton: '.fl-epubReader-uiOptions-button',

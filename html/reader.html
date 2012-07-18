@@ -15,14 +15,18 @@
     <link rel="stylesheet" type="text/css" href="../lib/infusion/components/uiOptions/css/UIOptions.css" />
     <link rel="stylesheet" type="text/css" href="../lib/infusion/components/uiOptions/css/FullUIOptions.css" />
 
-
     <script type="text/javascript" src="../lib/infusion/InfusionAll.js"></script>
+
 
     <!-- epubReader dependencies -->
 
     <link rel="stylesheet" href="../css/epubReaderUIOptions.css"/>
     <link rel="stylesheet" href="../css/epubReader.css"/>
+    <link rel="stylesheet" href="../lib/jquery-noty/css/jquery.noty.css"/>
+    <link rel="stylesheet" href="../lib/jquery-noty/css/noty_theme_default.css"/>
 
+    <script type="text/javascript" src="../lib/jquery-noty/js/jquery.noty.js"></script>
+    <script type="text/javascript" src="../lib/jquery.qtip-1.0.0-rc3.custom/jquery.qtip-1.0.0-rc3.min.js"></script>
     <script type="text/javascript" src="../lib/JSZip/jszip.js"></script>
     <script type="text/javascript" src="../lib/JSZip/jszip-load.js"></script>
     <script type="text/javascript" src="../lib/JSZip/jszip-deflate.js"></script>
@@ -57,7 +61,27 @@
                         </li>
                     </ul>
                 </div>
-                <div id="tabb" class="fl-clearfix" >hello</div>
+                <div id="tabb" class="fl-clearfix">
+                    <table class="fl-epubReader-bookmarkContainer">
+                        <tr>
+                            <th>Identifier</th>
+                            <th>Chapter</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                        <tr class="flc-epubReader-bookmark-tableRow">
+                            <td class="flc-epubReader-bookmark-id"></td>
+                            <td class="flc-epubReader-bookmark-chapter">
+                            </td>
+                            <td>
+                                <a  class="flc-epubReader-bookmark-edit"></a>
+                            </td>
+                            <td>
+                                <a  class="flc-epubReader-bookmark-delete"></a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
                 <div id="tabn" class="fl-clearfix" >Hi</div>
         </div>
 
@@ -112,6 +136,8 @@
             epubPath : "../tests/epubs/carroll-alice-in-wonderland-illustrations.epub"
         }
     });
+
+    var galti,faltu;
 
 </script>
 
