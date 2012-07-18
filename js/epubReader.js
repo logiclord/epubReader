@@ -9,22 +9,31 @@ var fluid_1_4 = fluid_1_4 || {};
     //fluid.setLogging(true);
 
     function showNoty(msg, type) {
-        noty({
-            "text": msg,
-            "layout": "center",
-            "type": type,
-            "animateOpen": {
-                "height": "toggle"
+        var temp = $('<div/>');
+        temp.text(msg);
+        temp.appendTo(document.body);
+        temp.dialog({
+            autoOpen: true,
+            modal: false,
+            minHeight: 50,
+            position: 'center',
+            open: function (event, ui) {
+                var dialogElem = $(this).parent();
+                dialogElem.find('.ui-dialog-titlebar').hide();
+                dialogElem.addClass(type);
+                dialogElem.addClass('notification');
+                dialogElem.css('opacity', 0);
+                dialogElem.animate({opacity: 1 }, 500);
+                setTimeout(function () {
+                    dialogElem.css('opacity', 1);
+                    dialogElem.animate({opacity: 0 }, 500, function () {
+                        temp.dialog('close');
+                    });
+                }, 3000);
             },
-            "animateClose": {
-                "height": "toggle"
-            },
-            "speed": 500,
-            "timeout": 1000,
-            "closeButton": false,
-            "closeOnSelfClick": true,
-            "closeOnSelfOver": false,
-            "modal": false
+            close: function () {
+                temp.remove();
+            }
         });
     }
 
@@ -198,6 +207,7 @@ var fluid_1_4 = fluid_1_4 || {};
                 that.addBookmarkHandler();
             }
             if (code  === 66 && e.shiftKey) {
+                e.preventDefault();
                 //that.addNotes();
             }
         };

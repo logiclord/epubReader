@@ -324,3 +324,23 @@
     margin: 2px;
     background-color: #000000;
 }
+.notification {
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-width: 1px;
+    border-style: groove;
+    font-weight: bold;
+    cursor: pointer;
+    background-image: url("../images/notification.png");
+    background-repeat: repeat;
+}
+.error {
+     background-color: #FF0000;
+     color: #FFFFFF;
+ }
+
+.success {
+    background-color: green;
+    color: #FFFFFF;
+}
