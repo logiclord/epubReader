@@ -57,15 +57,29 @@
                             <select class="flc-epubReader-toc" id="toc">
                             </select>
                         </li>
+                        <li>
+                            Next
+                        </li>
+                        <li>
+                            Previous
+                        </li>
+                        <li>
+                            NC
+                        </li>
+                        <li>
+                            PC
+                        </li>
                     </ul>
                 </div>
                 <div id="tabb" class="fl-clearfix">
-                    <table class="fl-epubReader-bookmarkContainer">
+
+                    <button type="button" class="flc-epubReader-addBookmark rounded-corners" >Add<br/> Bookmark</button>
+
+                    <table class="fl-epubReader-bookmarkContainer" border="0" cellspacing="0" cellpadding="0">
                         <tr>
-                            <th>Identifier</th>
+                            <th>Bookmark Identifier</th>
                             <th>Chapter</th>
-                            <th>Edit</th>
-                            <th>Delete</th>
+                            <th colspan="2">Manage</th>
                         </tr>
                         <tr class="flc-epubReader-bookmark-tableRow">
                             <td class="flc-epubReader-bookmark-id"></td>
@@ -135,7 +149,7 @@
         }
     });
 
-    var galti;
+    var galti,faltu,titu;
 
 </script>
 

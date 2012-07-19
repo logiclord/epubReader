@@ -5,17 +5,6 @@ var fluid_1_4 = fluid_1_4 || {};
 
 (function ($, fluid) {
 
-    /*
-    Direct navigation require chapter id and offset from top of element
-    scroll - get page and scrolltop
-    split - get page and call next till we are in range
-    ------
-    bookmark identifier
-    chapter name
-    chapter value
-    scrolltop
-    */
-
     fluid.defaults('fluid.epubReader.bookHandler.navigator.toc', {
         gradeNames: ['fluid.rendererComponent', 'autoInit'],
         selectors: {
@@ -26,7 +15,7 @@ var fluid_1_4 = fluid_1_4 || {};
                 names: ['Waiting..'],
                 values: ['wait']
             },
-            currentSelection: "wait"
+            currentSelection: 'wait'
         },
         events: {
             onContentLoad: null
@@ -34,28 +23,28 @@ var fluid_1_4 = fluid_1_4 || {};
         listeners: {
             onContentLoad: '{epubReader}.loadContent'
         },
-        produceTree: "fluid.epubReader.bookHandler.navigator.toc.produceTree",
-        finalInitFunction: "fluid.epubReader.bookHandler.navigator.toc.finalInit",
+        produceTree: 'fluid.epubReader.bookHandler.navigator.toc.produceTree',
+        finalInitFunction: 'fluid.epubReader.bookHandler.navigator.toc.finalInit',
         renderOnInit: true
     });
 
     fluid.epubReader.bookHandler.navigator.toc.produceTree = function (that) {
         return {
             tocSelector: {
-                optionnames: "${table.names}",
-                optionlist: "${table.values}",
-                selection: "${currentSelection}"
+                optionnames: '${table.names}',
+                optionlist: '${table.values}',
+                selection: '${currentSelection}'
             }
         };
     };
 
     fluid.epubReader.bookHandler.navigator.toc.finalInit = function (that) {
 
-        that.applier.modelChanged.addListener("currentSelection", function () {
+        that.applier.modelChanged.addListener('currentSelection', function () {
             that.refreshView();
             that.reloadCurrent();
         });
-        that.applier.modelChanged.addListener("table", function () {
+        that.applier.modelChanged.addListener('table', function () {
             that.refreshView();
         });
         that.setCurrentChapterToValue = function (value) {
@@ -92,44 +81,44 @@ var fluid_1_4 = fluid_1_4 || {};
             bookmarkEdit: '{epubReader}.options.selectors.bookmarkEdit',
             bookmarkDelete: '{epubReader}.options.selectors.bookmarkDelete'
         },
-        repeatingSelectors: ["bookmarkRow"],
+        repeatingSelectors: ['bookmarkRow'],
         events: {
             onBookmarkNavigate: '{navigator}.events.onBookmarkNavigate'
         },
         model: {
             repeatingData: [/*
                 {
-                    bookmarkId: "Row 1 string",
+                    bookmarkId: 'Row 1 string',
                     bookmarkChapter: {
-                        name : "http://domain1.com/page1.html",
-                        value : "Link 1 Label"
+                        name : 'http://domain1.com/page1.html',
+                        value : 'Link 1 Label'
                     },
                     bookmarkedItemHTML: 'gibberish',
                     bookmarkedItemOffset: 400
                 }*/
             ]
         },
-        produceTree: "fluid.epubReader.bookHandler.navigator.Bookmarks.produceTree",
-        finalInitFunction: "fluid.epubReader.bookHandler.navigator.Bookmarks.finalInit"
+        produceTree: 'fluid.epubReader.bookHandler.navigator.Bookmarks.produceTree',
+        finalInitFunction: 'fluid.epubReader.bookHandler.navigator.Bookmarks.finalInit'
     });
 
     fluid.epubReader.bookHandler.navigator.Bookmarks.produceTree = function (that) {
         var tree = {
             expander: {
-                type: "fluid.renderer.repeat",
-                repeatID: "bookmarkRow",
-                controlledBy: "repeatingData",
-                pathAs: "data",
+                type: 'fluid.renderer.repeat',
+                repeatID: 'bookmarkRow',
+                controlledBy: 'repeatingData',
+                pathAs: 'data',
                 tree: {
-                    bookmarkId : "${{data}.bookmarkId}",
-                    bookmarkChapter:  "${{data}.bookmarkChapter.name}",
+                    bookmarkId : '${{data}.bookmarkId}',
+                    bookmarkChapter:  '${{data}.bookmarkChapter.name}',
                     bookmarkEdit:  {
-                        target: "${{data}.bookmarkId}",
-                        linktext: "Edit"
+                        target: '${{data}.bookmarkId}',
+                        linktext: 'Edit'
                     },
                     bookmarkDelete:  {
-                        target: "${{data}.bookmarkId}",
-                        linktext: "Delete"
+                        target: '${{data}.bookmarkId}',
+                        linktext: 'Delete'
                     }
                 }
             }
@@ -138,7 +127,7 @@ var fluid_1_4 = fluid_1_4 || {};
     };
 
     fluid.epubReader.bookHandler.navigator.Bookmarks.finalInit = function (that) {
-        that.applier.modelChanged.addListener("repeatingData", function () {
+        that.applier.modelChanged.addListener('repeatingData', function () {
             that.refreshView();
             that.resetUIHandlers();
         });
@@ -169,7 +158,6 @@ var fluid_1_4 = fluid_1_4 || {};
                     editPosition = that.findBookmarkPosition(bId),
                     tempForm = $('<div/>'),
                     inputBox = $('<input/>');
-                /* TODO set title as an option string */
                 tempForm.attr('title', 'Edit Bookmark Identifier');
                 inputBox.attr('type', 'text');
                 tempForm.append(inputBox);
@@ -186,7 +174,7 @@ var fluid_1_4 = fluid_1_4 || {};
                     show: 'slide',
                     hide: 'slide',
                     buttons: {
-                        "Create": function () {
+                        'Create': function () {
                             var bookmarkId = $.trim($(this).find('input').val()),
                                 temp;
                             if (bookmarkId.length === 0) {
@@ -196,7 +184,7 @@ var fluid_1_4 = fluid_1_4 || {};
                                 if (temp === -1 || temp === editPosition) {
                                     that.model.repeatingData[editPosition].bookmarkId = bookmarkId;
                                     that.applier.requestChange('repeatingData', that.model.repeatingData);
-                                    $(this).dialog("close");
+                                    $(this).dialog('close');
                                     showNoty('Bookmark Added', 'success');
                                 } else {
                                     showNoty('This Bookmark identifier already exist', 'error');
@@ -204,7 +192,7 @@ var fluid_1_4 = fluid_1_4 || {};
                             }
                         },
                         Cancel: function () {
-                            $(this).dialog("close");
+                            $(this).dialog('close');
                         }
                     },
                     open: function (event, ui) {
@@ -233,8 +221,9 @@ var fluid_1_4 = fluid_1_4 || {};
         that.addToolTipHandler = function () {
             that.locate('bookmarkId').each(function () {
                 var bId = $(this).text(),
-                    contentHtml =  that.model.repeatingData[that.findBookmarkPosition(bId)].bookmarkedItemHTML;
-                $(this).qtip({
+                    contentHtml =  that.model.repeatingData[that.findBookmarkPosition(bId)].bookmarkedItemHTML,
+                    cur = $(this);
+                cur.qtip({
                     content: contentHtml,
                     position: {
                         corner: {
@@ -262,6 +251,14 @@ var fluid_1_4 = fluid_1_4 || {};
                             max: 500
                         }
                     }
+                });
+                cur.mouseover(function () {
+                    console.log('show');
+                    $(this).qtip('show');
+                });
+                cur.mouseout(function () {
+                    console.log('hide');
+                    $(this).qtip('hide');
                 });
             });
         };
@@ -378,16 +375,19 @@ var fluid_1_4 = fluid_1_4 || {};
 
     fluid.epubReader.bookHandler.navigator.finalInit = function (that) {
         var current_selection_height = 500,
+            topOffset = 0,
             current_chapter = {},
             current_selection = {},//= {from : 0, to : current_selection_height};
             pagination = []; // to keep track about forward and backward pagination ranges
 
         that.splitModeScrollTop =  function (itemOffset) {
-            itemOffset = itemOffset + that.locate('chapterContent').offset().top;
+            itemOffset = itemOffset + topOffset;
             while (!(current_selection.from <= itemOffset && itemOffset <= current_selection.to)) {
                 that.next();
             }
         };
+
+
 
         that.selectionWrapper = function () {
             // removing tabindex for hidden elements
@@ -449,14 +449,15 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.resetSelection = function () {
-            current_selection.from = that.locate('chapterContent').offset().top;
+            topOffset = that.locate('chapterContent').offset().top;
+            current_selection.from = topOffset;
             current_selection.to = current_selection.from + current_selection_height;
         };
 
         that.load_content = function (chapter_content) {
             current_chapter = chapter_content;
-            pagination = [],
-            chapterElem = that.locate('chapterContent');
+            pagination = [];
+            var chapterElem = that.locate('chapterContent');
 
             that.resetSelection();
             chapterElem.html(current_chapter.content);
@@ -475,7 +476,7 @@ var fluid_1_4 = fluid_1_4 || {};
              We need to calculate height of chapter (including height of images)
              in order to navigate inside the chapter
              */
-            chapterElem.waitForImages(function() {
+            chapterElem.waitForImages(function () {
                 current_chapter.height = that.locate('chapterContent').height();
                 that.selectionWrapper();
                 if (that.options.pageMode === 'scroll') {
@@ -510,7 +511,7 @@ var fluid_1_4 = fluid_1_4 || {};
         that.previous = function () {
             if (that.options.pageMode === 'split') {
                 current_selection = pagination.pop();
-                if (current_selection !== undefined && current_selection.to > that.locate('chapterContent').offset().top) {
+                if (current_selection !== undefined && current_selection.to > topOffset) {
                     if (that.selectionWrapper() === false) {
                         that.previous();
                     }
@@ -546,9 +547,10 @@ var fluid_1_4 = fluid_1_4 || {};
         that.addBookmark = function (bookmarkId, bookmarkSelectable) {
             var bookmarkedItemOffset;
             if (that.options.pageMode === 'scroll') {
-                bookmarkedItemOffset = bookmarkSelectable[0].offsetHeight + bookmarkSelectable.scrollTop();
+                // might not be accurate
+                bookmarkedItemOffset = bookmarkSelectable[0].offsetHeight + that.locate('bookContainer').scrollTop() - bookmarkSelectable.height();
             } else if (that.options.pageMode === 'split') {
-                bookmarkedItemOffset = current_selection.from + bookmarkSelectable.offset().top - 2 * that.locate('chapterContent').offset().top;
+                bookmarkedItemOffset = current_selection.from + bookmarkSelectable.offset().top - topOffset -  that.locate('chapterContent').offset().top  + bookmarkSelectable.height();
             }
             return that.bookmarks.addBookmark({
                 bookmarkId: bookmarkId,

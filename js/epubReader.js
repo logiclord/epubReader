@@ -69,15 +69,15 @@ var fluid_1_4 = fluid_1_4 || {};
             var table = {
                 names: [],
                 values: []
-            };
+            }, nav_tag, content_tag, text_tag;
 
             // ePub 2 compatibility to parse toc.ncx file
             if (that.options.epubVersion === 2) {
 
                 // Some ebooks use navPoint while others use ns:navPoint tags
-                var nav_tag = 'ns\\:navPoint',
-                    content_tag = 'ns\\:content',
-                    text_tag = 'ns\\:text';
+                nav_tag = 'ns\\:navPoint';
+                content_tag = 'ns\\:content';
+                text_tag = 'ns\\:text';
 
                 if ($(f).find('ns\\:navPoint').length === 0) {
                     nav_tag = 'navPoint';
@@ -189,7 +189,8 @@ var fluid_1_4 = fluid_1_4 || {};
             chapterStyle: '{epubReader}.options.selectors.chapterStyle',
             chapterContent: '{epubReader}.options.selectors.chapterContent',
             tocSelector: '{epubReader}.options.selectors.tocSelector',
-            bookContainer: '{epubReader}.options.selectors.bookContainer'
+            bookContainer: '{epubReader}.options.selectors.bookContainer',
+            addBookmarkButton: '{epubReader}.options.selectors.addBookmarkButton'
         },
         events: {
             onUIOptionsUpdate: null
@@ -206,14 +207,14 @@ var fluid_1_4 = fluid_1_4 || {};
                 e.preventDefault();
                 that.addBookmarkHandler();
             }
-            if (code  === 66 && e.shiftKey) {
-                e.preventDefault();
-                //that.addNotes();
-            }
         };
 
         // keyboard accessibility for reading region
         that.locate('bookContainer').fluid('tabbable');
+        //  add bookmark button click event
+        that.locate('addBookmarkButton').click(function (evt) {
+            that.addBookmarkHandler();
+        });
 
         // autofocus on book container
         that.locate('bookContainer').focus(function () {
@@ -254,10 +255,19 @@ var fluid_1_4 = fluid_1_4 || {};
         that.addBookmarkHandler = function () {
             var tempForm = $('<div/>'),
                 inputBox = $('<input/>'),
-                currentSelectable = that.locate('bookContainer').fluid("selectable.currentSelection"),
-                dialogOffset = currentSelectable.offset();
-
-            /* TODO set title as an option string */
+                currentSelectable,
+                dialogOffset;
+            try {
+                currentSelectable = that.locate('bookContainer').fluid('selectable.currentSelection');
+            } catch (e) {
+                console.log('Caught an exception for invalid bookmark addition');
+            }
+            if (!currentSelectable) {
+                showNoty('Please make a selection for bookmark', 'error');
+                return;
+            }
+            faltu = currentSelectable;
+            dialogOffset = currentSelectable.offset();
             tempForm.attr('title', 'Enter Bookmark Identifier');
             inputBox.attr('type', 'text');
             tempForm.append(inputBox);
@@ -274,28 +284,29 @@ var fluid_1_4 = fluid_1_4 || {};
                 show: 'slide',
                 hide: 'slide',
                 buttons: {
-                    "Create": function () {
+                    'Create': function () {
                         var bookmarkId = $.trim($(this).find('input').val());
                         if (bookmarkId.length === 0) {
                             showNoty('Please enter an identifier', 'error');
                         } else {
                             if (that.navigator.addBookmark(bookmarkId, currentSelectable)) {
-                                $(this).dialog("close");
+                                $(this).dialog('close');
                                 showNoty('Bookmark Added', 'success');
-                                currentSelectable.focus();
                             } else {
                                 showNoty('This Bookmark identifier already exist', 'error');
                             }
                         }
                     },
                     Cancel: function () {
-                        $(this).dialog("close");
+                        $(this).dialog('close');
                     }
                 },
                 open: function (event, ui) {
                     $(this).parent().children().children('.ui-dialog-titlebar-close').hide();
                 },
                 close: function () {
+                    //restore focus back to selection
+                    currentSelectable.focus();
                     tempForm.remove();
                 }
             });
@@ -335,6 +346,7 @@ var fluid_1_4 = fluid_1_4 || {};
             bookmarkChapter: '.flc-epubReader-bookmark-chapter',
             bookmarkEdit: '.flc-epubReader-bookmark-edit',
             bookmarkDelete: '.flc-epubReader-bookmark-delete',
+            addBookmarkButton: '.flc-epubReader-addBookmark',
             bookContainer: '.fl-epubReader-bookContainer',
             uiOptionsContainer: '.flc-epubReader-uiOptions-container',
             uiOptionsButton: '.fl-epubReader-uiOptions-button',

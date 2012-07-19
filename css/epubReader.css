@@ -319,7 +319,8 @@
 .ui-draggable .ui-dialog-titlebar {
     cursor: move;
 }
-.ui-dialog button {
+.ui-dialog button,
+.fl-epubReader-navigationContaniner li  button{
     color: #FFFFFF;
     margin: 2px;
     background-color: #000000;
@@ -343,4 +344,36 @@
 .success {
     background-color: green;
     color: #FFFFFF;
+}
+
+.fl-epubReader-navigationContaniner   li {
+    display: table-cell;
+    vertical-align: top;
+    text-align: left;
+    padding-left: 15px;
+}
+
+.fl-epubReader-bookmarkContainer {
+    width: 79.1%;
+    float: right;
+    vertical-align: middle;
+    text-align: center;
+}
+.fl-epubReader-bookmarkContainer td{
+    /*background-color: #333333;*/
+    /*color: #ffffff;*/
+    border: none;
+}
+.fl-epubReader-bookmarkContainer th {
+    background-color: #f5f5f5;
+    color: #000;
+    border: none;
+}
+.flc-epubReader-addBookmark {
+    float: left;
+    padding: 10px;
+    color: #FFFFFF;
+    background-color: #000000;
+    margin-left: 60px;
+    margin-top: 10px;
 }
