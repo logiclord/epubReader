@@ -350,7 +350,7 @@
     text-align: center;
 }
 .fl-epubReader-bookmarkContainer td,
-.fl-epubReader-notesContainer {
+.fl-epubReader-notesContainer td{
     /*background-color: #333333;*/
     /*color: #ffffff;*/
     border: none;
