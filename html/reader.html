@@ -32,6 +32,7 @@
 
     <script type="text/javascript" src="../js/epubUIOptions.js"></script>
     <script type="text/javascript" src="../js/epubReaderFileFacilitator.js"></script>
+    <script type="text/javascript" src="../js/epubReaderNavigatorChilds.js"></script>
     <script type="text/javascript" src="../js/epubReaderNavigator.js"></script>
     <script type="text/javascript" src="../js/epubReader.js"></script>
 
@@ -94,7 +95,27 @@
                         </tr>
                     </table>
                 </div>
-                <div id="tabn" class="fl-clearfix" >Hi</div>
+                <div id="tabn" class="fl-clearfix" >
+                    <button type="button" class="flc-epubReader-addNote fl-rounded-corners" >Add<br/> Note</button>
+
+                    <table class="fl-epubReader-notesContainer" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <th>Note Identifier</th>
+                            <th>Chapter</th>
+                            <th colspan="2">Manage</th>
+                        </tr>
+                        <tr class="flc-epubReader-notes-tableRow">
+                            <td class="flc-epubReader-notes-id"></td>
+                            <td class="flc-epubReader-notes-chapter">
+                            </td>
+                            <td>
+                                <a  class="flc-epubReader-notes-edit"></a>
+                            </td>
+                            <td>
+                                <a  class="flc-epubReader-notes-delete"></a>
+                            </td>
+                        </tr>
+                    </table></div>
         </div>
 
         <div class="fl-panelBar">
@@ -148,8 +169,6 @@
             epubPath : "../tests/epubs/carroll-alice-in-wonderland-illustrations.epub"
         }
     });
-
-    var galti,faltu,titu;
 
 </script>
 

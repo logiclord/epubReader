@@ -326,9 +326,9 @@
     background-repeat: repeat;
 }
 .fl-epubReader-errorNotification {
-     background-color: #FF0000;
-     color: #FFFFFF;
- }
+    background-color: #FF0000;
+    color: #FFFFFF;
+}
 
 .fl-epubReader-successNotification {
     background-color: green;
@@ -342,23 +342,27 @@
     padding-left: 15px;
 }
 
-.fl-epubReader-bookmarkContainer {
+.fl-epubReader-bookmarkContainer,
+.fl-epubReader-notesContainer {
     width: 79.1%;
     float: right;
     vertical-align: middle;
     text-align: center;
 }
-.fl-epubReader-bookmarkContainer td{
+.fl-epubReader-bookmarkContainer td,
+.fl-epubReader-notesContainer {
     /*background-color: #333333;*/
     /*color: #ffffff;*/
     border: none;
 }
-.fl-epubReader-bookmarkContainer th {
+.fl-epubReader-bookmarkContainer th,
+.fl-epubReader-notesContainer th {
     background-color: #f5f5f5;
     color: #000;
     border: none;
 }
-.flc-epubReader-addBookmark {
+.flc-epubReader-addBookmark,
+.flc-epubReader-addNote {
     float: left;
     padding: 10px;
     color: #FFFFFF;
