@@ -333,7 +333,7 @@
     border-style: groove;
     font-weight: bold;
     cursor: pointer;
-    background-image: url("../images/notification.png");
+    background-image: url("../images/epubReader_notification_background.png");
     background-repeat: repeat;
 }
 .error {

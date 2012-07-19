@@ -139,7 +139,7 @@ var fluid_1_4 = fluid_1_4 || {};
                     current = that.model.repeatingData[navPosition];
                 that.events.onBookmarkNavigate.fire(current.bookmarkChapter.value, current.bookmarkedItemOffset);
             };
-            that.locate('bookmarkId').click(function () {
+            that.locate('bookmarkId').dblclick(function () {
                 internalNavigationHandler($(this));
             });
             that.locate('bookmarkId').keypress(function (e) {
@@ -251,14 +251,6 @@ var fluid_1_4 = fluid_1_4 || {};
                             max: 500
                         }
                     }
-                });
-                cur.mouseover(function () {
-                    console.log('show');
-                    $(this).qtip('show');
-                });
-                cur.mouseout(function () {
-                    console.log('hide');
-                    $(this).qtip('hide');
                 });
             });
         };
@@ -375,19 +367,31 @@ var fluid_1_4 = fluid_1_4 || {};
 
     fluid.epubReader.bookHandler.navigator.finalInit = function (that) {
         var current_selection_height = 500,
-            topOffset = 0,
             current_chapter = {},
             current_selection = {},//= {from : 0, to : current_selection_height};
             pagination = []; // to keep track about forward and backward pagination ranges
 
         that.splitModeScrollTop =  function (itemOffset) {
-            itemOffset = itemOffset + topOffset;
             while (!(current_selection.from <= itemOffset && itemOffset <= current_selection.to)) {
+                that.next();
+            }
+            if (!that.isSelected()) {
                 that.next();
             }
         };
 
-
+        that.isSelected = function (itemOffset) {
+            var reqOffset = that.locate('chapterContent').offset() + itemOffset,
+                ret = false;
+            that.locate('chapterContent').find(':visible').each(function () {
+                var elm = $(this);
+                if (elm.offset().top === reqOffset) {
+                    ret = true;
+                    return false;
+                }
+            });
+            return ret;
+        };
 
         that.selectionWrapper = function () {
             // removing tabindex for hidden elements
@@ -396,7 +400,7 @@ var fluid_1_4 = fluid_1_4 || {};
             if (that.options.pageMode === 'split') {
                 that.locate('chapterContent').find(':hidden').show();
                 var toHide = [],
-                    ret = that.createSelection(that.locate('chapterContent'), toHide),
+                    ret = that.createSelection(that.locate('chapterContent').children().first(), toHide, that.locate('chapterContent').offset().top),
                     i = 0;
                 for (i = 0; i < toHide.length; i = i + 1) {
                     toHide[i].hide();
@@ -415,11 +419,11 @@ var fluid_1_4 = fluid_1_4 || {};
             that.locate('remaining').css('width', progress + 'px');
         };
 
-        that.createSelection = function (node, toHide) {
+        that.createSelection = function (node, toHide, offsetCorrection) {
             if (!node) {
                 return null;
             }
-            var top = node.offset().top,
+            var top = node.offset().top - offsetCorrection,
                 bottom = top + node.height(),
                 ret = false,
                 kid;
@@ -430,7 +434,7 @@ var fluid_1_4 = fluid_1_4 || {};
             } else {
                 kid = node.children();
                 kid.each(function () {
-                    var temp = that.createSelection($(this), toHide);
+                    var temp = that.createSelection($(this), toHide, offsetCorrection);
                     if (temp === true) {
                         ret = true;
                     } else {
@@ -449,8 +453,7 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.resetSelection = function () {
-            topOffset = that.locate('chapterContent').offset().top;
-            current_selection.from = topOffset;
+            current_selection.from = 0;
             current_selection.to = current_selection.from + current_selection_height;
         };
 
@@ -482,6 +485,7 @@ var fluid_1_4 = fluid_1_4 || {};
                 if (that.options.pageMode === 'scroll') {
                     that.locate('bookContainer').scrollTop(0);
                 }
+                faltu = current_chapter.height;
             });
 
             return false;
@@ -511,7 +515,7 @@ var fluid_1_4 = fluid_1_4 || {};
         that.previous = function () {
             if (that.options.pageMode === 'split') {
                 current_selection = pagination.pop();
-                if (current_selection !== undefined && current_selection.to > topOffset) {
+                if (current_selection !== undefined && current_selection.to > 0) {
                     if (that.selectionWrapper() === false) {
                         that.previous();
                     }
@@ -547,11 +551,18 @@ var fluid_1_4 = fluid_1_4 || {};
         that.addBookmark = function (bookmarkId, bookmarkSelectable) {
             var bookmarkedItemOffset;
             if (that.options.pageMode === 'scroll') {
-                // might not be accurate
-                bookmarkedItemOffset = bookmarkSelectable[0].offsetHeight + that.locate('bookContainer').scrollTop() - bookmarkSelectable.height();
+                bookmarkedItemOffset = bookmarkSelectable.offset().top - that.locate('chapterContent').offset().top;
             } else if (that.options.pageMode === 'split') {
-                bookmarkedItemOffset = current_selection.from + bookmarkSelectable.offset().top - topOffset -  that.locate('chapterContent').offset().top  + bookmarkSelectable.height();
+                // show everything to get acccurate offset
+                // show everything
+                that.locate('chapterContent').find(':hidden').show();
+                // get proper Offset
+                bookmarkedItemOffset = bookmarkSelectable.offset().top - that.locate('chapterContent').offset().top;
+                // restore all hidden elements
+                that.selectionWrapper();
             }
+            titu = bookmarkedItemOffset;
+            galti = bookmarkSelectable;
             return that.bookmarks.addBookmark({
                 bookmarkId: bookmarkId,
                 bookmarkChapter: that.toc.getCurrentChapter(),
