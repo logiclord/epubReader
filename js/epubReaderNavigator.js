@@ -305,6 +305,8 @@ var fluid_1_4 = fluid_1_4 || {};
             maxImageWidth: '{epubReader}.options.constraints.maxImageWidth'
         },
         pageMode: 'split',
+        scrollSpeed: 50,
+        autoActivate: false,
         selectors: {
             remaining: '.flc-epubReader-progressIndicator-completed',
             chapterStyle: '.flc-epubReader-chapter-styles',
@@ -312,7 +314,6 @@ var fluid_1_4 = fluid_1_4 || {};
             bookContainer: '.fl-epubReader-bookContainer',
             remainingWrapper: '.fl-epubReader-progressIndicator'
         },
-        scrollSpeed: 50,
         events: {
             onUIOptionsUpdate: '{bookHandler}.events.onUIOptionsUpdate',
             onBookmarkNavigate: null
@@ -396,7 +397,6 @@ var fluid_1_4 = fluid_1_4 || {};
         that.selectionWrapper = function () {
             // removing tabindex for hidden elements
             that.locate('chapterContent').filter('*').removeAttr('tabindex');
-
             if (that.options.pageMode === 'split') {
                 that.locate('chapterContent').find(':hidden').show();
                 var toHide = [],
@@ -406,9 +406,15 @@ var fluid_1_4 = fluid_1_4 || {};
                     toHide[i].hide();
                 }
                 that.updateProgressbar();
+                if (that.options.autoActivate) {
+                    that.locate('bookContainer').fluid('activate');
+                }
                 that.locate('bookContainer').focus();
                 return ret;
             } else if (that.options.pageMode === 'scroll') {
+                if (that.options.autoActivate) {
+                    that.locate('bookContainer').fluid('activate');
+                }
                 that.locate('bookContainer').focus();
                 return true;
             }

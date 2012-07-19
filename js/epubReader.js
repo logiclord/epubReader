@@ -20,8 +20,8 @@ var fluid_1_4 = fluid_1_4 || {};
             open: function (event, ui) {
                 var dialogElem = $(this).parent();
                 dialogElem.find('.ui-dialog-titlebar').hide();
-                dialogElem.addClass(type);
-                dialogElem.addClass('notification');
+                dialogElem.addClass('fl-epubReader-' + type + 'Notification');
+                dialogElem.addClass('fl-epubReader-notification');
                 dialogElem.css('opacity', 0);
                 dialogElem.animate({opacity: 1 }, 500);
                 setTimeout(function () {
