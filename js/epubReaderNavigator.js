@@ -1,5 +1,5 @@
 // Declare dependencies
-/*global fluid_1_4:true, jQuery,showNoty*/
+/*global fluid_1_4:true, jQuery*/
 
 var fluid_1_4 = fluid_1_4 || {};
 
@@ -17,6 +17,10 @@ var fluid_1_4 = fluid_1_4 || {};
             bookmarks: {
                 type: 'fluid.epubReader.bookHandler.navigator.Bookmarks',
                 container: '{epubReader}.options.selectors.bookmarkContainer'
+            },
+            notes: {
+                type: 'fluid.epubReader.bookHandler.navigator.Notes',
+                container: '{epubReader}.options.selectors.notesContainer'
             }
         },
         constraints: {
@@ -38,8 +42,7 @@ var fluid_1_4 = fluid_1_4 || {};
             onBookmarkNavigate: null
         },
         listeners: {
-            onUIOptionsUpdate: '{navigator}.requestContentLoad',
-            onBookmarkNavigate: '{navigator}.naivagteTo'
+            onUIOptionsUpdate: '{navigator}.requestContentLoad'
         },
         finalInitFunction: 'fluid.epubReader.bookHandler.navigator.finalInit',
         preInitFunction: 'fluid.epubReader.bookHandler.navigator.preInit'
@@ -206,6 +209,7 @@ var fluid_1_4 = fluid_1_4 || {};
              */
             chapterElem.waitForImages(function () {
                 current_chapter.height = that.locate('chapterContent').height();
+                that.attachAllNotes();
                 that.selectionWrapper();
                 if (that.options.pageMode === 'scroll') {
                     that.locate('bookContainer').scrollTop(0);
@@ -272,25 +276,52 @@ var fluid_1_4 = fluid_1_4 || {};
             that.toc.setCurrentSelectionToIndex(that.toc.currentSelectPosition() - 1);
         };
 
-        that.addBookmark = function (bookmarkId, bookmarkSelectable) {
-            var bookmarkedItemOffset;
+        that.getOffsetOf = function (elm) {
+            var ItemOffset;
             if (that.options.pageMode === 'scroll') {
-                bookmarkedItemOffset = bookmarkSelectable.offset().top - that.locate('chapterContent').offset().top;
+                ItemOffset = elm.offset().top - that.locate('chapterContent').offset().top;
             } else if (that.options.pageMode === 'split') {
-                // show everything to get acccurate offset
                 // show everything
                 that.locate('chapterContent').find(':hidden').show();
                 // get proper Offset
-                bookmarkedItemOffset = bookmarkSelectable.offset().top - that.locate('chapterContent').offset().top;
+                ItemOffset = elm.offset().top - that.locate('chapterContent').offset().top;
                 // restore all hidden elements
                 that.selectionWrapper();
             }
+            return ItemOffset;
+        };
+
+        that.addBookmark = function (bookmarkId, bookmarkSelectable) {
             return that.bookmarks.addBookmark({
                 bookmarkId: bookmarkId,
                 bookmarkChapter: that.toc.getCurrentChapter(),
                 bookmarkedItemHTML: $('<div/>').append(bookmarkSelectable.filter('*').removeAttr('tabindex').clone()).html(),
-                bookmarkedItemOffset: bookmarkedItemOffset
+                bookmarkedItemOffset: that.getOffsetOf(bookmarkSelectable)
             });
+        };
+
+        that.addNote = function (noteId, noteText, noteAnchor) {
+            return that.notes.addNote({
+                noteId: noteId,
+                noteChapter: that.toc.getCurrentChapter(),
+                notedText: noteText,
+                notedItemOffset: that.getOffsetOf(noteAnchor)
+            });
+        };
+
+        that.attachAllNotes = function () {
+            var chapter = that.toc.getCurrentChapter(),
+                offsetCorrection = that.locate('chapterContent').offset().top,
+                elms,
+                offsets = [],
+                i = 0,
+                n;
+            that.locate('chapterContent').find(':hidden').show();
+            elms = that.locate('chapterContent').find('*');
+            elms.each(function () {
+                offsets.push($(this).offset().top - offsetCorrection);
+            });
+            that.notes.attachNote(chapter.value, elms, offsets);
         };
     };
 

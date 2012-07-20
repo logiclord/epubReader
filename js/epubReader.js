@@ -1,5 +1,5 @@
 // Declare dependencies
-/*global fluid_1_4:true, jQuery,noty*/
+/*global fluid_1_4:true, jQuery*/
 
 var fluid_1_4 = fluid_1_4 || {};
 
@@ -7,35 +7,6 @@ var fluid_1_4 = fluid_1_4 || {};
 
     /* Add fluid logging */
     //fluid.setLogging(true);
-
-    function showNoty(msg, type) {
-        var temp = $('<div/>');
-        temp.text(msg);
-        temp.appendTo(document.body);
-        temp.dialog({
-            autoOpen: true,
-            modal: false,
-            minHeight: 50,
-            position: 'center',
-            open: function (event, ui) {
-                var dialogElem = $(this).parent();
-                dialogElem.find('.ui-dialog-titlebar').hide();
-                dialogElem.addClass('fl-epubReader-' + type + 'Notification');
-                dialogElem.addClass('fl-epubReader-notification');
-                dialogElem.css('opacity', 0);
-                dialogElem.animate({opacity: 1 }, 500);
-                setTimeout(function () {
-                    dialogElem.css('opacity', 1);
-                    dialogElem.animate({opacity: 0 }, 500, function () {
-                        temp.dialog('close');
-                    });
-                }, 3000);
-            },
-            close: function () {
-                temp.remove();
-            }
-        });
-    }
 
     fluid.defaults('fluid.epubReader.bookHandler.parser', {
         gradeNames: ['fluid.viewComponent', 'autoInit'],
@@ -190,7 +161,8 @@ var fluid_1_4 = fluid_1_4 || {};
             chapterContent: '{epubReader}.options.selectors.chapterContent',
             tocSelector: '{epubReader}.options.selectors.tocSelector',
             bookContainer: '{epubReader}.options.selectors.bookContainer',
-            addBookmarkButton: '{epubReader}.options.selectors.addBookmarkButton'
+            addBookmarkButton: '{epubReader}.options.selectors.addBookmarkButton',
+            addNoteButton: '{epubReader}.options.selectors.addNoteButton'
         },
         events: {
             onUIOptionsUpdate: null
@@ -207,15 +179,25 @@ var fluid_1_4 = fluid_1_4 || {};
                 e.preventDefault();
                 that.addBookmarkHandler();
             }
-        };
-
+        },
+            notesKeyboardHandler =  function (e) {
+                var code = e.keyCode || e.which;
+                if (code  === 78 && e.shiftKey) {
+                    // prevent input texbox to be filled with N
+                    e.preventDefault();
+                    that.addNoteHandler();
+                }
+            };
         // keyboard accessibility for reading region
         that.locate('bookContainer').fluid('tabbable');
         //  add bookmark button click event
         that.locate('addBookmarkButton').click(function (evt) {
             that.addBookmarkHandler();
         });
-
+        // notes add button
+        that.locate('addNoteButton').click(function (evt) {
+            that.addNoteHandler();
+        });
         // autofocus on book container
         that.locate('bookContainer').focus(function () {
             $('html, body').animate({ scrollTop: $(this).offset().top }, 500);
@@ -227,9 +209,11 @@ var fluid_1_4 = fluid_1_4 || {};
                 selectableSelector: that.options.selectors.chapterContent + ' :visible',
                 onSelect: function (evt) {
                     that.locate('bookContainer').find(evt).bind('keydown', bookmarkKeyboardHandler);
+                    that.locate('bookContainer').find(evt).bind('keydown', notesKeyboardHandler);
                 },
                 onUnselect: function (evt) {
                     that.locate('bookContainer').find(evt).unbind('keydown', bookmarkKeyboardHandler);
+                    that.locate('bookContainer').find(evt).unbind('keydown', notesKeyboardHandler);
                 }
             });
 
@@ -252,6 +236,71 @@ var fluid_1_4 = fluid_1_4 || {};
             }
         });
 
+        that.addNoteHandler = function () {
+            var tempForm = $('<div/>'),
+                noteId = $('<input/>').attr('type', 'text'),
+                noteText = $('<textarea/>'),
+                currentSelectable,
+                dialogOffset;
+            try {
+                currentSelectable = that.locate('bookContainer').fluid('selectable.currentSelection');
+            } catch (e) {
+                console.log('Caught an exception for invalid note addition');
+            }
+            if (!currentSelectable) {
+                fluid.epubReader.utils.showNotification('Please make a selection for note', 'error');
+                return;
+            }
+            dialogOffset = currentSelectable.offset();
+            tempForm.attr('title', 'Enter Note Details');
+            tempForm.append(noteId);
+            tempForm.append('<br><br>');
+            fluid.epubReader.utils.setTitleToolTip(noteId, 'Note Title');
+            fluid.epubReader.utils.setTitleToolTip(noteText, 'Note Text');
+            tempForm.append(noteText);
+            that.container.append(tempForm);
+
+            tempForm.dialog({
+                autoOpen: true,
+                modal: false,
+                draggable: false,
+                width: 'auto',
+                maxHeight: 400,
+                maxWidth: 500,
+                resizable: true,
+                position: [dialogOffset.left, dialogOffset.top + currentSelectable.height()],
+                show: 'slide',
+                hide: 'slide',
+                buttons: {
+                    'Create': function () {
+                        var noteIdVal = $.trim(noteId.val()),
+                            noteTextVal = $.trim(noteText.val());
+                        if (noteIdVal.length === 0 || noteTextVal.length === 0) {
+                            fluid.epubReader.utils.showNotification('Incomplete Form', 'error');
+                        } else {
+                            if (that.navigator.addNote(noteIdVal, noteTextVal, currentSelectable)) {
+                                $(this).dialog('close');
+                                fluid.epubReader.utils.showNotification('Note Added', 'success');
+                            } else {
+                                fluid.epubReader.utils.showNotification('Note identifier already exist', 'error');
+                            }
+                        }
+                    },
+                    Cancel: function () {
+                        $(this).dialog('close');
+                    }
+                },
+                open: function (event, ui) {
+                    $(this).parent().children().children('.ui-dialog-titlebar-close').hide();
+                },
+                close: function () {
+                    //restore focus back to selection
+                    currentSelectable.focus();
+                    tempForm.remove();
+                }
+            });
+        };
+
         that.addBookmarkHandler = function () {
             var tempForm = $('<div/>'),
                 inputBox = $('<input/>'),
@@ -263,10 +312,9 @@ var fluid_1_4 = fluid_1_4 || {};
                 console.log('Caught an exception for invalid bookmark addition');
             }
             if (!currentSelectable) {
-                showNoty('Please make a selection for bookmark', 'error');
+                fluid.epubReader.utils.showNotification('Please make a selection for bookmark', 'error');
                 return;
             }
-            faltu = currentSelectable;
             dialogOffset = currentSelectable.offset();
             tempForm.attr('title', 'Enter Bookmark Identifier');
             inputBox.attr('type', 'text');
@@ -287,13 +335,13 @@ var fluid_1_4 = fluid_1_4 || {};
                     'Create': function () {
                         var bookmarkId = $.trim($(this).find('input').val());
                         if (bookmarkId.length === 0) {
-                            showNoty('Please enter an identifier', 'error');
+                            fluid.epubReader.utils.showNotification('Please enter an identifier', 'error');
                         } else {
                             if (that.navigator.addBookmark(bookmarkId, currentSelectable)) {
                                 $(this).dialog('close');
-                                showNoty('Bookmark Added', 'success');
+                                fluid.epubReader.utils.showNotification('Bookmark Added', 'success');
                             } else {
-                                showNoty('This Bookmark identifier already exist', 'error');
+                                fluid.epubReader.utils.showNotification('This Bookmark identifier already exist', 'error');
                             }
                         }
                     },
@@ -347,6 +395,13 @@ var fluid_1_4 = fluid_1_4 || {};
             bookmarkEdit: '.flc-epubReader-bookmark-edit',
             bookmarkDelete: '.flc-epubReader-bookmark-delete',
             addBookmarkButton: '.flc-epubReader-addBookmark',
+            notesContainer: '.fl-epubReader-notesContainer',
+            noteRow: '.flc-epubReader-note-tableRow',
+            noteId : '.flc-epubReader-note-id',
+            noteChapter: '.flc-epubReader-note-chapter',
+            noteEdit: '.flc-epubReader-note-edit',
+            noteDelete: '.flc-epubReader-note-delete',
+            addNoteButton: '.flc-epubReader-addNote',
             bookContainer: '.fl-epubReader-bookContainer',
             uiOptionsContainer: '.flc-epubReader-uiOptions-container',
             uiOptionsButton: '.fl-epubReader-uiOptions-button',
