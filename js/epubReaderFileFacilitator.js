@@ -181,13 +181,15 @@ var fluid_1_4 = fluid_1_4 || {};
                 return '';
             }
 
-            var domCode = $(htmlCode),
+            // Parsing xml file
+            var domCode = $($.parseXML(htmlCode)),
+                bodyElm = domCode.find('body'),
+                headElm = domCode.find('head'),
                 styleCode = $('<div/>');
 
-            //  for each img tag in html code create an attribute original_src and set it to original source
+            //  for each img tag in body code create an attribute original_src and set it to original source
             //  and modify src to dataURI using jszip
-
-            domCode.find('img').each(function () {
+            bodyElm.find('img').each(function () {
                 var src = $(this).attr('src');
                 if (src !== false) {
                     $(this).attr('original_src', src);
@@ -195,29 +197,22 @@ var fluid_1_4 = fluid_1_4 || {};
                 }
             });
 
-            domCode = $('<div/>').append(domCode);
-
             // applying stylesheets of current chapter to our ebook
             // everything is going to be added to .flc-epubReader-chapter-content which will be overwritten for eah chapter
             // Hence no need to track stylesheets
-            domCode.find('link').each(
+            headElm.find('link').each(
                 function () {
                     if ($(this).attr('type') === 'text/css') {
                         var inlineStyle = $('<style></style>');
                         inlineStyle.attr('type', 'text/css');
-                        inlineStyle.attr('original_href', $(this).attr('href'));
+                        //inlineStyle.attr('original_href', $(this).attr('href'));
                         inlineStyle.append(that.getCSSFromEpub(htmlFileLocation + $(this).attr('href')));
                         styleCode.append(inlineStyle);
                     }
                 }
             );
 
-            // remove head tags manually
-            domCode.find('title').remove();
-            domCode.find('link').remove();
-            domCode.find('meta').remove();
-
-            return { content: domCode.html(), styles: styleCode.html() };
+            return { content: bodyElm.html(), styles: styleCode.html() };
         };
 
         that.getEpubFile = function (url) {
