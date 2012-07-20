@@ -314,6 +314,9 @@ var fluid_1_4 = fluid_1_4 || {};
                 }*/
             ]
         },
+        events: {
+            afterNotesChange : null
+        },
         produceTree: 'fluid.epubReader.bookHandler.navigator.Notes.produceTree',
         finalInitFunction: 'fluid.epubReader.bookHandler.navigator.Notes.finalInit'
     });
@@ -346,6 +349,7 @@ var fluid_1_4 = fluid_1_4 || {};
         that.applier.modelChanged.addListener('repeatingData', function () {
             that.refreshView();
             that.resetUIHandlers();
+            that.events.afterNotesChange.fire();
         });
         // Delete Button Handler
         that.addDeleteHandler = function () {

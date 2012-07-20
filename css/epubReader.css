@@ -229,6 +229,7 @@
     -moz-border-radius: 0 5px 5px 5px;
     -webkit-border-radius: 0 5px 5px 5px;
     -khtml-border-radius: 0 5px 5px 5px;
+    border-radius: 0 5px 5px 5px;
     border-color: #000;
     border-width: 1px;
     border-style: groove;
@@ -318,6 +319,7 @@
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     -khtml-border-radius: 5px;
+    border-radius: 5px;
     border-width: 1px;
     border-style: groove;
     font-weight: bold;

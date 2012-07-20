@@ -20,7 +20,12 @@ var fluid_1_4 = fluid_1_4 || {};
             },
             notes: {
                 type: 'fluid.epubReader.bookHandler.navigator.Notes',
-                container: '{epubReader}.options.selectors.notesContainer'
+                container: '{epubReader}.options.selectors.notesContainer',
+                options: {
+                    listeners: {
+                        afterNotesChange: '{navigator}.afterNotesChangeHandler'
+                    }
+                }
             }
         },
         constraints: {
@@ -85,6 +90,13 @@ var fluid_1_4 = fluid_1_4 || {};
                 }
                 that.toc.reloadCurrent();
             }
+        };
+        // on updating note attach notes to elements in UI
+        that.afterNotesChangeHandler = function () {
+            that.locate('chapterContent').find(':hidden').show();
+            that.removeAllNotes();
+            that.attachAllNotes();
+            that.selectionWrapper();
         };
     };
 
@@ -313,15 +325,16 @@ var fluid_1_4 = fluid_1_4 || {};
             var chapter = that.toc.getCurrentChapter(),
                 offsetCorrection = that.locate('chapterContent').offset().top,
                 elms,
-                offsets = [],
-                i = 0,
-                n;
-            that.locate('chapterContent').find(':hidden').show();
+                offsets = [];
             elms = that.locate('chapterContent').find('*');
             elms.each(function () {
                 offsets.push($(this).offset().top - offsetCorrection);
             });
             that.notes.attachNote(chapter.value, elms, offsets);
+        };
+
+        that.removeAllNotes = function () {
+            that.locate('chapterContent').find('*').removeData('qtip');
         };
     };
 
