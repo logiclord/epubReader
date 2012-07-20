@@ -309,8 +309,7 @@
 .ui-draggable .ui-dialog-titlebar {
     cursor: move;
 }
-.ui-dialog button,
-.fl-epubReader-navigationContaniner li  button{
+.ui-dialog button{
     color: #FFFFFF;
     margin: 2px;
     background-color: #000000;
@@ -337,10 +336,23 @@
     color: #FFFFFF;
 }
 
+.fl-epubReader-navigationContaniner  {
+    text-transform: uppercase;
+    font-size: 1.2em;
+}
+.fl-epubReader-navigationContaniner .fl-epubReader-bookmarkContainer a,
+.fl-epubReader-navigationContaniner .fl-epubReader-notesContainer a{
+    text-decoration: underline !important;
+}
+.fl-epubReader-navigationContaniner button {
+    color: #000000;
+    background-color: #f5f5f5;
+}
+
 .fl-epubReader-navigationContaniner   li {
     display: table-cell;
-    vertical-align: top;
-    text-align: left;
+    vertical-align: middle;
+    float: left;
     padding-left: 15px;
 }
 
@@ -367,8 +379,20 @@
 .flc-epubReader-addNote {
     float: left;
     padding: 10px;
-    color: #FFFFFF;
-    background-color: #000000;
     margin-left: 60px;
     margin-top: 10px;
+    width: 100px;
+}
+
+.fl-epubReader-tocContainer * {
+    display: block;
+    text-align:  center;
+}
+
+.flc-epubReader-nextButton,
+.flc-epubReader-previousButton,
+.flc-epubReader-nextChapterButton,
+.flc-epubReader-previousChapterButton {
+    width: 100px;
+    min-height: 50px;
 }

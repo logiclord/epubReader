@@ -508,7 +508,9 @@ var fluid_1_4 = fluid_1_4 || {};
                 n = elms.length,
                 elm,
                 currentOffset;
-
+            if (modelHash.length === 0) {
+                return;
+            }
             while (i < n) {
                 elm = $(elms[i]);
                 currentOffset = offsets[i];
