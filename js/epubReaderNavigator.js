@@ -16,7 +16,12 @@ var fluid_1_4 = fluid_1_4 || {};
             },
             bookmarks: {
                 type: 'fluid.epubReader.bookHandler.navigator.Bookmarks',
-                container: '{epubReader}.options.selectors.bookmarkContainer'
+                container: '{epubReader}.options.selectors.bookmarkContainer',
+                options: {
+                    listeners: {
+                        onBookmarkNavigate: '{navigator}.naivagteTo'
+                    }
+                }
             },
             notes: {
                 type: 'fluid.epubReader.bookHandler.navigator.Notes',
@@ -43,8 +48,7 @@ var fluid_1_4 = fluid_1_4 || {};
             remainingWrapper: '.fl-epubReader-progressIndicator'
         },
         events: {
-            onUIOptionsUpdate: '{bookHandler}.events.onUIOptionsUpdate',
-            onBookmarkNavigate: null
+            onUIOptionsUpdate: '{bookHandler}.events.onUIOptionsUpdate'
         },
         listeners: {
             onUIOptionsUpdate: '{navigator}.requestContentLoad'
@@ -108,21 +112,27 @@ var fluid_1_4 = fluid_1_4 || {};
 
         that.splitModeScrollTop =  function (itemOffset) {
             while (!(current_selection.from <= itemOffset && itemOffset <= current_selection.to)) {
+                console.log(JSON.stringify(current_selection));
                 that.next();
             }
-            if (!that.isSelected()) {
+            /*  TODO - To be removed after editing API completion
+            if (!that.isSelected(itemOffset)) {
                 that.next();
             }
+            */
         };
 
         that.isSelected = function (itemOffset) {
-            var reqOffset = that.locate('chapterContent').offset() + itemOffset,
+            console.log(itemOffset);
+            var reqOffset = that.locate('chapterContent').offset().top + itemOffset,
                 ret = false;
+            console.log(reqOffset + " req");
             that.locate('chapterContent').find(':visible').each(function () {
                 var elm = $(this);
+                console.log(elm);
+                console.log(elm.offset().top - that.locate('chapterContent').offset().top);
                 if (elm.offset().top === reqOffset) {
                     ret = true;
-                    return false;
                 }
             });
             return ret;
@@ -130,7 +140,8 @@ var fluid_1_4 = fluid_1_4 || {};
 
         that.selectionWrapper = function () {
             // removing tabindex for hidden elements
-            that.locate('chapterContent').filter('*').removeAttr('tabindex');
+            /* TODO not working properly for notes - fix in editing part */
+            that.locate('bookContainer').find('*').removeAttr('tabindex');
             if (that.options.pageMode === 'split') {
                 that.locate('chapterContent').find(':hidden').show();
                 var toHide = [],
@@ -163,40 +174,30 @@ var fluid_1_4 = fluid_1_4 || {};
             if (!node) {
                 return null;
             }
-            console.log(JSON.stringify(current_selection));
             var top = node.offset().top - offsetCorrection,
                 bottom = top + node.height(),
                 ret = false,
                 kid;
-            console.log(top + " " + bottom);
-            console.log(node);
             if (current_selection.to <= top || current_selection.from >= bottom) {
-                console.log("case 1");
                 return false;
             } else if (current_selection.from <= top && current_selection.to >= bottom) {
-                console.log("case 2");
                 return true;
             } else {
-                console.log("case 3");
                 kid = node.children();
                 kid.each(function () {
                     var temp = that.createSelection($(this), toHide, offsetCorrection);
                     if (temp === true) {
-                        console.log("true kid exist");
                         ret = true;
                     } else {
-                        console.log(" no good kid exist");
                         toHide.push($(this));
                     }
                 });
                 // overflow test expression ( (node.is('img') || !node.text() ) && current_selection.to >= top && current_selection.to <= bottom )
                 if ((node.is('img') || (kid.length === 0 && node.text() !== '')) && current_selection.from >= top && current_selection.from <= bottom) {
-                    console.log("case 5");
                     current_selection.from = top;
                     current_selection.to = current_selection.from + current_selection_height;
                     return true;
                 } else {
-                    console.log("case 6");
                     return ret;
                 }
             }
@@ -208,6 +209,7 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.load_content = function (chapter_content) {
+            console.log('new chapter');
             current_chapter = chapter_content;
             pagination = [];
             var chapterElem = that.locate('chapterContent');
@@ -227,7 +229,10 @@ var fluid_1_4 = fluid_1_4 || {};
             chapterElem.find('*').each(function () {
                 if ($(this).children().length !== 0) {
                     $(this).contents().filter(function () {
-                        return this.nodeType === 3;
+                        if (this.nodeType === 3 && $.trim(this.nodeValue) !== '') {
+                            return true;
+                        }
+                        return false;
                     }).wrap('<div/>');
                 }
             });

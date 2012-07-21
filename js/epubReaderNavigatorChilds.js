@@ -84,7 +84,7 @@ var fluid_1_4 = fluid_1_4 || {};
         },
         repeatingSelectors: ['bookmarkRow'],
         events: {
-            onBookmarkNavigate: '{navigator}.events.onBookmarkNavigate'
+            onBookmarkNavigate: null
         },
         model: {
             repeatingData: [/*
