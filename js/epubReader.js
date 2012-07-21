@@ -36,7 +36,6 @@ var fluid_1_4 = fluid_1_4 || {};
 
         /* Open the TOC, get the first item and open it */
         that.getTOC = function (f) {
-
             var table = {
                 names: [],
                 values: []
@@ -455,7 +454,6 @@ var fluid_1_4 = fluid_1_4 || {};
     fluid.epubReader.preInitFunction = function (that) {
 
         that.parseEpub = function () {
-            /* TODO remove xml tag from source file */
             var opf_file = that.bookhandle.parser.getContainerFile(that.filefacilitator.getDataFromEpub('META-INF/container.xml')),
                 ncx_file = that.bookhandle.parser.opf(that.filefacilitator.getDataFromEpub(opf_file));
             that.bookhandle.navigator.setTOCModel(that.bookhandle.parser.getTOC(that.filefacilitator.getDataFromEpub(ncx_file)));

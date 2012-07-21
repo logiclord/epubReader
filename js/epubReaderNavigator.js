@@ -163,30 +163,40 @@ var fluid_1_4 = fluid_1_4 || {};
             if (!node) {
                 return null;
             }
+            console.log(JSON.stringify(current_selection));
             var top = node.offset().top - offsetCorrection,
                 bottom = top + node.height(),
                 ret = false,
                 kid;
+            console.log(top + " " + bottom);
+            console.log(node);
             if (current_selection.to <= top || current_selection.from >= bottom) {
+                console.log("case 1");
                 return false;
             } else if (current_selection.from <= top && current_selection.to >= bottom) {
+                console.log("case 2");
                 return true;
             } else {
+                console.log("case 3");
                 kid = node.children();
                 kid.each(function () {
                     var temp = that.createSelection($(this), toHide, offsetCorrection);
                     if (temp === true) {
+                        console.log("true kid exist");
                         ret = true;
                     } else {
+                        console.log(" no good kid exist");
                         toHide.push($(this));
                     }
                 });
                 // overflow test expression ( (node.is('img') || !node.text() ) && current_selection.to >= top && current_selection.to <= bottom )
                 if ((node.is('img') || (kid.length === 0 && node.text() !== '')) && current_selection.from >= top && current_selection.from <= bottom) {
+                    console.log("case 5");
                     current_selection.from = top;
                     current_selection.to = current_selection.from + current_selection_height;
                     return true;
                 } else {
+                    console.log("case 6");
                     return ret;
                 }
             }
@@ -213,6 +223,15 @@ var fluid_1_4 = fluid_1_4 || {};
                 'width': 'auto'
             });
 
+            // Wrapping non-element text in <div>
+            chapterElem.find('*').each(function () {
+                if ($(this).children().length !== 0) {
+                    $(this).contents().filter(function () {
+                        return this.nodeType === 3;
+                    }).wrap('<div/>');
+                }
+            });
+
             /*
              waitForImages jQuery Plugin is a being used because of a bug in .load method of jquery
              .load method is not accurate and fails for cached images case.
@@ -220,7 +239,7 @@ var fluid_1_4 = fluid_1_4 || {};
              in order to navigate inside the chapter
              */
             chapterElem.waitForImages(function () {
-                current_chapter.height = that.locate('chapterContent').height();
+                current_chapter.height = that.getCurrentPageHeight();
                 that.attachAllNotes();
                 that.selectionWrapper();
                 if (that.options.pageMode === 'scroll') {
@@ -231,8 +250,15 @@ var fluid_1_4 = fluid_1_4 || {};
             return false;
         };
 
+        that.getCurrentPageHeight = function () {
+            var lastChild = that.locate('chapterContent').children().last();
+            // calculating height of content
+            return lastChild.offset().top + lastChild.height() - that.locate('chapterContent').offset().top;
+        };
+
         that.next = function () {
             if (that.options.pageMode === 'split') {
+                // Book keeping for previous page stills
                 pagination.push({from: current_selection.from, to: current_selection.to});
                 current_selection.from = current_selection.to + 1;
                 current_selection.to = current_selection.from + current_selection_height;

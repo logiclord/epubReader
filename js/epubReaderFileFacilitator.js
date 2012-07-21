@@ -148,7 +148,7 @@ var fluid_1_4 = fluid_1_4 || {};
                 }
             });
             result = result.replace(/^.*\{/gm, function (str){
-                return that.options.epubReaderContainer + str;
+                return that.options.epubReaderContainer + '  ' + str;
             });
             return result;
         };
