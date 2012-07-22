@@ -15,13 +15,14 @@
     <link rel="stylesheet" type="text/css" href="../lib/infusion/components/uiOptions/css/UIOptions.css" />
     <link rel="stylesheet" type="text/css" href="../lib/infusion/components/uiOptions/css/FullUIOptions.css" />
 
-    <script type="text/javascript" src="../lib/infusion/InfusionAll.js"></script>
-
-
     <!-- epubReader dependencies -->
 
     <link rel="stylesheet" href="../css/epubReaderUIOptions.css"/>
     <link rel="stylesheet" href="../css/epubReader.css"/>
+
+
+    <script type="text/javascript" src="../lib/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>
+    <script type="text/javascript" src="../lib/infusion/InfusionAll.js"></script>
 
     <script type="text/javascript" src="../lib/jquery.waitforimages.js"></script>
     <script type="text/javascript" src="../lib/jquery.qtip-1.0.0-rc3.custom/jquery.qtip-1.0.0-rc3.min.js"></script>
@@ -51,6 +52,7 @@
                     <li><a href="#tabg" class="fl-tab-general">General</a></li>
                     <li><a href="#tabb" class="fl-tab-bookmarks">Bookmarks</a></li>
                     <li><a href="#tabn" class="fl-tab-notes" >Notes</a></li>
+                    <li><a href="#tabe" class="fl-tab-edit" >Edit</a></li>
                 </ul>
                 <div id="tabg" class="fl-clearfix" >
                     <ul class="fl-clearfix">
@@ -117,6 +119,15 @@
                             </td>
                         </tr>
                     </table></div>
+            <div id="tabe" class="fl-clearfix" >
+                <ul class="fl-clearfix">
+                    <li>
+                        <button type="button" class="flc-epubReader-editor-activateButton fl-rounded-corners">Edit
+                            Page
+                        </button>
+                    </li>
+                </ul>
+            </div>
         </div>
 
         <div class="fl-panelBar">
@@ -132,7 +143,11 @@
             <div class="flc-epubReader-progressIndicator-completed"></div>
         </div>
         <div class="flc-epubReader-chapter-styles"></div>
-        <div class="flc-epubReader-chapter-content" ></div>
+        <div class="flc-epubReader-chapter-content flc-inlineEdit-text flc-epubReader-chapter-StyleElement" ></div>
+        <div class="flc-inlineEdit-editContainer">
+            <button class="flc-inlineEdit-saveButton">Save</button> <button class="flc-inlineEdit-cancelButton">Cancel</button>
+            <textarea></textarea>
+        </div>
     </div>
 </div>
 
@@ -167,11 +182,9 @@
 
     fluid.epubReader(".fl-epubReader-container",{
         book:{
-            epubPath : "../tests/epubs/carroll-alice-in-wonderland-illustrations.epub"
+            epubPath : "../tests/epubs/the_hound_of_the_baskervilles_igp_epub3_sir_arthur.epub"
         }
     });
-
-    var papu;
 </script>
 
 </body>

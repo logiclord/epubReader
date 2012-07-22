@@ -8,6 +8,85 @@ var fluid_1_4 = fluid_1_4 || {};
     /* Add fluid logging */
     //fluid.setLogging(true);
 
+    /* TinyMCE Editor Component using Rich Text Inline Edit API */
+    fluid.defaults('fluid.epubReader.bookHandler.editor', {
+        gradeNames: ['fluid.viewComponent', 'autoInit'],
+        selectors: {
+            editActivationButton : '{epubReader}.options.selectors.editActivationButton',
+            chapterContent : '{epubReader}.options.selectors.chapterContent',
+            editorSaveButton: '{epubReader}.options.selectors.editorSaveButton',
+            editorCancelButton: '{epubReader}.options.selectors.editorCancelButton',
+            chapterStyle: '{epubReader}.options.selectors.chapterStyle',
+            chapterStyleElement: '{epubReader}.options.selectors.chapterStyleElement'
+        },
+        width: '100%',
+        height: 525,
+        finalInitFunction: 'fluid.epubReader.bookHandler.editor.finalInit'
+    });
+
+    fluid.epubReader.bookHandler.editor.finalInit = function (that) {
+
+        var makeButtons = function (editor) {
+                $(that.options.selectors.editorSaveButton, editor.container).click(function () {
+                    editor.finish();
+                    return false;
+                });
+
+                $(that.options.selectors.editorCancelButton, editor.container).click(function () {
+                    editor.cancel();
+                    return false;
+                });
+            },
+        // Create a TinyMCE-based Rich Inline Edit component.
+            tinyEditor = fluid.inlineEdit.tinyMCE(that.container, {
+                tinyMCE: {
+                    width: that.options.width,
+                    height: that.options.height,
+                    theme: 'advanced',
+                    theme_advanced_toolbar_location : 'top'
+                },
+                strings: {
+                    // TODO - to hide edit button placed just above the editing region
+                    textEditButton: ''
+                },
+                listeners: {
+                    onBeginEdit: function () {
+                        // disable edit button
+                        that.locate('editActivationButton').attr('disabled', 'disabled');
+                        /*
+                         A workaround for TinyMCE issue
+                         Details - TinyMCE select all visible elements and make them available for editing
+                         irrespective of the fact that some ancestor of element might be hidden.
+                         */
+                        that.locate('chapterContent').find(':hidden').each(function () {
+                            $(this).find('*').hide();
+                        });
+                        // Initialize TinyMCE editor with updated chapter content
+                        tinyEditor.updateModelValue(that.locate('chapterContent').html(), null);
+                    },
+                    afterInitEdit: function (editor) {
+                        // Apply current chapter styles to TinyMCE editor
+                        editor.dom.addClass(editor.dom.select('body'), that.options.selectors.chapterStyleElement.slice(1));
+                        editor.dom.add(editor.dom.select('head'), 'style', {type: 'text/css'}, that.locate('chapterStyle').find('style').text());
+                    },
+                    afterFinishEdit: function (newValue, oldValue, editNode, viewNode) {
+                        // enable edit button
+                        that.locate('editActivationButton').removeAttr('disabled');
+                    }
+                },
+                useTooltip: false
+            });
+        makeButtons(tinyEditor);
+
+        that.attachEditor = function () {
+            tinyEditor.edit();
+        };
+        /* Attach click handler for custom edit button */
+        that.locate('editActivationButton').click(function () {
+            that.attachEditor();
+        });
+    };
+
     fluid.defaults('fluid.epubReader.bookHandler.parser', {
         gradeNames: ['fluid.viewComponent', 'autoInit'],
         selectors: {
@@ -151,6 +230,10 @@ var fluid_1_4 = fluid_1_4 || {};
                         remainingWrapper: '{epubReader}.options.selectors.remainingWrapper'
                     }
                 }
+            },
+            editor: {
+                type: 'fluid.epubReader.bookHandler.editor',
+                container: '{bookHandler}.container'
             }
         },
         selectors: {
@@ -216,6 +299,9 @@ var fluid_1_4 = fluid_1_4 || {};
             }
             if (code  === 37 && e.shiftKey) {
                 that.navigator.previous_chapter();
+            }
+            if (code  === 65 && e.altKey) {
+                that.editor.attachEditor();
             }
         });
         // next button event for navigation
@@ -404,6 +490,7 @@ var fluid_1_4 = fluid_1_4 || {};
             remaining: '.flc-epubReader-progressIndicator-completed',
             remainingWrapper: '.fl-epubReader-progressIndicator',
             chapterStyle: '.flc-epubReader-chapter-styles',
+            chapterStyleElement: '.flc-epubReader-chapter-StyleElement',
             chapterContent: '.flc-epubReader-chapter-content',
             tocSelector: '.flc-epubReader-toc',
             tocContainer: '.fl-epubReader-tocContainer',
@@ -431,13 +518,16 @@ var fluid_1_4 = fluid_1_4 || {};
             nextButton: '.flc-epubReader-nextButton',
             previousButton: '.flc-epubReader-previousButton',
             nextChapterButton: '.flc-epubReader-nextChapterButton',
-            previousChapterButton: '.flc-epubReader-previousChapterButton'
+            previousChapterButton: '.flc-epubReader-previousChapterButton',
+            editorSaveButton: '.flc-inlineEdit-saveButton',
+            editorCancelButton: '.flc-inlineEdit-cancelButton',
+            editActivationButton: '.flc-epubReader-editor-activateButton'
         },
         strings: {
-            uiOptionShowText: '+ UI Options',
-            uiOptionHideText: '- UI Options',
-            navigationShowText: '+ Navigation',
-            navigationHideText: '- Navigation'
+            uiOptionShowText: '+ Personalize',
+            uiOptionHideText: '- Personalize',
+            navigationShowText: '+ Manage',
+            navigationHideText: '- Manage'
         },
         book: {
             epubPath: '../epubs/potter-tale-of-peter-rabbit-illustrations.epub',

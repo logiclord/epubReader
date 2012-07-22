@@ -72,7 +72,7 @@ var fluid_1_4 = fluid_1_4 || {};
         events: {
             afterEpubReady: null
         },
-        epubReaderContainer: '{epubReader}.options.selectors.chapterContent',
+        chapterStyleElement: '{epubReader}.options.selectors.chapterStyleElement',
         finalInitFunction: 'fluid.epubReader.fileFacilitator.finalInit'
     });
 
@@ -148,7 +148,7 @@ var fluid_1_4 = fluid_1_4 || {};
                 }
             });
             result = result.replace(/^.*\{/gm, function (str){
-                return that.options.epubReaderContainer + '  ' + str;
+                return that.options.chapterStyleElement + '  ' + str;
             });
             return result;
         };
