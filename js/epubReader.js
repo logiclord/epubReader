@@ -235,11 +235,16 @@ var fluid_1_4 = fluid_1_4 || {};
             nextButton: '{epubReader}.options.selectors.nextButton',
             previousButton: '{epubReader}.options.selectors.previousButton',
             nextChapterButton: '{epubReader}.options.selectors.nextChapterButton',
-            previousChapterButton: '{epubReader}.options.selectors.previousChapterButton'
+            previousChapterButton: '{epubReader}.options.selectors.previousChapterButton',
+            downloadButton: '{epubReader}.options.selectors.downloadButton'
         },
         events: {
             onUIOptionsUpdate: null,
-            onPageModeRestore: null
+            onPageModeRestore: null,
+            onDownloadRequest: null
+        },
+        listeners: {
+            onDownloadRequest: '{filefacilitator}.downloadEpubFile'
         },
         finalInitFunction: 'fluid.epubReader.bookHandler.finalInit'
     });
@@ -291,6 +296,16 @@ var fluid_1_4 = fluid_1_4 || {};
             if (code  === 69 && e.shiftKey) {
                 that.editor.attachEditor();
             }
+        });
+        //download book
+        that.locate('downloadButton').click(function (evt) {
+            // save any pending changes in current chapter
+            fluid.epubReader.utils.showNotification('Please Wait', 'info', 1000);
+            $(this).attr('disabled', 'disabled');
+            that.navigator.saveCurrentChapter();
+            that.events.onDownloadRequest.fire();
+            $(this).removeAttr('disabled');
+            fluid.epubReader.utils.showNotification('Download Available', 'info');
         });
         // next button event for navigation
         that.locate('nextButton').click(function (evt) {
@@ -509,7 +524,8 @@ var fluid_1_4 = fluid_1_4 || {};
             previousChapterButton: '.flc-epubReader-previousChapterButton',
             editorSaveButton: '.flc-inlineEdit-saveButton',
             editorCancelButton: '.flc-inlineEdit-cancelButton',
-            editActivationButton: '.flc-epubReader-editor-activateButton'
+            editActivationButton: '.flc-epubReader-editor-activateButton',
+            downloadButton: '.flc-epubReader-downloadButton'
         },
         strings: {
             uiOptionShowText: '+ Personalize',
@@ -538,7 +554,11 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.loadContent = function (page) {
-            that.bookhandle.navigator.load_content(that.filefacilitator.preProcessChapter(that.filefacilitator.getDataFromEpub(page), that.filefacilitator.getFolder(page)));
+            that.bookhandle.navigator.loadChapter(that.filefacilitator.preProcessChapter(that.filefacilitator.getDataFromEpub(page), that.filefacilitator.getFolder(page)));
+        };
+
+        that.saveContent = function (chapterPath, chapterContent) {
+            that.filefacilitator.saveChapter(chapterPath, chapterContent);
         };
     };
 

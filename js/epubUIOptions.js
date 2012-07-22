@@ -133,7 +133,6 @@ var fluid_1_4 = fluid_1_4 || {};
                                         fx: { height: 'toggle' }
                                     }
                                 });
-                                console.log(that);
                                 // restoring pageMode
                                 that.events.onPageModeRestore.fire(that.model.selections.pageMode);
                             },

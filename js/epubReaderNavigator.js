@@ -40,6 +40,7 @@ var fluid_1_4 = fluid_1_4 || {};
         pageMode: 'split',
         scrollSpeed: 50,
         autoActivate: false,
+        maxSplitModePageHeight: 500,
         selectors: {
             remaining: '{bookHandler}.options.selectors.remaining',
             chapterStyle: '{bookHandler}.options.selectors.chapterStyle',
@@ -49,11 +50,13 @@ var fluid_1_4 = fluid_1_4 || {};
         },
         events: {
             onUIOptionsUpdate: '{bookHandler}.events.onUIOptionsUpdate',
-            onPageModeRestore: '{bookHandler}.events.onPageModeRestore'
+            onPageModeRestore: '{bookHandler}.events.onPageModeRestore',
+            onSaveReady: null
         },
         listeners: {
             onUIOptionsUpdate: '{navigator}.requestContentLoad',
-            onPageModeRestore: '{navigator}.setPageMode'
+            onPageModeRestore: '{navigator}.setPageMode',
+            onSaveReady: '{epubReader}.saveContent'
         },
         finalInitFunction: 'fluid.epubReader.bookHandler.navigator.finalInit',
         preInitFunction: 'fluid.epubReader.bookHandler.navigator.preInit'
@@ -105,14 +108,29 @@ var fluid_1_4 = fluid_1_4 || {};
     };
 
     fluid.epubReader.bookHandler.navigator.finalInit = function (that) {
-        var current_selection_height = 500,
-            current_chapter = {},
-            current_selection = {},//= {from : 0, to : current_selection_height};
-            pagination = []; // to keep track about forward and backward pagination ranges
+        var currentChapterHeight,
+            currentSelection = {},                 //= {from : 0, to : that.options.maxSplitModePageHeight};
+            pagination = [],                        // to keep track about forward and backward pagination ranges
+            deactivateSelection = function () {
+                // removing tabindex for all elements
+                that.locate('bookContainer').find('*').removeAttr('tabindex');
+            },
+            activateSelection = function () {
+                that.locate('bookContainer').fluid('activate');
+            },
+            getCurrentPageHeight = function () {
+                var lastChild = that.locate('chapterContent').children().last();
+                // calculating height of content
+                return lastChild.offset().top + lastChild.height() - that.locate('chapterContent').offset().top;
+            },
+            resetSelection = function () {
+                currentSelection.from = 0;
+                currentSelection.to = currentSelection.from + that.options.maxSplitModePageHeight;
+            };
 
         that.splitModeScrollTop =  function (itemOffset) {
-            while (!(current_selection.from <= itemOffset && itemOffset <= current_selection.to)) {
-                console.log(JSON.stringify(current_selection));
+            while (!(currentSelection.from <= itemOffset && itemOffset <= currentSelection.to)) {
+                console.log(JSON.stringify(currentSelection));
                 that.next();
             }
             /*  TODO - To be removed after editing API completion
@@ -139,9 +157,8 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.selectionWrapper = function () {
-            // removing tabindex for hidden elements
             /* TODO not working properly for notes - fix in editing part */
-            that.locate('bookContainer').find('*').removeAttr('tabindex');
+            deactivateSelection();
             if (that.options.pageMode === 'split') {
                 that.locate('chapterContent').find(':hidden').show();
                 var toHide = [],
@@ -152,13 +169,13 @@ var fluid_1_4 = fluid_1_4 || {};
                 }
                 that.updateProgressbar();
                 if (that.options.autoActivate) {
-                     that.locate('bookContainer').fluid('activate');
+                    activateSelection();
                 }
                 that.locate('bookContainer').focus();
                 return ret;
             } else if (that.options.pageMode === 'scroll') {
                 if (that.options.autoActivate) {
-                    that.locate('bookContainer').fluid('activate');
+                    activateSelection();
                 }
                 that.locate('bookContainer').focus();
                 return true;
@@ -166,7 +183,7 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.updateProgressbar = function () {
-            var progress = 500 * ((current_selection.to > current_chapter.height) ? 1 : (current_selection.to / current_chapter.height));
+            var progress = 500 * ((currentSelection.to > currentChapterHeight) ? 1 : (currentSelection.to / currentChapterHeight));
             that.locate('remaining').css('width', progress + 'px');
         };
 
@@ -178,9 +195,9 @@ var fluid_1_4 = fluid_1_4 || {};
                 bottom = top + node.height(),
                 ret = false,
                 kid;
-            if (current_selection.to <= top || current_selection.from >= bottom) {
+            if (currentSelection.to <= top || currentSelection.from >= bottom) {
                 return false;
-            } else if (current_selection.from <= top && current_selection.to >= bottom) {
+            } else if (currentSelection.from <= top && currentSelection.to >= bottom) {
                 return true;
             } else {
                 kid = node.children();
@@ -192,10 +209,10 @@ var fluid_1_4 = fluid_1_4 || {};
                         toHide.push($(this));
                     }
                 });
-                // overflow test expression ( (node.is('img') || !node.text() ) && current_selection.to >= top && current_selection.to <= bottom )
-                if ((node.is('img') || (kid.length === 0 && node.text() !== '')) && current_selection.from >= top && current_selection.from <= bottom) {
-                    current_selection.from = top;
-                    current_selection.to = current_selection.from + current_selection_height;
+                // overflow test expression ( (node.is('img') || !node.text() ) && currentSelection.to >= top && currentSelection.to <= bottom )
+                if ((node.is('img') || (kid.length === 0 && node.text() !== '')) && currentSelection.from >= top && currentSelection.from <= bottom) {
+                    currentSelection.from = top;
+                    currentSelection.to = currentSelection.from + that.options.maxSplitModePageHeight;
                     return true;
                 } else {
                     return ret;
@@ -203,20 +220,35 @@ var fluid_1_4 = fluid_1_4 || {};
             }
         };
 
-        that.resetSelection = function () {
-            current_selection.from = 0;
-            current_selection.to = current_selection.from + current_selection_height;
+        papu = that;
+
+        that.saveChapter = function (chapterPath) {
+            if (chapterPath !== undefined) {
+                deactivateSelection();
+                that.locate('chapterContent').find(':hidden').show();
+                that.events.onSaveReady.fire(chapterPath, that.locate('chapterContent').html());
+            }
         };
 
-        that.load_content = function (chapter_content) {
-            console.log('new chapter');
-            current_chapter = chapter_content;
-            pagination = [];
-            var chapterElem = that.locate('chapterContent');
+        that.savePreviousChapter = function () {
+            that.saveChapter(that.toc.getPreviousSelection());
+        };
 
-            that.resetSelection();
-            chapterElem.html(current_chapter.content);
-            that.locate('chapterStyle').html(current_chapter.styles);
+        that.saveCurrentChapter = function () {
+            that.saveChapter(that.toc.getCurrentChapter().value);
+            // restore hidden element if any
+            if (that.options.pageMode === 'split') {
+                that.selectionWrapper();
+            }
+        };
+
+        that.loadChapter = function (chapter) {
+            that.savePreviousChapter();
+            var chapterElem = that.locate('chapterContent');
+            pagination = [];
+            resetSelection();
+            chapterElem.html(chapter.content);
+            that.locate('chapterStyle').html(chapter.styles);
 
             chapterElem.find('img').css({
                 'max-width': that.options.constraints.maxImageWidth + 'px',
@@ -244,7 +276,7 @@ var fluid_1_4 = fluid_1_4 || {};
              in order to navigate inside the chapter
              */
             chapterElem.waitForImages(function () {
-                current_chapter.height = that.getCurrentPageHeight();
+                currentChapterHeight = getCurrentPageHeight();
                 that.attachAllNotes();
                 that.selectionWrapper();
                 if (that.options.pageMode === 'scroll') {
@@ -255,19 +287,13 @@ var fluid_1_4 = fluid_1_4 || {};
             return false;
         };
 
-        that.getCurrentPageHeight = function () {
-            var lastChild = that.locate('chapterContent').children().last();
-            // calculating height of content
-            return lastChild.offset().top + lastChild.height() - that.locate('chapterContent').offset().top;
-        };
-
         that.next = function () {
             if (that.options.pageMode === 'split') {
                 // Book keeping for previous page stills
-                pagination.push({from: current_selection.from, to: current_selection.to});
-                current_selection.from = current_selection.to + 1;
-                current_selection.to = current_selection.from + current_selection_height;
-                if (current_selection.from < current_chapter.height) {
+                pagination.push({from: currentSelection.from, to: currentSelection.to});
+                currentSelection.from = currentSelection.to + 1;
+                currentSelection.to = currentSelection.from + that.options.maxSplitModePageHeight;
+                if (currentSelection.from < currentChapterHeight) {
                     if (that.selectionWrapper() === false) {
                         that.next();
                     }
@@ -285,20 +311,20 @@ var fluid_1_4 = fluid_1_4 || {};
 
         that.previous = function () {
             if (that.options.pageMode === 'split') {
-                current_selection = pagination.pop();
-                if (current_selection !== undefined && current_selection.to > 0) {
+                currentSelection = pagination.pop();
+                if (currentSelection !== undefined && currentSelection.to > 0) {
                     if (that.selectionWrapper() === false) {
                         that.previous();
                     }
                 } else {
-                    current_selection = {};
+                    currentSelection = {};
                     that.previous_chapter();
                 }
             } else if (that.options.pageMode === 'scroll') {
                 that.locate('bookContainer').scrollTop(that.locate('bookContainer').scrollTop() - that.options.scrollSpeed);
                 // continous scroll till the beginning  of book
                 if (that.locate('bookContainer').scrollTop() <= 0) {
-                    current_selection = {};
+                    currentSelection = {};
                     that.previous_chapter();
                     that.locate('bookContainer').scrollTop(that.locate('bookContainer')[0].scrollHeight - that.locate('bookContainer')[0].offsetHeight);
                 }

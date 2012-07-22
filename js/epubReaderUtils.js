@@ -8,7 +8,10 @@ var fluid_1_4 = fluid_1_4 || {};
 
     fluid.registerNamespace('fluid.epubReader.utils');
     // custom made notification method
-    fluid.epubReader.utils.showNotification = function (msg, type) {
+    fluid.epubReader.utils.showNotification = function (msg, type, showTime) {
+        if (showTime === undefined) {
+            showTime = 3000;
+        }
         var temp = $('<div/>');
         temp.text(msg);
         temp.appendTo(document.body);
@@ -29,7 +32,7 @@ var fluid_1_4 = fluid_1_4 || {};
                     dialogElem.animate({opacity: 0 }, 500, function () {
                         temp.dialog('close');
                     });
-                }, 3000);
+                }, showTime);
             },
             close: function () {
                 temp.remove();

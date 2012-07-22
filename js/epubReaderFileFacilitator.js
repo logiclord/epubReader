@@ -1,5 +1,5 @@
 // Declare dependencies
-/*global fluid_1_4:true, jQuery, JSZip, JSZipBase64*/
+/*global fluid_1_4:true, jQuery, JSZip, JSZipBase64, XMLSerializer*/
 
 /*
  To facilitate file availability
@@ -57,6 +57,16 @@ var fluid_1_4 = fluid_1_4 || {};
         that.encodeBase64 = function (data) {
             return JSZipBase64.encode(data);
         };
+        that.saveFile = function (path, content) {
+            unzip.file(path, content, {
+                binary: false
+            });
+        };
+        that.getZipContent = function () {
+            return unzip.generate({
+                compression: 'DEFLATE'
+            });
+        };
     };
 
     fluid.defaults('fluid.epubReader.fileFacilitator', {
@@ -73,10 +83,46 @@ var fluid_1_4 = fluid_1_4 || {};
             afterEpubReady: null
         },
         chapterStyleElement: '{epubReader}.options.selectors.chapterStyleElement',
-        finalInitFunction: 'fluid.epubReader.fileFacilitator.finalInit'
+        finalInitFunction: 'fluid.epubReader.fileFacilitator.finalInit',
+        preInitFunction: 'fluid.epubReader.fileFacilitator.preInit'
     });
 
+    fluid.epubReader.fileFacilitator.preInit = function (that) {
+        that.downloadEpubFile = function () {
+            // TODO - change extension to .epub instead of .zip and JSzip has a filename bug for firefox
+            // One solution is to use https://github.com/dcneiner/downloadify
+            location.href = "data:application/zip;base64," + that.JSZipWrapper.getZipContent();
+        };
+    };
+
     fluid.epubReader.fileFacilitator.finalInit = function (that) {
+        var xmlToString  = function (input) {
+            var xmlString;
+            if (window.ActiveXObject) {
+                xmlString = input.xml;
+            } else {
+                xmlString = (new XMLSerializer()).serializeToString(input);
+            }
+            return xmlString;
+        };
+
+        that.saveChapter = function (chapterPath, chapterContent) {
+            var rawChapter = $.parseXML(that.getDataFromEpub(chapterPath));
+            $(rawChapter).find('body').html(that.postProcessChapter(chapterContent));
+            that.JSZipWrapper.saveFile(chapterPath, xmlToString(rawChapter));
+        };
+
+        // return a jQuery object of recovered html
+        that.postProcessChapter = function (htmlContent) {
+            htmlContent = $(htmlContent);
+            htmlContent.wrap('div');
+            // restoring image src attributes
+            htmlContent.find('img').each(function () {
+                $(this).attr('src', $(this).attr('original_src'));
+                $(this).removeAttr('original_src');
+            });
+            return htmlContent;
+        };
 
         that.getDataFromEpub = function (filename, callback) {
             if (!filename) {

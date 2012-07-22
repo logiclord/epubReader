@@ -11,12 +11,13 @@ var fluid_1_4 = fluid_1_4 || {};
         selectors: {
             tocSelector: '{epubReader}.options.selectors.tocSelector'
         },
-        model: {
+        model: { /*
             table: {
                 names: ['Waiting..'],
                 values: ['wait']
             },
             currentSelection: 'wait'
+            */
         },
         events: {
             onContentLoad: null
@@ -25,8 +26,7 @@ var fluid_1_4 = fluid_1_4 || {};
             onContentLoad: '{epubReader}.loadContent'
         },
         produceTree: 'fluid.epubReader.bookHandler.navigator.toc.produceTree',
-        finalInitFunction: 'fluid.epubReader.bookHandler.navigator.toc.finalInit',
-        renderOnInit: true
+        finalInitFunction: 'fluid.epubReader.bookHandler.navigator.toc.finalInit'
     });
 
     fluid.epubReader.bookHandler.navigator.toc.produceTree = function (that) {
@@ -40,14 +40,20 @@ var fluid_1_4 = fluid_1_4 || {};
     };
 
     fluid.epubReader.bookHandler.navigator.toc.finalInit = function (that) {
-
+        var previousSelection;
         that.applier.modelChanged.addListener('currentSelection', function () {
             that.refreshView();
             that.reloadCurrent();
         });
+        that.applier.guards.addListener('currentSelection', function () {
+            previousSelection = that.model.currentSelection;
+        });
+        that.getPreviousSelection = function () {
+            return previousSelection;
+        };
         that.setModel = function (temp) {
             that.applier.requestChange('table', temp.table);
-            that.applier.requestChange('currentSelection', temp.currentSelection);
+            that.setCurrentChapterToValue(temp.currentSelection);
         };
         that.applier.modelChanged.addListener('table', function () {
             that.refreshView();
@@ -71,7 +77,7 @@ var fluid_1_4 = fluid_1_4 || {};
             return that.model.table.values.indexOf(that.model.currentSelection);
         };
         that.setCurrentSelectionToIndex = function (newSelectionIndex) {
-            that.applier.requestChange('currentSelection', that.model.table.values[newSelectionIndex]);
+            that.setCurrentChapterToValue(that.model.table.values[newSelectionIndex]);
         };
     };
 
