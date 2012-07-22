@@ -49,6 +49,7 @@ var fluid_1_4 = fluid_1_4 || {};
                     // TODO - to hide edit button placed just above the editing region
                     textEditButton: ''
                 },
+                defaultViewText: '',
                 listeners: {
                     onBeginEdit: function () {
                         // disable edit button
@@ -90,7 +91,8 @@ var fluid_1_4 = fluid_1_4 || {};
     fluid.defaults('fluid.epubReader.bookHandler.parser', {
         gradeNames: ['fluid.viewComponent', 'autoInit'],
         selectors: {
-            contentTitle: '.flc-epubReader-chapter-title'
+            contentTitle: '{bookHandler}.options.selectors.contentTitle',
+            tocSelector: '{bookHandler}.options.selectors.tocSelector'
         },
         epubVersion: 2,
         finalInitFunction: 'fluid.epubReader.bookHandler.parser.finalInit'
@@ -210,26 +212,11 @@ var fluid_1_4 = fluid_1_4 || {};
         components: {
             parser: {
                 type: 'fluid.epubReader.bookHandler.parser',
-                container: '{bookHandler}.container',
-                options: {
-                    selectors: {
-                        contentTitle: '{bookHandler}.options.selectors.contentTitle',
-                        tocSelector: '{bookHandler}.options.selectors.tocSelector'
-                    }
-                }
+                container: '{bookHandler}.container'
             },
             navigator: {
                 type: 'fluid.epubReader.bookHandler.navigator',
-                container: '{bookHandler}.container',
-                options: {
-                    selectors: {
-                        remaining: '{bookHandler}.options.selectors.remaining',
-                        chapterStyle: '{bookHandler}.options.selectors.chapterStyle',
-                        chapterContent: '{bookHandler}.options.selectors.chapterContent',
-                        bookContainer: '{bookHandler}.options.selectors.bookContainer',
-                        remainingWrapper: '{epubReader}.options.selectors.remainingWrapper'
-                    }
-                }
+                container: '{bookHandler}.container'
             },
             editor: {
                 type: 'fluid.epubReader.bookHandler.editor',
@@ -251,7 +238,8 @@ var fluid_1_4 = fluid_1_4 || {};
             previousChapterButton: '{epubReader}.options.selectors.previousChapterButton'
         },
         events: {
-            onUIOptionsUpdate: null
+            onUIOptionsUpdate: null,
+            onPageModeRestore: null
         },
         finalInitFunction: 'fluid.epubReader.bookHandler.finalInit'
     });
@@ -285,7 +273,7 @@ var fluid_1_4 = fluid_1_4 || {};
         that.locate('addNoteButton').click(function (evt) {
             that.addNoteHandler();
         });
-        // shift + arrow keys for navigation
+        // shift + keys for navigation and edit
         that.locate('bookContainer').bind('keydown', function (e) {
             var code = e.keyCode || e.which;
             if (code  === 40 && e.shiftKey) {
@@ -300,7 +288,7 @@ var fluid_1_4 = fluid_1_4 || {};
             if (code  === 37 && e.shiftKey) {
                 that.navigator.previous_chapter();
             }
-            if (code  === 65 && e.altKey) {
+            if (code  === 69 && e.shiftKey) {
                 that.editor.attachEditor();
             }
         });
@@ -546,7 +534,7 @@ var fluid_1_4 = fluid_1_4 || {};
         that.parseEpub = function () {
             var opf_file = that.bookhandle.parser.getContainerFile(that.filefacilitator.getDataFromEpub('META-INF/container.xml')),
                 ncx_file = that.bookhandle.parser.opf(that.filefacilitator.getDataFromEpub(opf_file));
-            that.bookhandle.navigator.setTOCModel(that.bookhandle.parser.getTOC(that.filefacilitator.getDataFromEpub(ncx_file)));
+            that.bookhandle.navigator.toc.setModel(that.bookhandle.parser.getTOC(that.filefacilitator.getDataFromEpub(ncx_file)));
         };
 
         that.loadContent = function (page) {

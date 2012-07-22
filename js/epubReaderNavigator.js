@@ -41,39 +41,25 @@ var fluid_1_4 = fluid_1_4 || {};
         scrollSpeed: 50,
         autoActivate: false,
         selectors: {
-            remaining: '.flc-epubReader-progressIndicator-completed',
-            chapterStyle: '.flc-epubReader-chapter-styles',
-            chapterContent: '.flc-epubReader-chapter-content',
-            bookContainer: '.fl-epubReader-bookContainer',
-            remainingWrapper: '.fl-epubReader-progressIndicator'
+            remaining: '{bookHandler}.options.selectors.remaining',
+            chapterStyle: '{bookHandler}.options.selectors.chapterStyle',
+            chapterContent: '{bookHandler}.options.selectors.chapterContent',
+            bookContainer: '{bookHandler}.options.selectors.bookContainer',
+            remainingWrapper: '{epubReader}.options.selectors.remainingWrapper'
         },
         events: {
-            onUIOptionsUpdate: '{bookHandler}.events.onUIOptionsUpdate'
+            onUIOptionsUpdate: '{bookHandler}.events.onUIOptionsUpdate',
+            onPageModeRestore: '{bookHandler}.events.onPageModeRestore'
         },
         listeners: {
-            onUIOptionsUpdate: '{navigator}.requestContentLoad'
+            onUIOptionsUpdate: '{navigator}.requestContentLoad',
+            onPageModeRestore: '{navigator}.setPageMode'
         },
         finalInitFunction: 'fluid.epubReader.bookHandler.navigator.finalInit',
         preInitFunction: 'fluid.epubReader.bookHandler.navigator.preInit'
     });
 
     fluid.epubReader.bookHandler.navigator.preInit = function (that) {
-
-        // to adjust navigator according to page mode
-        that.setTOCModel = function (temp) {
-            that.toc.applier.requestChange('table', temp.table);
-            that.toc.applier.requestChange('currentSelection', temp.currentSelection);
-        };
-
-        that.naivagteTo = function (chapterValue, itemOffset) {
-            that.toc.setCurrentChapterToValue(chapterValue);
-            if (that.options.pageMode === 'scroll') {
-                that.locate('bookContainer').scrollTop(itemOffset);
-            } else if (that.options.pageMode === 'split') {
-                that.splitModeScrollTop(itemOffset);
-            }
-        };
-
         // To handler UI options setting change
         that.requestContentLoad = function (selection) {
             var newMode = selection.pageMode;
@@ -82,17 +68,31 @@ var fluid_1_4 = fluid_1_4 || {};
             } else if (that.options.pageMode === 'split' && newMode === 'split') {
                 that.toc.reloadCurrent();
             } else {
-                that.options.pageMode = newMode;
-                if (that.options.pageMode === 'split') {
-                    that.locate('remainingWrapper').show();
-                    that.locate('chapterContent').css('overflow', 'hidden');
-                    that.locate('bookContainer').css('overflow-y', 'hidden');
-                } else if (that.options.pageMode === 'scroll') {
-                    that.locate('remainingWrapper').hide();
-                    that.locate('chapterContent').css('overflow', 'visible');
-                    that.locate('bookContainer').css('overflow-y', 'auto');
-                }
+                that.setPageMode(newMode);
                 that.toc.reloadCurrent();
+            }
+        };
+
+        // restoring page mode retrieve using UI Options component
+        that.setPageMode = function (newPageMode) {
+            that.options.pageMode = newPageMode;
+            if (that.options.pageMode === 'split') {
+                that.locate('remainingWrapper').show();
+                that.locate('chapterContent').css('overflow', 'hidden');
+                that.locate('bookContainer').css('overflow-y', 'hidden');
+            } else if (that.options.pageMode === 'scroll') {
+                that.locate('remainingWrapper').hide();
+                that.locate('chapterContent').css('overflow', 'visible');
+                that.locate('bookContainer').css('overflow-y', 'auto');
+            }
+        };
+        // for bookmarks
+        that.naivagteTo = function (chapterValue, itemOffset) {
+            that.toc.setCurrentChapterToValue(chapterValue);
+            if (that.options.pageMode === 'scroll') {
+                that.locate('bookContainer').scrollTop(itemOffset);
+            } else if (that.options.pageMode === 'split') {
+                that.splitModeScrollTop(itemOffset);
             }
         };
         // on updating note attach notes to elements in UI
@@ -152,7 +152,7 @@ var fluid_1_4 = fluid_1_4 || {};
                 }
                 that.updateProgressbar();
                 if (that.options.autoActivate) {
-                    that.locate('bookContainer').fluid('activate');
+                     that.locate('bookContainer').fluid('activate');
                 }
                 that.locate('bookContainer').focus();
                 return ret;

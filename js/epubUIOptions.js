@@ -118,7 +118,8 @@ var fluid_1_4 = fluid_1_4 || {};
                         }
                     },
                     events: {
-                        onSave  : '{bookHandler}.events.onUIOptionsUpdate'
+                        onSave  : '{bookHandler}.events.onUIOptionsUpdate',
+                        onPageModeRestore: '{bookHandler}.events.onPageModeRestore'
                     },
                     listeners: {
                         onReset: function (uiOptions) {
@@ -132,6 +133,9 @@ var fluid_1_4 = fluid_1_4 || {};
                                         fx: { height: 'toggle' }
                                     }
                                 });
+                                console.log(that);
+                                // restoring pageMode
+                                that.events.onPageModeRestore.fire(that.model.selections.pageMode);
                             },
                             priority: 'last'
                         }

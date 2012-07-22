@@ -45,6 +45,10 @@ var fluid_1_4 = fluid_1_4 || {};
             that.refreshView();
             that.reloadCurrent();
         });
+        that.setModel = function (temp) {
+            that.applier.requestChange('table', temp.table);
+            that.applier.requestChange('currentSelection', temp.currentSelection);
+        };
         that.applier.modelChanged.addListener('table', function () {
             that.refreshView();
         });
