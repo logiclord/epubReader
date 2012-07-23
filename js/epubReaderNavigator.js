@@ -53,13 +53,15 @@ var fluid_1_4 = fluid_1_4 || {};
             onUIOptionsUpdate: '{bookHandler}.events.onUIOptionsUpdate',
             onPageModeRestore: '{bookHandler}.events.onPageModeRestore',
             onSaveReady: null,
-            onAttributeDeleteInFile: null
+            onAttributeDeleteInFile: null,
+            onFileSave: null
         },
         listeners: {
             onUIOptionsUpdate: '{navigator}.requestContentLoad',
             onPageModeRestore: '{navigator}.setPageMode',
-            onSaveReady: '{epubReader}.saveContent',
-            onAttributeDeleteInFile: '{filefacilitator}.deleteAttributeDeleteInFile'
+            onSaveReady: '{filefacilitator}.saveChapter',
+            onAttributeDeleteInFile: '{filefacilitator}.deleteAttributeDeleteInFile',
+            onFileSave: '{filefacilitator}.saveFile'
         },
         finalInitFunction: 'fluid.epubReader.bookHandler.navigator.finalInit',
         preInitFunction: 'fluid.epubReader.bookHandler.navigator.preInit'
@@ -251,6 +253,11 @@ var fluid_1_4 = fluid_1_4 || {};
             if (that.options.pageMode === 'split') {
                 that.selectionWrapper();
             }
+        };
+
+        that.saveAll = function () {
+            that.saveCurrentChapter();
+            that.events.onFileSave.fire('bookmark.json', JSON.stringify(that.bookmarks.getAllBookmarks()));
         };
 
         that.loadChapter = function (chapter) {

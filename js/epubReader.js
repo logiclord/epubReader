@@ -302,7 +302,7 @@ var fluid_1_4 = fluid_1_4 || {};
             // save any pending changes in current chapter
             fluid.epubReader.utils.showNotification('Please Wait', 'info', 1000);
             $(this).attr('disabled', 'disabled');
-            that.navigator.saveCurrentChapter();
+            that.navigator.saveAll();
             that.events.onDownloadRequest.fire();
             $(this).removeAttr('disabled');
             fluid.epubReader.utils.showNotification('Download Available', 'info');
@@ -547,19 +547,15 @@ var fluid_1_4 = fluid_1_4 || {};
     });
 
     fluid.epubReader.preInitFunction = function (that) {
-
         that.parseEpub = function () {
             var opf_file = that.bookhandle.parser.getContainerFile(that.filefacilitator.getDataFromEpub('META-INF/container.xml')),
                 ncx_file = that.bookhandle.parser.opf(that.filefacilitator.getDataFromEpub(opf_file));
             that.bookhandle.navigator.toc.setModel(that.bookhandle.parser.getTOC(that.filefacilitator.getDataFromEpub(ncx_file)));
+            that.bookhandle.navigator.bookmarks.setModel(that.filefacilitator.getDataFromEpub('bookmark.json'));
         };
 
         that.loadContent = function (page) {
             that.bookhandle.navigator.loadChapter(that.filefacilitator.preProcessChapter(that.filefacilitator.getDataFromEpub(page), that.filefacilitator.getFolder(page)));
-        };
-
-        that.saveContent = function (chapterPath, chapterContent) {
-            that.filefacilitator.saveChapter(chapterPath, chapterContent);
         };
     };
 

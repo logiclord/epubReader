@@ -93,9 +93,20 @@ var fluid_1_4 = fluid_1_4 || {};
             // One solution is to use https://github.com/dcneiner/downloadify
             location.href = "data:application/zip;base64," + that.JSZipWrapper.getZipContent();
         };
-        that.deleteAttributeDeleteInFile = function (filepath, attributeName, attributeValue) {
-            var rawChapter = $.parseXML(that.getDataFromEpub(filepath));
+        // For deleting Bookmarks and Notes in saved chapters
+        that.deleteAttributeDeleteInFile = function (filePath, attributeName, attributeValue) {
+            var rawChapter = $.parseXML(that.getDataFromEpub(filePath));
             $(rawChapter).find('[' + attributeName + '="' + attributeValue + '"]').removeAttr(attributeName);
+            that.JSZipWrapper.saveFile(filePath, that.xmlToString(rawChapter));
+        };
+
+        that.saveFile = function (filePath, fileContent) {
+            that.JSZipWrapper.saveFile(filePath, fileContent);
+        };
+
+        that.saveChapter = function (filepath, chapterContent) {
+            var rawChapter = $.parseXML(that.getDataFromEpub(filepath));
+            $(rawChapter).find('body').html(that.postProcessChapter(chapterContent));
             that.JSZipWrapper.saveFile(filepath, that.xmlToString(rawChapter));
         };
     };
@@ -109,12 +120,6 @@ var fluid_1_4 = fluid_1_4 || {};
                 xmlString = (new XMLSerializer()).serializeToString(input);
             }
             return xmlString;
-        };
-
-        that.saveChapter = function (filepath, chapterContent) {
-            var rawChapter = $.parseXML(that.getDataFromEpub(filepath));
-            $(rawChapter).find('body').html(that.postProcessChapter(chapterContent));
-            that.JSZipWrapper.saveFile(filepath, that.xmlToString(rawChapter));
         };
 
         // return a jQuery object of recovered html

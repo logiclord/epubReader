@@ -111,6 +111,7 @@ var fluid_1_4 = fluid_1_4 || {};
              }*/
             ]
         },
+        bookmarkFileName: 'bookmark.json',
         produceTree: 'fluid.epubReader.bookHandler.navigator.Bookmarks.produceTree',
         finalInitFunction: 'fluid.epubReader.bookHandler.navigator.Bookmarks.finalInit'
     });
@@ -149,12 +150,20 @@ var fluid_1_4 = fluid_1_4 || {};
             that.resetUIHandlers();
         });
 
+        that.setModel = function (bookmarksArray) {
+            that.model.repeatingData = $.parseJSON(bookmarksArray);
+            that.applier.requestChange('repeatingData', that.model.repeatingData);
+        };
+
+        that.getAllBookmarks = function () {
+            return that.model.repeatingData;
+        };
+
         that.addNavigationHanlder = function () {
             var internalNavigationHandler = function (elm) {
                 var key = elm.attr('href'),
                     navPosition = that.findBookmarkPositionByKey(key),
                     current = that.model.repeatingData[navPosition];
-                // TODO changed
                 that.events.onBookmarkNavigate.fire(current.bookmarkChapter.value, current.bookmarkedItemKey);
             };
             that.locate('bookmarkGoTO').click(function (evt) {
@@ -344,6 +353,7 @@ var fluid_1_4 = fluid_1_4 || {};
         events: {
             afterNotesChange : null
         },
+        bookmarkFileName: 'bookmark.json',
         produceTree: 'fluid.epubReader.bookHandler.navigator.Notes.produceTree',
         finalInitFunction: 'fluid.epubReader.bookHandler.navigator.Notes.finalInit'
     });
