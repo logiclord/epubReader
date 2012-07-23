@@ -89,14 +89,19 @@ var fluid_1_4 = fluid_1_4 || {};
 
     fluid.epubReader.fileFacilitator.preInit = function (that) {
         that.downloadEpubFile = function () {
-            // TODO - change extension to .epub instead of .zip and JSzip has a filename bug for firefox
+            // TODO - change extension to .epub instead of .zip and JSzip has a filename bug for Firefox
             // One solution is to use https://github.com/dcneiner/downloadify
             location.href = "data:application/zip;base64," + that.JSZipWrapper.getZipContent();
+        };
+        that.deleteAttributeDeleteInFile = function (filepath, attributeName, attributeValue) {
+            var rawChapter = $.parseXML(that.getDataFromEpub(filepath));
+            $(rawChapter).find('[' + attributeName + '="' + attributeValue + '"]').removeAttr(attributeName);
+            that.JSZipWrapper.saveFile(filepath, that.xmlToString(rawChapter));
         };
     };
 
     fluid.epubReader.fileFacilitator.finalInit = function (that) {
-        var xmlToString  = function (input) {
+        that.xmlToString  = function (input) {
             var xmlString;
             if (window.ActiveXObject) {
                 xmlString = input.xml;
@@ -106,10 +111,10 @@ var fluid_1_4 = fluid_1_4 || {};
             return xmlString;
         };
 
-        that.saveChapter = function (chapterPath, chapterContent) {
-            var rawChapter = $.parseXML(that.getDataFromEpub(chapterPath));
+        that.saveChapter = function (filepath, chapterContent) {
+            var rawChapter = $.parseXML(that.getDataFromEpub(filepath));
             $(rawChapter).find('body').html(that.postProcessChapter(chapterContent));
-            that.JSZipWrapper.saveFile(chapterPath, xmlToString(rawChapter));
+            that.JSZipWrapper.saveFile(filepath, that.xmlToString(rawChapter));
         };
 
         // return a jQuery object of recovered html
@@ -159,7 +164,7 @@ var fluid_1_4 = fluid_1_4 || {};
             filepath = $.trim(filepath);
             var temp = filepath.split('/'),
                 retpath = '',
-                i = 0;
+                i;
             for (i = 0; i < temp.length - 1; i = i + 1) {
                 retpath = retpath + temp[i] + '/';
             }

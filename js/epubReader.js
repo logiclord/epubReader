@@ -390,7 +390,7 @@ var fluid_1_4 = fluid_1_4 || {};
                                 $(this).dialog('close');
                                 fluid.epubReader.utils.showNotification('Note Added', 'success');
                             } else {
-                                fluid.epubReader.utils.showNotification('Note identifier already exist', 'error');
+                                fluid.epubReader.utils.showNotification('Note already exist', 'error');
                             }
                         }
                     },
@@ -441,15 +441,15 @@ var fluid_1_4 = fluid_1_4 || {};
                 hide: 'slide',
                 buttons: {
                     'Create': function () {
-                        var bookmarkId = $.trim($(this).find('input').val());
-                        if (bookmarkId.length === 0) {
+                        var bookmarkTitle = $.trim($(this).find('input').val());
+                        if (bookmarkTitle.length === 0) {
                             fluid.epubReader.utils.showNotification('Please enter an identifier', 'error');
                         } else {
-                            if (that.navigator.addBookmark(bookmarkId, currentSelectable)) {
+                            if (that.navigator.addBookmark(bookmarkTitle, currentSelectable)) {
                                 $(this).dialog('close');
                                 fluid.epubReader.utils.showNotification('Bookmark Added', 'success');
                             } else {
-                                fluid.epubReader.utils.showNotification('This Bookmark identifier already exist', 'error');
+                                fluid.epubReader.utils.showNotification('This Bookmark already exist', 'error');
                             }
                         }
                     },
@@ -499,10 +499,11 @@ var fluid_1_4 = fluid_1_4 || {};
             tocContainer: '.fl-epubReader-tocContainer',
             bookmarkContainer: '.fl-epubReader-bookmarkContainer',
             bookmarkRow: '.flc-epubReader-bookmark-tableRow',
-            bookmarkId : '.flc-epubReader-bookmark-id',
+            bookmarkTitle : '.flc-epubReader-bookmark-title',
             bookmarkChapter: '.flc-epubReader-bookmark-chapter',
             bookmarkEdit: '.flc-epubReader-bookmark-edit',
             bookmarkDelete: '.flc-epubReader-bookmark-delete',
+            bookmarkGoTO: '.flc-epubReader-bookmark-goTo',
             addBookmarkButton: '.flc-epubReader-addBookmark',
             notesContainer: '.fl-epubReader-notesContainer',
             noteRow: '.flc-epubReader-note-tableRow',

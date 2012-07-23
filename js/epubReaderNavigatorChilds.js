@@ -87,25 +87,27 @@ var fluid_1_4 = fluid_1_4 || {};
         gradeNames: ['fluid.rendererComponent', 'autoInit'],
         selectors: {
             bookmarkRow: '{epubReader}.options.selectors.bookmarkRow',
-            bookmarkId : '{epubReader}.options.selectors.bookmarkId',
+            bookmarkTitle : '{epubReader}.options.selectors.bookmarkTitle',
             bookmarkChapter: '{epubReader}.options.selectors.bookmarkChapter',
             bookmarkEdit: '{epubReader}.options.selectors.bookmarkEdit',
-            bookmarkDelete: '{epubReader}.options.selectors.bookmarkDelete'
+            bookmarkDelete: '{epubReader}.options.selectors.bookmarkDelete',
+            bookmarkGoTO: '{epubReader}.options.selectors.bookmarkGoTO'
         },
         repeatingSelectors: ['bookmarkRow'],
         events: {
-            onBookmarkNavigate: null
+            onBookmarkNavigate: null,
+            onBookmarkDelete: null
         },
         model: {
             repeatingData: [/*
              {
-             bookmarkId: 'Row 1 string',
+             bookmarkTitle: 'Row 1 string',
              bookmarkChapter: {
              name : 'http://domain1.com/page1.html',
              value : 'Link 1 Label'
              },
              bookmarkedItemHTML: 'gibberish',
-             bookmarkedItemOffset: 400
+             bookmarkedItemKey: 400
              }*/
             ]
         },
@@ -121,15 +123,19 @@ var fluid_1_4 = fluid_1_4 || {};
                 controlledBy: 'repeatingData',
                 pathAs: 'data',
                 tree: {
-                    bookmarkId : '${{data}.bookmarkId}',
+                    bookmarkTitle : '${{data}.bookmarkTitle}',
                     bookmarkChapter:  '${{data}.bookmarkChapter.name}',
                     bookmarkEdit:  {
-                        target: '${{data}.bookmarkId}',
+                        target: '${{data}.bookmarkedItemKey}',
                         linktext: 'Edit'
                     },
                     bookmarkDelete:  {
-                        target: '${{data}.bookmarkId}',
+                        target: '${{data}.bookmarkedItemKey}',
                         linktext: 'Delete'
+                    },
+                    bookmarkGoTO: {
+                        target: '${{data}.bookmarkedItemKey}',
+                        linktext: 'GO'
                     }
                 }
             }
@@ -145,19 +151,15 @@ var fluid_1_4 = fluid_1_4 || {};
 
         that.addNavigationHanlder = function () {
             var internalNavigationHandler = function (elm) {
-                var bId = elm.text(),
-                    navPosition = that.findBookmarkPosition(bId),
+                var key = elm.attr('href'),
+                    navPosition = that.findBookmarkPositionByKey(key),
                     current = that.model.repeatingData[navPosition];
-                that.events.onBookmarkNavigate.fire(current.bookmarkChapter.value, current.bookmarkedItemOffset);
+                // TODO changed
+                that.events.onBookmarkNavigate.fire(current.bookmarkChapter.value, current.bookmarkedItemKey);
             };
-            that.locate('bookmarkId').dblclick(function () {
+            that.locate('bookmarkGoTO').click(function (evt) {
+                evt.preventDefault();
                 internalNavigationHandler($(this));
-            });
-            that.locate('bookmarkId').keypress(function (e) {
-                var code = e.keyCode || e.which;
-                if (code === 13) {
-                    internalNavigationHandler($(this));
-                }
             });
         };
 
@@ -166,13 +168,14 @@ var fluid_1_4 = fluid_1_4 || {};
             that.locate('bookmarkEdit').click(function (evt) {
                 evt.preventDefault();
                 var elm = $(this),
-                    bId = elm.attr('href'),
-                    editPosition = that.findBookmarkPosition(bId),
+                    key = elm.attr('href'),
+                    editPosition = that.findBookmarkPositionByKey(key),
                     tempForm = $('<div/>'),
                     inputBox = $('<input/>');
+
                 tempForm.attr('title', 'Edit Bookmark Identifier');
                 inputBox.attr('type', 'text');
-                inputBox.val(that.model.repeatingData[editPosition].bookmarkId);
+                inputBox.val(that.model.repeatingData[editPosition].bookmarkTitle);
                 tempForm.append(inputBox);
                 that.container.append(tempForm);
 
@@ -188,14 +191,14 @@ var fluid_1_4 = fluid_1_4 || {};
                     hide: 'slide',
                     buttons: {
                         'Edit': function () {
-                            var bookmarkId = $.trim($(this).find('input').val()),
+                            var bookmarkTitle = $.trim($(this).find('input').val()),
                                 temp;
-                            if (bookmarkId.length === 0) {
+                            if (bookmarkTitle.length === 0) {
                                 fluid.epubReader.utils.showNotification('Please enter an identifier', 'error');
                             } else {
-                                temp = that.findBookmarkPosition(bookmarkId);
+                                temp = that.findBookmarkPosition(bookmarkTitle);
                                 if (temp === -1 || temp === editPosition) {
-                                    that.model.repeatingData[editPosition].bookmarkId = bookmarkId;
+                                    that.model.repeatingData[editPosition].bookmarkTitle = bookmarkTitle;
                                     that.applier.requestChange('repeatingData', that.model.repeatingData);
                                     $(this).dialog('close');
                                     fluid.epubReader.utils.showNotification('Bookmark Edits Saved', 'success');
@@ -223,8 +226,10 @@ var fluid_1_4 = fluid_1_4 || {};
         that.addDeleteHandler = function () {
             that.locate('bookmarkDelete').click(function (evt) {
                 evt.preventDefault();
-                var bId = $(this).attr('href'),
-                    delPosition = that.findBookmarkPosition(bId);
+                var key = $(this).attr('href'),
+                    delPosition = that.findBookmarkPositionByKey(key),
+                    current = that.model.repeatingData[delPosition];
+                that.events.onBookmarkDelete.fire(current.bookmarkChapter.value, current.bookmarkedItemKey);
                 that.model.repeatingData.splice(delPosition, 1);
                 that.applier.requestChange('repeatingData', that.model.repeatingData);
             });
@@ -233,7 +238,7 @@ var fluid_1_4 = fluid_1_4 || {};
         // ToolTip effect
         // replace following event handler with jQuery UI 1.9 which will have toolTip widget
         that.addToolTipHandler = function () {
-            that.locate('bookmarkId').each(function () {
+            that.locate('bookmarkTitle').each(function () {
                 var bId = $(this).text(),
                     contentHtml =  that.model.repeatingData[that.findBookmarkPosition(bId)].bookmarkedItemHTML,
                     cur = $(this);
@@ -270,7 +275,7 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.resetUIHandlers = function () {
-            that.locate('bookmarkId').fluid('tabbable');
+            that.locate('bookmarkTitle').fluid('tabbable');
             that.addDeleteHandler();
             that.addToolTipHandler();
             that.addEditHandler();
@@ -291,7 +296,19 @@ var fluid_1_4 = fluid_1_4 || {};
             var i = 0,
                 n = that.model.repeatingData.length;
             while (i < n) {
-                if (that.model.repeatingData[i].bookmarkId === bId) {
+                if (that.model.repeatingData[i].bookmarkTitle === bId) {
+                    return i;
+                }
+                i = i + 1;
+            }
+            return -1;
+        };
+
+        that.findBookmarkPositionByKey = function (key) {
+            var i = 0,
+                n = that.model.repeatingData.length;
+            while (i < n) {
+                if (that.model.repeatingData[i].bookmarkedItemKey === key) {
                     return i;
                 }
                 i = i + 1;
