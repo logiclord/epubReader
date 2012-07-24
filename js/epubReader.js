@@ -552,6 +552,7 @@ var fluid_1_4 = fluid_1_4 || {};
                 ncx_file = that.bookhandle.parser.opf(that.filefacilitator.getDataFromEpub(opf_file));
             that.bookhandle.navigator.toc.setModel(that.bookhandle.parser.getTOC(that.filefacilitator.getDataFromEpub(ncx_file)));
             that.bookhandle.navigator.bookmarks.setModel(that.filefacilitator.getDataFromEpub('bookmark.json'));
+            that.bookhandle.navigator.notes.setModel(that.filefacilitator.getDataFromEpub('notes.json'));
         };
 
         that.loadContent = function (page) {

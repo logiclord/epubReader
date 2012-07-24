@@ -111,7 +111,6 @@ var fluid_1_4 = fluid_1_4 || {};
              }*/
             ]
         },
-        bookmarkFileName: 'bookmark.json',
         produceTree: 'fluid.epubReader.bookHandler.navigator.Bookmarks.produceTree',
         finalInitFunction: 'fluid.epubReader.bookHandler.navigator.Bookmarks.finalInit'
     });
@@ -151,8 +150,11 @@ var fluid_1_4 = fluid_1_4 || {};
         });
 
         that.setModel = function (bookmarksArray) {
-            that.model.repeatingData = $.parseJSON(bookmarksArray);
-            that.applier.requestChange('repeatingData', that.model.repeatingData);
+            var loadedBookmarks = $.parseJSON(bookmarksArray);
+            if (loadedBookmarks !== null) {
+                that.model.repeatingData = loadedBookmarks;
+                that.applier.requestChange('repeatingData', that.model.repeatingData);
+            }
         };
 
         that.getAllBookmarks = function () {
@@ -205,15 +207,10 @@ var fluid_1_4 = fluid_1_4 || {};
                             if (bookmarkTitle.length === 0) {
                                 fluid.epubReader.utils.showNotification('Please enter an identifier', 'error');
                             } else {
-                                temp = that.findBookmarkPosition(bookmarkTitle);
-                                if (temp === -1 || temp === editPosition) {
-                                    that.model.repeatingData[editPosition].bookmarkTitle = bookmarkTitle;
-                                    that.applier.requestChange('repeatingData', that.model.repeatingData);
-                                    $(this).dialog('close');
-                                    fluid.epubReader.utils.showNotification('Bookmark Edits Saved', 'success');
-                                } else {
-                                    fluid.epubReader.utils.showNotification('This Bookmark identifier already exist', 'error');
-                                }
+                                that.model.repeatingData[editPosition].bookmarkTitle = bookmarkTitle;
+                                that.applier.requestChange('repeatingData', that.model.repeatingData);
+                                $(this).dialog('close');
+                                fluid.epubReader.utils.showNotification('Bookmark Edits Saved', 'success');
                             }
                         },
                         Cancel: function () {
@@ -248,38 +245,10 @@ var fluid_1_4 = fluid_1_4 || {};
         // replace following event handler with jQuery UI 1.9 which will have toolTip widget
         that.addToolTipHandler = function () {
             that.locate('bookmarkTitle').each(function () {
-                var bId = $(this).text(),
-                    contentHtml =  that.model.repeatingData[that.findBookmarkPosition(bId)].bookmarkedItemHTML,
-                    cur = $(this);
-                cur.qtip({
-                    content: contentHtml,
-                    position: {
-                        corner: {
-                            target: 'bottomMiddle', // Position the tooltip above the link
-                            tooltip: 'topMiddle'
-                        },
-                        adjust: {
-                            screen: true // Keep the tooltip on-screen at all times
-                        }
-                    },
-                    show: {
-                        when: 'focus',
-                        solo: true // Only show one tooltip at a time
-                    },
-                    hide: 'blur',
-                    style: {
-                        tip: true, // Apply a speech bubble tip to the tooltip at the designated tooltip corner
-                        border: {
-                            width: 0,
-                            radius: 5
-                        },
-                        name: 'light',
-                        width: {
-                            min: 50,
-                            max: 500
-                        }
-                    }
-                });
+                var key = $(this).parent().find('a').attr('href'),
+                    contentHtml =  that.model.repeatingData[that.findBookmarkPositionByKey(key)].bookmarkedItemHTML;
+
+                fluid.epubReader.utils.attachToolTip($(this), contentHtml);
             });
         };
 
@@ -292,13 +261,10 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.addBookmark = function (newBookmark) {
-            if (that.findBookmarkPosition(newBookmark) === -1) {
-                that.model.repeatingData.push(newBookmark);
-                that.applier.requestChange('repeatingData', that.model.repeatingData);
-                return true;
-            } else {
-                return false;
-            }
+            // bookmarks with identical Titles allowed
+            that.model.repeatingData.push(newBookmark);
+            that.applier.requestChange('repeatingData', that.model.repeatingData);
+            return true;
         };
 
         that.findBookmarkPosition = function (bId) {
@@ -346,14 +312,14 @@ var fluid_1_4 = fluid_1_4 || {};
                         value : 'Link 1 Label'
                     },
                     notedText: 'gibberish',
-                    notedItemOffset: 400
+                    notedItemKey: 400
                 }*/
             ]
         },
         events: {
-            afterNotesChange : null
+            afterNotesChange : null,
+            onNoteDelete: null
         },
-        bookmarkFileName: 'bookmark.json',
         produceTree: 'fluid.epubReader.bookHandler.navigator.Notes.produceTree',
         finalInitFunction: 'fluid.epubReader.bookHandler.navigator.Notes.finalInit'
     });
@@ -369,11 +335,11 @@ var fluid_1_4 = fluid_1_4 || {};
                     noteId : '${{data}.noteId}',
                     noteChapter:  '${{data}.noteChapter.name}',
                     noteEdit:  {
-                        target: '${{data}.noteId}',
+                        target: '${{data}.notedItemKey}',
                         linktext: 'Edit'
                     },
                     noteDelete:  {
-                        target: '${{data}.noteId}',
+                        target: '${{data}.notedItemKey}',
                         linktext: 'Delete'
                     }
                 }
@@ -383,17 +349,50 @@ var fluid_1_4 = fluid_1_4 || {};
     };
 
     fluid.epubReader.bookHandler.navigator.Notes.finalInit = function (that) {
+        // not being used
+        var getHashTableForChapter = function (currentChapter) {
+            var i = 0, n = that.model.repeatingData.length, keyHash = [];
+            while (i < n) {
+                if (currentChapter === that.model.repeatingData[i].noteChapter.value) {
+                    // unable to insert such big id as index
+                    keyHash[that.model.repeatingData[i].notedItemKey] = that.model.repeatingData[i].notedText;
+                }
+                i = i + 1;
+            }
+            return keyHash;
+        };
+
+        that.setModel = function (notesArray) {
+            var loadedNotes = $.parseJSON(notesArray);
+            if (loadedNotes !== null) {
+                that.model.repeatingData = loadedNotes;
+                that.applier.requestChange('repeatingData', that.model.repeatingData);
+            }
+        };
+
+        that.getAllNotes = function () {
+            return that.model.repeatingData;
+        };
+
         that.applier.modelChanged.addListener('repeatingData', function () {
             that.refreshView();
             that.resetUIHandlers();
-            that.events.afterNotesChange.fire();
+           // that.events.afterNotesChange.fire();
         });
+        that.resetUIHandlers = function () {
+            that.locate('noteId').fluid('tabbable');
+            that.addDeleteHandler();
+            that.addToolTipHandler();
+            that.addEditHandler();
+        };
         // Delete Button Handler
         that.addDeleteHandler = function () {
             that.locate('noteDelete').click(function (evt) {
                 evt.preventDefault();
-                var nId = $(this).attr('href'),
-                    delPosition = that.findNotePosition(nId);
+                var key = $(this).attr('href'),
+                    delPosition = that.findNotePositionByKey(key),
+                    current = that.model.repeatingData[delPosition];
+                that.events.onNoteDelete.fire(current.noteChapter.value, current.notedItemKey);
                 that.model.repeatingData.splice(delPosition, 1);
                 that.applier.requestChange('repeatingData', that.model.repeatingData);
             });
@@ -403,8 +402,8 @@ var fluid_1_4 = fluid_1_4 || {};
             that.locate('noteEdit').click(function (evt) {
                 evt.preventDefault();
                 var elm = $(this),
-                    nId = elm.attr('href'),
-                    editPosition = that.findNotePosition(nId),
+                    key = elm.attr('href'),
+                    editPosition = that.findNotePositionByKey(key),
                     tempForm = $('<div/>'),
                     noteId = $('<input/>').attr('type', 'text'),
                     noteText = $('<textarea/>');
@@ -433,21 +432,16 @@ var fluid_1_4 = fluid_1_4 || {};
                     buttons: {
                         'Edit': function () {
                             var noteIdVal = $.trim(noteId.val()),
-                                noteTextVal = $.trim(noteText.val()),
-                                temp;
+                                noteTextVal = $.trim(noteText.val());
+
                             if (noteIdVal.length === 0 || noteTextVal.length === 0) {
                                 fluid.epubReader.utils.showNotification('Incomplete Form', 'error');
                             } else {
-                                temp = that.findNotePosition(noteIdVal);
-                                if (temp === -1 || temp === editPosition) {
-                                    that.model.repeatingData[editPosition].noteId = noteIdVal;
-                                    that.model.repeatingData[editPosition].notedText = noteTextVal;
-                                    that.applier.requestChange('repeatingData', that.model.repeatingData);
-                                    $(this).dialog('close');
-                                    fluid.epubReader.utils.showNotification('Note Edits Saved', 'success');
-                                } else {
-                                    fluid.epubReader.utils.showNotification('This Note identifier already exist', 'error');
-                                }
+                                that.model.repeatingData[editPosition].noteId = noteIdVal;
+                                that.model.repeatingData[editPosition].notedText = noteTextVal;
+                                that.applier.requestChange('repeatingData', that.model.repeatingData);
+                                $(this).dialog('close');
+                                fluid.epubReader.utils.showNotification('Note Edits Saved', 'success');
                             }
                         },
                         Cancel: function () {
@@ -468,48 +462,17 @@ var fluid_1_4 = fluid_1_4 || {};
         // replace following event handler with jQuery UI 1.9 which will have toolTip widget
         that.addToolTipHandler = function () {
             that.locate('noteId').each(function () {
-                var nId = $(this).text(),
-                    contentHtml =  that.model.repeatingData[that.findNotePosition(nId)].notedText,
-                    cur = $(this);
-                cur.qtip({
-                    content: contentHtml,
-                    position: {
-                        corner: {
-                            target: 'bottomMiddle', // Position the tooltip above the link
-                            tooltip: 'topMiddle'
-                        },
-                        adjust: {
-                            screen: true // Keep the tooltip on-screen at all times
-                        }
-                    },
-                    show: {
-                        when: 'focus',
-                        solo: true // Only show one tooltip at a time
-                    },
-                    hide: 'blur',
-                    style: {
-                        tip: true, // Apply a speech bubble tip to the tooltip at the designated tooltip corner
-                        border: {
-                            width: 0,
-                            radius: 5
-                        },
-                        name: 'light',
-                        width: {
-                            min: 50,
-                            max: 500
-                        }
-                    }
-                });
+                var key = $(this).parent().find('a').attr('href'),
+                    contentHtml =  that.model.repeatingData[that.findNotePositionByKey(key)].notedText;
+
+                fluid.epubReader.utils.attachToolTip($(this), contentHtml);
             });
         };
-        that.addNote = function (newNote) {
-            if (that.findNotePosition(newNote) === -1 &&  that.findPositionByLocation(newNote.notedItemOffset, newNote.noteChapter.value) === -1) {
-                that.model.repeatingData.push(newNote);
-                that.applier.requestChange('repeatingData', that.model.repeatingData);
-                return true;
-            } else {
-                return false;
-            }
+        that.addNote = function (newNote, noteAnchor) {
+            that.model.repeatingData.push(newNote);
+            that.applier.requestChange('repeatingData', that.model.repeatingData);
+            fluid.epubReader.utils.attachToolTip(noteAnchor, newNote.notedText);
+            return true;
         };
         that.findNotePosition = function (nId) {
             var i = 0,
@@ -522,81 +485,44 @@ var fluid_1_4 = fluid_1_4 || {};
             }
             return -1;
         };
-        that.resetUIHandlers = function () {
-            that.locate('noteId').fluid('tabbable');
-            that.addDeleteHandler();
-            that.addToolTipHandler();
-            that.addEditHandler();
-        };
-        that.findPositionByLocation = function (offset, chapterValue) {
+        that.findNotePositionByKey = function (key) {
             var i = 0,
                 n = that.model.repeatingData.length;
             while (i < n) {
-                if (that.model.repeatingData[i].notedItemOffset === offset && that.model.repeatingData[i].noteChapter.value === chapterValue) {
+                if (that.model.repeatingData[i].notedItemKey === key) {
                     return i;
                 }
                 i = i + 1;
             }
             return -1;
         };
-        that.attachNote = function (chapter, elms, offsets) {
-            var modelHash = that.getHashTableForChapter(chapter),
-                i = 0,
+        that.isEmpty = function () {
+            return that.model.repeatingData.length === 0;
+        };
+        // used at page on load in order to attach all notes
+        that.attachNotes = function (elms, chapter) {
+            // get all notes of current chapter
+            var i = 0,
                 n = elms.length,
                 elm,
-                currentOffset;
-            if (modelHash.length === 0) {
+                currentKey,
+                pos;
+
+            if (that.isEmpty()) {
                 return;
             }
+
             while (i < n) {
                 elm = $(elms[i]);
-                currentOffset = offsets[i];
-                if (modelHash.hasOwnProperty(currentOffset)) {
-                    elm.qtip({
-                        content: modelHash[currentOffset],
-                        position: {
-                            corner: {
-                                target: 'bottomMiddle', // Position the tooltip above the link
-                                tooltip: 'topMiddle'
-                            },
-                            adjust: {
-                                screen: true // Keep the tooltip on-screen at all times
-                            }
-                        },
-                        show: {
-                            when: 'focus',
-                            solo: true // Only show one tooltip at a time
-                        },
-                        hide: 'blur',
-                        style: {
-                            tip: true, // Apply a speech bubble tip to the tooltip at the designated tooltip corner
-                            border: {
-                                width: 0,
-                                radius: 5
-                            },
-                            name: 'light',
-                            width: {
-                                min: 50,
-                                max: 500
-                            }
-                        }
-                    });
+                currentKey = elm.attr('notekey');
+                pos = that.findNotePositionByKey(currentKey);
+                if (pos !== -1) {
+                    fluid.epubReader.utils.attachToolTip(elm, that.model.repeatingData[pos].notedText);
                 }
                 i = i + 1;
             }
         };
-        that.getHashTableForChapter = function (chapter) {
-            var i = 0,
-                n = that.model.repeatingData.length,
-                hashTable = [];
-            while (i < n) {
-                if (that.model.repeatingData[i].noteChapter.value === chapter) {
-                    hashTable[that.model.repeatingData[i].notedItemOffset] = that.model.repeatingData[i].notedText;
-                }
-                i = i + 1;
-            }
-            return hashTable;
-        };
+
     };
 
 })(jQuery, fluid_1_4);

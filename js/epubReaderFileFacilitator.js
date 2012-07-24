@@ -47,7 +47,11 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.getZipText = function (filename) {
-            return unzip.file(filename).asText();
+            var file = unzip.file(filename);
+            if (file === undefined || file === null) {
+                return '';
+            }
+            return file.asText();
         };
 
         that.getZipRawData = function (imgpath) {

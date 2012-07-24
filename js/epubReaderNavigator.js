@@ -29,7 +29,8 @@ var fluid_1_4 = fluid_1_4 || {};
                 container: '{epubReader}.options.selectors.notesContainer',
                 options: {
                     listeners: {
-                        afterNotesChange: '{navigator}.afterNotesChangeHandler'
+                        afterNotesChange: '{navigator}.afterNotesChangeHandler',
+                        onNoteDelete: '{navigator}.deleteNote'
                     }
                 }
             }
@@ -104,6 +105,12 @@ var fluid_1_4 = fluid_1_4 || {};
             that.deleteAttribute(chapterValue, 'bookmarkkey', bookmarkKey);
         };
 
+        that.deleteNote = function (chapterValue, noteKey) {
+            // removing tooltip
+            fluid.epubReader.utils.removeToolTip(that.locate('chapterContent').find('[notekey="' + noteKey + '"]'));
+            that.deleteAttribute(chapterValue, 'notekey', noteKey);
+        };
+
         // on updating note attach notes to elements in UI
         that.afterNotesChangeHandler = function () {
             that.locate('chapterContent').find(':hidden').show();
@@ -138,9 +145,37 @@ var fluid_1_4 = fluid_1_4 || {};
                 var progress = 500 * ((currentSelection.to > currentChapterHeight) ? 1 : (currentSelection.to / currentChapterHeight));
                 that.locate('remaining').css('width', progress + 'px');
             },
-            hasAttribute = function (elm, attributeName) {
-                var attr = elm.attr(attributeName);
-                return (attr !== undefined && attr !== false);
+            createSelection = function (node, toHide, offsetCorrection) {
+                if (!node) {
+                    return null;
+                }
+                var top = node.offset().top - offsetCorrection,
+                    bottom = top + node.height(),
+                    ret = false,
+                    kid;
+                if (currentSelection.to <= top || currentSelection.from >= bottom) {
+                    return false;
+                } else if (currentSelection.from <= top && currentSelection.to >= bottom) {
+                    return true;
+                } else {
+                    kid = node.children();
+                    kid.each(function () {
+                        var temp = createSelection($(this), toHide, offsetCorrection);
+                        if (temp === true) {
+                            ret = true;
+                        } else {
+                            toHide.push($(this));
+                        }
+                    });
+                    // overflow test expression ( (node.is('img') || !node.text() ) && currentSelection.to >= top && currentSelection.to <= bottom )
+                    if ((node.is('img') || (kid.length === 0 && node.text() !== '')) && currentSelection.from >= top && currentSelection.from <= bottom) {
+                        currentSelection.from = top;
+                        currentSelection.to = currentSelection.from + that.options.maxSplitModePageHeight;
+                        return true;
+                    } else {
+                        return ret;
+                    }
+                }
             };
 
         that.deleteAttribute = function (chapterValue, attributeName, attributeValue) {
@@ -166,7 +201,7 @@ var fluid_1_4 = fluid_1_4 || {};
                     that.locate('bookContainer').scrollTop(elm.offset().top - that.locate('chapterContent').offset().top);
                 } else if (that.options.pageMode === 'split') {
                     // forward until our element is visible
-                    while (!elm.is(":visible")) {
+                    while (!elm.is(':visible')) {
                         that.next();
                     }
                 }
@@ -182,7 +217,7 @@ var fluid_1_4 = fluid_1_4 || {};
             if (that.options.pageMode === 'split') {
                 that.locate('chapterContent').find(':hidden').show();
                 var toHide = [],
-                    ret = that.createSelection(that.locate('chapterContent').children().first(), toHide, that.locate('chapterContent').offset().top),
+                    ret = createSelection(that.locate('chapterContent').children().first(), toHide, that.locate('chapterContent').offset().top),
                     i = 0;
                 for (i = 0; i < toHide.length; i = i + 1) {
                     toHide[i].hide();
@@ -199,39 +234,6 @@ var fluid_1_4 = fluid_1_4 || {};
                 }
                 that.locate('bookContainer').focus();
                 return true;
-            }
-        };
-
-        that.createSelection = function (node, toHide, offsetCorrection) {
-            if (!node) {
-                return null;
-            }
-            var top = node.offset().top - offsetCorrection,
-                bottom = top + node.height(),
-                ret = false,
-                kid;
-            if (currentSelection.to <= top || currentSelection.from >= bottom) {
-                return false;
-            } else if (currentSelection.from <= top && currentSelection.to >= bottom) {
-                return true;
-            } else {
-                kid = node.children();
-                kid.each(function () {
-                    var temp = that.createSelection($(this), toHide, offsetCorrection);
-                    if (temp === true) {
-                        ret = true;
-                    } else {
-                        toHide.push($(this));
-                    }
-                });
-                // overflow test expression ( (node.is('img') || !node.text() ) && currentSelection.to >= top && currentSelection.to <= bottom )
-                if ((node.is('img') || (kid.length === 0 && node.text() !== '')) && currentSelection.from >= top && currentSelection.from <= bottom) {
-                    currentSelection.from = top;
-                    currentSelection.to = currentSelection.from + that.options.maxSplitModePageHeight;
-                    return true;
-                } else {
-                    return ret;
-                }
             }
         };
 
@@ -258,6 +260,7 @@ var fluid_1_4 = fluid_1_4 || {};
         that.saveAll = function () {
             that.saveCurrentChapter();
             that.events.onFileSave.fire('bookmark.json', JSON.stringify(that.bookmarks.getAllBookmarks()));
+            that.events.onFileSave.fire('notes.json', JSON.stringify(that.notes.getAllNotes()));
         };
 
         that.loadChapter = function (chapter) {
@@ -362,30 +365,15 @@ var fluid_1_4 = fluid_1_4 || {};
             that.toc.setCurrentSelectionToIndex(that.toc.currentSelectPosition() - 1);
         };
 
-        that.getOffsetOf = function (elm) {
-            var ItemOffset;
-            if (that.options.pageMode === 'scroll') {
-                ItemOffset = elm.offset().top - that.locate('chapterContent').offset().top;
-            } else if (that.options.pageMode === 'split') {
-                // show everything
-                that.locate('chapterContent').find(':hidden').show();
-                // get proper Offset
-                ItemOffset = elm.offset().top - that.locate('chapterContent').offset().top;
-                // restore all hidden elements
-                that.selectionWrapper();
-            }
-            return ItemOffset;
-        };
-
         that.addBookmark = function (bookmarkTitle, bookmarkSelectable) {
             var cloneElm = bookmarkSelectable.filter('*').removeAttr('tabindex').clone(),
-                uId = fluid.epubReader.utils.getUniqueId();
+                uId;
 
-            if (hasAttribute(bookmarkSelectable, "bookmarkkey") && that.bookmarks.findBookmarkPositionByKey(bookmarkSelectable.attr('bookmarkkey')) !== -1) {
+            if ( fluid.epubReader.utils.hasAttribute(bookmarkSelectable, 'bookmarkkey') && that.bookmarks.findBookmarkPositionByKey(bookmarkSelectable.attr('bookmarkkey')) !== -1) {
                 // Has a valid bookmark attached
                 return false;
             }
-
+            uId = fluid.epubReader.utils.getUniqueId();
             bookmarkSelectable.attr('bookmarkkey', uId);
             return that.bookmarks.addBookmark({
                 bookmarkTitle: bookmarkTitle,
@@ -396,28 +384,23 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.addNote = function (noteId, noteText, noteAnchor) {
+            var uId;
+            if (fluid.epubReader.utils.hasAttribute(noteAnchor, 'notekey') && that.notes.findBookmarkPositionByKey(noteAnchor.attr('notekey')) !== -1) {
+                // Has a valid bookmark attached
+                return false;
+            }
+            uId  = fluid.epubReader.utils.getUniqueId();
+            noteAnchor.attr('notekey', uId);
             return that.notes.addNote({
                 noteId: noteId,
                 noteChapter: that.toc.getCurrentChapter(),
                 notedText: noteText,
-                notedItemOffset: that.getOffsetOf(noteAnchor)
-            });
+                notedItemKey: uId
+            }, noteAnchor);
         };
 
         that.attachAllNotes = function () {
-            var chapter = that.toc.getCurrentChapter(),
-                offsetCorrection = that.locate('chapterContent').offset().top,
-                elms,
-                offsets = [];
-            elms = that.locate('chapterContent').find('*');
-            elms.each(function () {
-                offsets.push($(this).offset().top - offsetCorrection);
-            });
-            that.notes.attachNote(chapter.value, elms, offsets);
-        };
-
-        that.removeAllNotes = function () {
-            that.locate('chapterContent').find('*').removeData('qtip');
+            that.notes.attachNotes(that.locate('chapterContent').find('[notekey]'), that.toc.getCurrentChapter().value);
         };
     };
 
