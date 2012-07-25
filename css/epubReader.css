@@ -318,11 +318,13 @@
 .ui-draggable .ui-dialog-titlebar {
     cursor: move;
 }
-.ui-dialog button{
+
+.ui-dialog button {
     color: #FFFFFF;
     margin: 2px;
     background-color: #000000;
 }
+
 .fl-epubReader-errorNotification {
     background-color: #FF0000;
     color: #FFFFFF;
@@ -351,14 +353,16 @@
     background-repeat: repeat;
 }
 
-.fl-epubReader-navigationContaniner  {
+.fl-epubReader-navigationContaniner {
     text-transform: uppercase;
     font-size: 1.2em;
 }
+
 .fl-epubReader-navigationContaniner .fl-epubReader-bookmarkContainer a,
-.fl-epubReader-navigationContaniner .fl-epubReader-notesContainer a{
+.fl-epubReader-navigationContaniner .fl-epubReader-notesContainer a {
     text-decoration: underline !important;
 }
+
 .fl-epubReader-navigationContaniner button {
     color: #000000;
     background-color: #f5f5f5;
@@ -383,18 +387,21 @@
     vertical-align: middle;
     text-align: center;
 }
+
 .fl-epubReader-bookmarkContainer td,
-.fl-epubReader-notesContainer td{
+.fl-epubReader-notesContainer td {
     /*background-color: #333333;*/
     /*color: #ffffff;*/
     border: none;
 }
+
 .fl-epubReader-bookmarkContainer th,
 .fl-epubReader-notesContainer th {
     background-color: #f5f5f5;
     color: #000;
     border: none;
 }
+
 .flc-epubReader-addBookmark,
 .flc-epubReader-addNote {
     float: left;
@@ -406,7 +413,7 @@
 
 .fl-epubReader-tocContainer * {
     display: block;
-    text-align:  center;
+    text-align: center;
 }
 
 .flc-epubReader-nextButton,
@@ -415,4 +422,68 @@
 .flc-epubReader-previousChapterButton {
     width: 100px;
     min-height: 50px;
+}
+
+.fl-epubReader-search-form {
+    display: inline-block;
+    zoom: 1; /* ie7 hack for display:inline-block */
+    *display: inline;
+    border: solid 1px #d2d2d2;
+    padding: 3px 5px;
+    -webkit-border-radius: 2em;
+    -moz-border-radius: 2em;
+    border-radius: 2em;
+    -webkit-box-shadow: 0 1px 0px rgba(0, 0, 0, .1);
+    -moz-box-shadow: 0 1px 0px rgba(0, 0, 0, .1);
+    box-shadow: 0 1px 0px rgba(0, 0, 0, .1);
+    background: #f1f1f1;
+    background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ededed));
+    background: -moz-linear-gradient(top, #fff, #ededed);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#ffffff', endColorstr = '#ededed'); /* ie7 */
+    -ms-filter: progid: DXImageTransform . Microsoft . gradient(startColorstr = '#ffffff', endColorstr = '#ededed'); /* ie8 */
+}
+
+.fl-epubReader-search-form input {
+    font: normal 12px/100% Arial, Helvetica, sans-serif;
+}
+
+.fl-epubReader-search-form .flc-epubReader-search-field {
+    background: #fff;
+    padding: 6px 6px 6px 8px;
+    width: 202px;
+    border: solid 1px #bcbbbb;
+    outline: none;
+    -webkit-border-radius: 2em;
+    -moz-border-radius: 2em;
+    border-radius: 2em;
+    -moz-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+    -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.fl-epubReader-search-form .flc-epubReader-search-button {
+    color: #fff;
+    border: solid 1px #494949;
+    font-size: 11px;
+    height: 27px;
+    width: 27px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, .6);
+    -webkit-border-radius: 2em;
+    -moz-border-radius: 2em;
+    border-radius: 2em;
+    background: #5f5f5f;
+    background: -webkit-gradient(linear, left top, left bottom, from(#9e9e9e), to(#454545));
+    background: -moz-linear-gradient(top, #9e9e9e, #454545);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#9e9e9e', endColorstr = '#454545'); /* ie7 */
+    -ms-filter: progid: DXImageTransform . Microsoft . gradient(startColorstr = '#9e9e9e', endColorstr = '#454545'); /* ie8 */
+}
+
+.flc-epubReader-highlighted {
+    background-color: #ffff00 !important;
+    display: inline;
+}
+
+.flc-epubReader-highlighted-current {
+    background-color: #b8860b !important;
+    display: inline;
 }

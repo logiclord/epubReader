@@ -5,6 +5,95 @@ var fluid_1_4 = fluid_1_4 || {};
 
 (function ($, fluid) {
 
+    /* Search */
+    fluid.defaults('fluid.epubReader.bookHandler.navigator.search', {
+        gradeNames: ['fluid.viewComponent', 'autoInit'],
+        selectors: {
+            searchResult:  '{epubReader}.options.selectors.searchResult',
+            currentSearchResult:  '{epubReader}.options.selectors.currentSearchResult'
+        },
+        finalInitFunction: 'fluid.epubReader.bookHandler.navigator.search.finalInit'
+    });
+
+    fluid.epubReader.bookHandler.navigator.search.finalInit = function (that) {
+        var lastSearchQuery,
+            lastResult;
+
+        that.removeHighlight = function () {
+            that.locate('searchResult').each(function () {
+                $(this).replaceWith($(this).text());
+            });
+            that.locate('currentSearchResult').each(function () {
+                $(this).replaceWith($(this).text());
+            });
+        };
+
+        that.addHighlight = function (query) {
+            var sRegExInput = new RegExp(query, 'g');
+            that.container.find(':visible').each(function () {
+                if ($(this).children().length === 0 && !$(this).hasClass(that.options.selectors.searchResult.slice(1))) {
+                    var oldHTML = $(this).text();
+                    $(this).html(oldHTML.replace(sRegExInput, '<span  class="' + that.options.selectors.searchResult.slice(1) + '" >$&</span>'));
+                }
+            });
+        };
+
+        that.Next = function (query) {
+            console.log("called with " + query);
+            if (lastResult !== undefined) {
+                lastResult.removeClass(that.options.selectors.currentSearchResult.slice(1));
+            }
+            var results, loc;
+            if (query !== lastSearchQuery) {
+                that.removeHighlight();
+                that.addHighlight(query);
+                lastSearchQuery = query;
+                results = that.locate('searchResult');
+                if (results.length === 0) {
+                    lastResult = undefined;
+                    console.log('0');
+                    return true;
+                } else {
+                    lastResult = results.first();
+                    console.log('1');
+                    console.log(lastResult);
+                    lastResult.addClass(that.options.selectors.currentSearchResult.slice(1));
+                    return false;
+                }
+            } else {
+                if (lastResult !== undefined && lastResult.is(':visible')) {
+                    results = that.locate('searchResult').filter(':visible');
+                    loc = $.inArray(lastResult[0], results);
+                    if (loc === results.length - 1) {
+                        lastResult = undefined;
+                        console.log('2');
+                        return true;
+                    } else {
+                        lastResult = $(results[loc + 1]);
+                        console.log('3');
+                        console.log(lastResult);
+                        lastResult.addClass(that.options.selectors.currentSearchResult.slice(1));
+                        return false;
+                    }
+                } else {
+                    that.addHighlight(query);
+                    results = that.locate('searchResult').filter(':visible');
+                    if (results.length === 0) {
+                        lastResult = undefined;
+                        console.log('4');
+                        console.log(lastResult);
+                        return true;
+                    } else {
+                        lastResult = results.first();
+                        console.log('5');
+                        lastResult.addClass(that.options.selectors.currentSearchResult.slice(1));
+                        return false;
+                    }
+                }
+            }
+        };
+    };
+
     /* Table of Content */
     fluid.defaults('fluid.epubReader.bookHandler.navigator.toc', {
         gradeNames: ['fluid.rendererComponent', 'autoInit'],
@@ -58,11 +147,17 @@ var fluid_1_4 = fluid_1_4 || {};
         that.applier.modelChanged.addListener('table', function () {
             that.refreshView();
         });
+        that.getChapterPaths = function () {
+            return that.model.table;
+        };
         that.setCurrentChapterToValue = function (value) {
             that.applier.requestChange('currentSelection', value);
         };
         that.getCurrentChapter = function () {
             return { value: that.model.currentSelection, name: that.model.table.names[that.currentSelectPosition()] };
+        };
+        that.getCurrentChapterPath = function () {
+            return that.model.currentSelection;
         };
         that.reloadCurrent = function () {
             that.events.onContentLoad.fire(that.model.currentSelection);
@@ -317,7 +412,6 @@ var fluid_1_4 = fluid_1_4 || {};
             ]
         },
         events: {
-            afterNotesChange : null,
             onNoteDelete: null
         },
         produceTree: 'fluid.epubReader.bookHandler.navigator.Notes.produceTree',
@@ -377,7 +471,6 @@ var fluid_1_4 = fluid_1_4 || {};
         that.applier.modelChanged.addListener('repeatingData', function () {
             that.refreshView();
             that.resetUIHandlers();
-           // that.events.afterNotesChange.fire();
         });
         that.resetUIHandlers = function () {
             that.locate('noteId').fluid('tabbable');

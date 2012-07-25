@@ -14,6 +14,10 @@ var fluid_1_4 = fluid_1_4 || {};
                 type: 'fluid.epubReader.bookHandler.navigator.toc',
                 container: '{epubReader}.options.selectors.tocContainer'
             },
+            search: {
+                type: 'fluid.epubReader.bookHandler.navigator.search',
+                container: '{bookHandler}.options.selectors.chapterContent'
+            },
             bookmarks: {
                 type: 'fluid.epubReader.bookHandler.navigator.Bookmarks',
                 container: '{epubReader}.options.selectors.bookmarkContainer',
@@ -29,7 +33,6 @@ var fluid_1_4 = fluid_1_4 || {};
                 container: '{epubReader}.options.selectors.notesContainer',
                 options: {
                     listeners: {
-                        afterNotesChange: '{navigator}.afterNotesChangeHandler',
                         onNoteDelete: '{navigator}.deleteNote'
                     }
                 }
@@ -110,14 +113,6 @@ var fluid_1_4 = fluid_1_4 || {};
             fluid.epubReader.utils.removeToolTip(that.locate('chapterContent').find('[notekey="' + noteKey + '"]'));
             that.deleteAttribute(chapterValue, 'notekey', noteKey);
         };
-
-        // on updating note attach notes to elements in UI
-        that.afterNotesChangeHandler = function () {
-            that.locate('chapterContent').find(':hidden').show();
-            that.removeAllNotes();
-            that.attachAllNotes();
-            that.selectionWrapper();
-        };
     };
 
     fluid.epubReader.bookHandler.navigator.finalInit = function (that) {
@@ -176,6 +171,16 @@ var fluid_1_4 = fluid_1_4 || {};
                         return ret;
                     }
                 }
+            },
+            isCurrentState = function (state) {
+                if (that.toc.getCurrentChapterPath() === state.chapterPath) {
+                    if (that.options.pageMode === 'scroll') {
+                        return true;
+                    } else if (that.options.pageMode === 'split' && state.to === currentSelection.to && state.from === currentSelection.from) {
+                        return true;
+                    }
+                }
+                return false;
             };
 
         that.deleteAttribute = function (chapterValue, attributeName, attributeValue) {
@@ -221,6 +226,7 @@ var fluid_1_4 = fluid_1_4 || {};
                     i = 0;
                 for (i = 0; i < toHide.length; i = i + 1) {
                     toHide[i].hide();
+                    toHide[i].find('*').hide();
                 }
                 updateProgressbar();
                 if (that.options.autoActivate) {
@@ -240,6 +246,7 @@ var fluid_1_4 = fluid_1_4 || {};
         that.saveChapter = function (chapterPath) {
             if (chapterPath !== undefined) {
                 deactivateSelection();
+                that.search.removeHighlight();
                 that.locate('chapterContent').find(':hidden').show();
                 that.events.onSaveReady.fire(chapterPath, that.locate('chapterContent').html());
             }
@@ -308,6 +315,7 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.next = function () {
+            var ret = true;
             if (that.options.pageMode === 'split') {
                 // Book keeping for previous page stills
                 pagination.push({from: currentSelection.from, to: currentSelection.to});
@@ -315,61 +323,66 @@ var fluid_1_4 = fluid_1_4 || {};
                 currentSelection.to = currentSelection.from + that.options.maxSplitModePageHeight;
                 if (currentSelection.from < currentChapterHeight) {
                     if (that.selectionWrapper() === false) {
-                        that.next();
+                        ret = that.next();
                     }
                 } else {
-                    that.next_chapter();
+                    ret = that.next_chapter();
                 }
             } else if (that.options.pageMode === 'scroll') {
                 that.locate('bookContainer').scrollTop(that.locate('bookContainer').scrollTop() + that.options.scrollSpeed);
                 // continuous scroll till the end of book
                 if ((that.locate('bookContainer')[0].offsetHeight + that.locate('bookContainer').scrollTop()) >= that.locate('bookContainer')[0].scrollHeight) {
-                    that.next_chapter();
+                    ret = that.next_chapter();
                 }
             }
+            return ret;
         };
 
         that.previous = function () {
+            var ret = true;
             if (that.options.pageMode === 'split') {
                 currentSelection = pagination.pop();
                 if (currentSelection !== undefined && currentSelection.to > 0) {
                     if (that.selectionWrapper() === false) {
-                        that.previous();
+                        ret = that.previous();
                     }
                 } else {
                     currentSelection = {};
-                    that.previous_chapter();
+                    ret = that.previous_chapter();
                 }
             } else if (that.options.pageMode === 'scroll') {
                 that.locate('bookContainer').scrollTop(that.locate('bookContainer').scrollTop() - that.options.scrollSpeed);
                 // continous scroll till the beginning  of book
                 if (that.locate('bookContainer').scrollTop() <= 0) {
                     currentSelection = {};
-                    that.previous_chapter();
+                    ret = that.previous_chapter();
                     that.locate('bookContainer').scrollTop(that.locate('bookContainer')[0].scrollHeight - that.locate('bookContainer')[0].offsetHeight);
                 }
             }
+            return ret;
         };
 
         that.next_chapter = function () {
             if (that.toc.isLast()) {
-                return;
+                return false;
             }
             that.toc.setCurrentSelectionToIndex(that.toc.currentSelectPosition() + 1);
+            return true;
         };
 
         that.previous_chapter = function () {
             if (that.toc.isFirst()) {
-                return;
+                return false;
             }
             that.toc.setCurrentSelectionToIndex(that.toc.currentSelectPosition() - 1);
+            return true;
         };
 
         that.addBookmark = function (bookmarkTitle, bookmarkSelectable) {
             var cloneElm = bookmarkSelectable.filter('*').removeAttr('tabindex').clone(),
                 uId;
 
-            if ( fluid.epubReader.utils.hasAttribute(bookmarkSelectable, 'bookmarkkey') && that.bookmarks.findBookmarkPositionByKey(bookmarkSelectable.attr('bookmarkkey')) !== -1) {
+            if (fluid.epubReader.utils.hasAttribute(bookmarkSelectable, 'bookmarkkey') && that.bookmarks.findBookmarkPositionByKey(bookmarkSelectable.attr('bookmarkkey')) !== -1) {
                 // Has a valid bookmark attached
                 return false;
             }
@@ -401,6 +414,26 @@ var fluid_1_4 = fluid_1_4 || {};
 
         that.attachAllNotes = function () {
             that.notes.attachNotes(that.locate('chapterContent').find('[notekey]'), that.toc.getCurrentChapter().value);
+        };
+
+        that.searchNext = function (query) {
+            var startState = {};
+            startState.chapterPath =  that.toc.getCurrentChapterPath();
+            startState.to = currentSelection.to;
+            startState.from = currentSelection.from;
+
+            // issue is next -> next_chapter -> loadChapter  which returns but selection wrapper waits for images which
+            // causes asyncronous execution of search.Next and selectionWrapper
+            while (that.search.Next(query)) {
+                if (that.next() === false) {
+                    // Go round the end to reach first chapter
+                    that.toc.setCurrentSelectionToIndex(0);
+                }
+                if (isCurrentState(startState)) {
+                    alert("gol gol");
+                    break;
+                }
+            }
         };
     };
 

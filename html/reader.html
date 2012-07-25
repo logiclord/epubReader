@@ -73,6 +73,12 @@
                         <li>
                             <button type="button" class="flc-epubReader-previousChapterButton fl-rounded-corners" >Previous<br/> Chapter</button>
                         </li>
+                        <li>
+                            <form class="fl-epubReader-search-form">
+                                <input class="flc-epubReader-search-field" type="text" value="Search..." onfocus="if (this.value == 'Search...') {this.value = '';}" onblur="if (this.value == '') {this.value = 'Search...';}" />
+                                <input class="flc-epubReader-search-button" type="button" value="Go" />
+                            </form>
+                        </li>
                     </ul>
                 </div>
                 <div id="tabb" class="fl-clearfix">
@@ -193,6 +199,7 @@
             epubPath : "../tests/epubs/the_hound_of_the_baskervilles_igp_epub3_sir_arthur.epub"
         }
     });
+    var papu,titu,kaku;
 </script>
 
 </body>

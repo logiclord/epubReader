@@ -207,7 +207,7 @@ var fluid_1_4 = fluid_1_4 || {};
                     return 'url(' + dataUri + ')';
                 }
             });
-            result = result.replace(/^.*\{/gm, function (str){
+            result = result.replace(/^.*\{/gm, function (str) {
                 return that.options.chapterStyleElement + '  ' + str;
             });
             return result;

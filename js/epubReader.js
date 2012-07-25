@@ -37,7 +37,7 @@ var fluid_1_4 = fluid_1_4 || {};
                     return false;
                 });
             },
-        // Create a TinyMCE-based Rich Inline Edit component.
+            // Create a TinyMCE-based Rich Inline Edit component.
             tinyEditor = fluid.inlineEdit.tinyMCE(that.container, {
                 tinyMCE: {
                     width: that.options.width,
@@ -58,10 +58,11 @@ var fluid_1_4 = fluid_1_4 || {};
                          A workaround for TinyMCE issue
                          Details - TinyMCE select all visible elements and make them available for editing
                          irrespective of the fact that some ancestor of element might be hidden.
-                         */
+
                         that.locate('chapterContent').find(':hidden').each(function () {
                             $(this).find('*').hide();
                         });
+                         */
                         // Initialize TinyMCE editor with updated chapter content
                         tinyEditor.updateModelValue(that.locate('chapterContent').html(), null);
                     },
@@ -236,7 +237,10 @@ var fluid_1_4 = fluid_1_4 || {};
             previousButton: '{epubReader}.options.selectors.previousButton',
             nextChapterButton: '{epubReader}.options.selectors.nextChapterButton',
             previousChapterButton: '{epubReader}.options.selectors.previousChapterButton',
-            downloadButton: '{epubReader}.options.selectors.downloadButton'
+            downloadButton: '{epubReader}.options.selectors.downloadButton',
+            searchField: '{epubReader}.options.selectors.searchField',
+            searchForm: '{epubReader}.options.selectors.searchForm',
+            searchButton: '{epubReader}.options.selectors.searchButton'
         },
         events: {
             onUIOptionsUpdate: null,
@@ -270,6 +274,12 @@ var fluid_1_4 = fluid_1_4 || {};
 
         // keyboard accessibility for reading region
         that.locate('bookContainer').fluid('tabbable');
+        // autofocus on book container
+        /*
+        that.locate('bookContainer').focus(function () {
+            $('html, body').animate({ scrollTop: $(this).offset().top }, 500);
+        });
+        */
         //  add bookmark button click event
         that.locate('addBookmarkButton').click(function (evt) {
             that.addBookmarkHandler();
@@ -277,6 +287,40 @@ var fluid_1_4 = fluid_1_4 || {};
         // notes add button
         that.locate('addNoteButton').click(function (evt) {
             that.addNoteHandler();
+        });
+        // next button event for navigation
+        that.locate('nextButton').click(function (evt) {
+            that.navigator.next();
+        });
+        // previous button event for navigation
+        that.locate('previousButton').click(function (evt) {
+            that.navigator.previous();
+        });
+        // next chapter button event for navigation
+        that.locate('nextChapterButton').click(function (evt) {
+            that.navigator.next_chapter();
+        });
+        //previous chapter button event for navigation
+        that.locate('previousChapterButton').click(function (evt) {
+            that.navigator.previous_chapter();
+        });
+        that.locate('searchForm').submit(function (evt) {
+            evt.preventDefault();
+            that.searchHandler();
+        });
+        that.locate('searchButton').click(function (evt) {
+            evt.preventDefault();
+            that.searchHandler();
+        });
+        //download book click handler
+        that.locate('downloadButton').click(function (evt) {
+            // save any pending changes in current chapter
+            fluid.epubReader.utils.showNotification('Please Wait', 'info', 1000);
+            $(this).attr('disabled', 'disabled');
+            that.navigator.saveAll();
+            that.events.onDownloadRequest.fire();
+            $(this).removeAttr('disabled');
+            fluid.epubReader.utils.showNotification('Download Available', 'info');
         });
         // shift + keys for navigation and edit
         that.locate('bookContainer').bind('keydown', function (e) {
@@ -297,36 +341,6 @@ var fluid_1_4 = fluid_1_4 || {};
                 that.editor.attachEditor();
             }
         });
-        //download book
-        that.locate('downloadButton').click(function (evt) {
-            // save any pending changes in current chapter
-            fluid.epubReader.utils.showNotification('Please Wait', 'info', 1000);
-            $(this).attr('disabled', 'disabled');
-            that.navigator.saveAll();
-            that.events.onDownloadRequest.fire();
-            $(this).removeAttr('disabled');
-            fluid.epubReader.utils.showNotification('Download Available', 'info');
-        });
-        // next button event for navigation
-        that.locate('nextButton').click(function (evt) {
-            that.navigator.next();
-        });
-        // previous button event for navigation
-        that.locate('previousButton').click(function (evt) {
-            that.navigator.previous();
-        });
-        // next chapter button event for navigation
-        that.locate('nextChapterButton').click(function (evt) {
-            that.navigator.next_chapter();
-        });
-        //previous chapter button event for navigation
-        that.locate('previousChapterButton').click(function (evt) {
-            that.navigator.previous_chapter();
-        });
-        // autofocus on book container
-        that.locate('bookContainer').focus(function () {
-            $('html, body').animate({ scrollTop: $(this).offset().top }, 500);
-        });
 
         // to activate individual elements
         that.locate('bookContainer').fluid('activatable',  function (evt) {
@@ -343,6 +357,10 @@ var fluid_1_4 = fluid_1_4 || {};
             });
 
         });
+
+        that.searchHandler = function () {
+            that.navigator.searchNext(that.locate('searchField').val());
+        };
 
         that.addNoteHandler = function () {
             var tempForm = $('<div/>'),
@@ -526,7 +544,12 @@ var fluid_1_4 = fluid_1_4 || {};
             editorSaveButton: '.flc-inlineEdit-saveButton',
             editorCancelButton: '.flc-inlineEdit-cancelButton',
             editActivationButton: '.flc-epubReader-editor-activateButton',
-            downloadButton: '.flc-epubReader-downloadButton'
+            downloadButton: '.flc-epubReader-downloadButton',
+            searchForm: '.fl-epubReader-search-form',
+            searchField: '.flc-epubReader-search-field',
+            searchButton: '.flc-epubReader-search-button',
+            searchResult: '.flc-epubReader-highlighted',
+            currentSearchResult: '.flc-epubReader-highlighted-current'
         },
         strings: {
             uiOptionShowText: '+ Personalize',
