@@ -480,10 +480,8 @@
 
 .flc-epubReader-highlighted {
     background-color: #ffff00 !important;
-    display: inline;
 }
 
 .flc-epubReader-highlighted-current {
     background-color: #b8860b !important;
-    display: inline;
 }

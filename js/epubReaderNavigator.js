@@ -117,6 +117,9 @@ var fluid_1_4 = fluid_1_4 || {};
 
     fluid.epubReader.bookHandler.navigator.finalInit = function (that) {
         var currentChapterHeight,
+            savedState = {},
+            savedQuery = '',
+            isSavedState = false,
             currentSelection = {},                 //= {from : 0, to : that.options.maxSplitModePageHeight};
             pagination = [],                        // to keep track about forward and backward pagination ranges
             deactivateSelection = function () {
@@ -181,6 +184,32 @@ var fluid_1_4 = fluid_1_4 || {};
                     }
                 }
                 return false;
+            }, // Created to take care of race condition between search and loadChapter
+            continueSearch = function (query, startState) {
+                // issue is next -> next_chapter -> loadChapter  which returns but selection wrapper waits for images which
+                // causes asyncronous execution of search.Next and selectionWrapper
+                while (that.search.searchNext(query)) {
+                    if (that.next() === false) {
+                        // Go round the end to reach first chapter
+                        that.toc.setCurrentSelectionToIndex(0);
+                    }
+                    if (isCurrentState(startState)) {
+                        fluid.epubReader.utils.showNotification('No results found', 'error');
+                        break;
+                    }
+                    if (isSavedState) {
+                        savedState = startState;
+                        break;
+                    }
+                }
+                // if search is terminated and not paused
+                if (isSavedState === false) {
+                    var currentResult = that.search.getCurrentResult();
+                    if (currentResult !== undefined || currentResult !== null) {
+                        currentResult.focus();
+                        that.locate('bookContainer').scrollTop(currentResult.offset().top - that.locate('chapterContent').offset().top);
+                    }
+                }
             };
 
         that.deleteAttribute = function (chapterValue, attributeName, attributeValue) {
@@ -309,8 +338,12 @@ var fluid_1_4 = fluid_1_4 || {};
                 if (that.options.pageMode === 'scroll') {
                     that.locate('bookContainer').scrollTop(0);
                 }
+                // To resume pending search if any
+                if (isSavedState === true) {
+                    isSavedState = false;
+                    continueSearch(savedQuery, savedState);
+                }
             });
-
             return false;
         };
 
@@ -366,6 +399,7 @@ var fluid_1_4 = fluid_1_4 || {};
             if (that.toc.isLast()) {
                 return false;
             }
+            isSavedState = true;
             that.toc.setCurrentSelectionToIndex(that.toc.currentSelectPosition() + 1);
             return true;
         };
@@ -415,25 +449,14 @@ var fluid_1_4 = fluid_1_4 || {};
         that.attachAllNotes = function () {
             that.notes.attachNotes(that.locate('chapterContent').find('[notekey]'), that.toc.getCurrentChapter().value);
         };
-
+        // supports valid regex search in forward direction
         that.searchNext = function (query) {
             var startState = {};
             startState.chapterPath =  that.toc.getCurrentChapterPath();
             startState.to = currentSelection.to;
             startState.from = currentSelection.from;
-
-            // issue is next -> next_chapter -> loadChapter  which returns but selection wrapper waits for images which
-            // causes asyncronous execution of search.Next and selectionWrapper
-            while (that.search.Next(query)) {
-                if (that.next() === false) {
-                    // Go round the end to reach first chapter
-                    that.toc.setCurrentSelectionToIndex(0);
-                }
-                if (isCurrentState(startState)) {
-                    alert("gol gol");
-                    break;
-                }
-            }
+            savedQuery = query;
+            continueSearch(query, startState);
         };
     };
 

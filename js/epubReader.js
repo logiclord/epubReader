@@ -585,6 +585,7 @@ var fluid_1_4 = fluid_1_4 || {};
 
     fluid.epubReader.finalInit = function (that) {
         // Parsing ebook onload
+        // This is the trigger to get everything started in epubReader
         that.filefacilitator.getEpubFile(that.options.book.epubPath);
     };
 

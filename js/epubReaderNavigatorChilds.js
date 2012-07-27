@@ -29,7 +29,7 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.addHighlight = function (query) {
-            var sRegExInput = new RegExp(query, 'g');
+            var sRegExInput = new RegExp(query, 'ig');
             that.container.find(':visible').each(function () {
                 if ($(this).children().length === 0 && !$(this).hasClass(that.options.selectors.searchResult.slice(1))) {
                     var oldHTML = $(this).text();
@@ -38,8 +38,12 @@ var fluid_1_4 = fluid_1_4 || {};
             });
         };
 
-        that.Next = function (query) {
-            console.log("called with " + query);
+        that.getCurrentResult = function () {
+            return lastResult;
+        };
+
+        that.searchNext = function (query) {
+            console.log('called with ' + query);
             if (lastResult !== undefined) {
                 lastResult.removeClass(that.options.selectors.currentSearchResult.slice(1));
             }
