@@ -211,6 +211,11 @@ var fluid_1_4 = fluid_1_4 || {};
                         that.locate('bookContainer').scrollTop(currentResult.offset().top - that.locate('chapterContent').offset().top);
                     }
                 }
+            },
+            removeAllNotes = function () {
+                that.locate('chapterContent').find('[notekey]').each(function () {
+                    fluid.epubReader.utils.removeToolTip($(this));
+                });
             };
 
         that.deleteAttribute = function (chapterValue, attributeName, attributeValue) {
@@ -275,6 +280,7 @@ var fluid_1_4 = fluid_1_4 || {};
         that.saveChapter = function (chapterPath) {
             if (chapterPath !== undefined) {
                 deactivateSelection();
+                removeAllNotes();
                 that.search.removeHighlight();
                 that.locate('chapterContent').find(':hidden').show();
                 that.events.onSaveReady.fire(chapterPath, that.locate('chapterContent').html());

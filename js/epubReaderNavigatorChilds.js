@@ -43,7 +43,6 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.searchNext = function (query) {
-            console.log('called with ' + query);
             if (lastResult !== undefined) {
                 lastResult.removeClass(that.options.selectors.currentSearchResult.slice(1));
             }
@@ -55,12 +54,9 @@ var fluid_1_4 = fluid_1_4 || {};
                 results = that.locate('searchResult');
                 if (results.length === 0) {
                     lastResult = undefined;
-                    console.log('0');
                     return true;
                 } else {
                     lastResult = results.first();
-                    console.log('1');
-                    console.log(lastResult);
                     lastResult.addClass(that.options.selectors.currentSearchResult.slice(1));
                     return false;
                 }
@@ -70,12 +66,9 @@ var fluid_1_4 = fluid_1_4 || {};
                     loc = $.inArray(lastResult[0], results);
                     if (loc === results.length - 1) {
                         lastResult = undefined;
-                        console.log('2');
                         return true;
                     } else {
                         lastResult = $(results[loc + 1]);
-                        console.log('3');
-                        console.log(lastResult);
                         lastResult.addClass(that.options.selectors.currentSearchResult.slice(1));
                         return false;
                     }
@@ -84,12 +77,9 @@ var fluid_1_4 = fluid_1_4 || {};
                     results = that.locate('searchResult').filter(':visible');
                     if (results.length === 0) {
                         lastResult = undefined;
-                        console.log('4');
-                        console.log(lastResult);
                         return true;
                     } else {
                         lastResult = results.first();
-                        console.log('5');
                         lastResult.addClass(that.options.selectors.currentSearchResult.slice(1));
                         return false;
                     }
