@@ -204,9 +204,10 @@ var fluid_1_4 = fluid_1_4 || {};
                 }
                 // if search is terminated and not paused
                 if (isSavedState === false) {
+                    savedQuery = '';
                     var currentResult = that.search.getCurrentResult();
                     if (currentResult !== undefined || currentResult !== null) {
-                        currentResult.focus();
+                        //currentResult.focus();
                         that.locate('bookContainer').scrollTop(currentResult.offset().top - that.locate('chapterContent').offset().top);
                     }
                 }
@@ -246,7 +247,6 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.selectionWrapper = function () {
-            /* TODO not working properly for notes - fix in editing part */
             deactivateSelection();
             if (that.options.pageMode === 'split') {
                 that.locate('chapterContent').find(':hidden').show();
@@ -341,6 +341,7 @@ var fluid_1_4 = fluid_1_4 || {};
                 // To resume pending search if any
                 if (isSavedState === true) {
                     isSavedState = false;
+                    // TODO - this created a selectable bug
                     continueSearch(savedQuery, savedState);
                 }
             });
@@ -399,7 +400,9 @@ var fluid_1_4 = fluid_1_4 || {};
             if (that.toc.isLast()) {
                 return false;
             }
-            isSavedState = true;
+            if (savedQuery !== '') {
+                isSavedState = true;
+            }
             that.toc.setCurrentSelectionToIndex(that.toc.currentSelectPosition() + 1);
             return true;
         };
