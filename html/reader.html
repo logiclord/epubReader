@@ -37,6 +37,7 @@
     <script type="text/javascript" src="../js/epubReaderNavigatorChilds.js"></script>
     <script type="text/javascript" src="../js/epubReaderNavigator.js"></script>
     <script type="text/javascript" src="../js/epubReader.js"></script>
+    <script type="text/javascript" src="../js/epubReaderDemo.js"></script>
 
 </head>
 <body>
@@ -48,87 +49,87 @@
 
 
         <div class="fl-epubReader-navigationContaniner  fl-epubReader-tabsPanel">
-                <ul class="fl-tabs fl-tabs-left fl-clearfix fl-inverted-color">
-                    <li><a href="#tabg" class="fl-tab-general">General</a></li>
-                    <li><a href="#tabb" class="fl-tab-bookmarks">Bookmarks</a></li>
-                    <li><a href="#tabn" class="fl-tab-notes" >Notes</a></li>
-                    <li><a href="#tabe" class="fl-tab-edit" >Edit</a></li>
+            <ul class="fl-tabs fl-tabs-left fl-clearfix fl-inverted-color">
+                <li><a href="#tabg" class="fl-tab-general">General</a></li>
+                <li><a href="#tabb" class="fl-tab-bookmarks">Bookmarks</a></li>
+                <li><a href="#tabn" class="fl-tab-notes" >Notes</a></li>
+                <li><a href="#tabe" class="fl-tab-edit" >Edit</a></li>
+            </ul>
+            <div id="tabg" class="fl-clearfix" >
+                <ul class="fl-clearfix">
+                    <li class="fl-epubReader-tocContainer">
+                        <label for="toc">Table of Content</label>
+                        <select class="flc-epubReader-toc" id="toc">
+                        </select>
+                    </li>
+                    <li>
+                        <button type="button" class="flc-epubReader-previousChapterButton fl-rounded-corners" >Previous<br/> Chapter</button>
+                    </li>
+                    <li>
+                        <button type="button" class="flc-epubReader-previousButton fl-rounded-corners" >Previous</button>
+                    </li>
+                    <li>
+                        <button type="button" class="flc-epubReader-nextButton fl-rounded-corners" >Next</button>
+                    </li>
+                    <li>
+                        <button type="button" class="flc-epubReader-nextChapterButton fl-rounded-corners" >Next<br/> Chapter</button>
+                    </li>
+
+                    <li>
+                        <form class="fl-epubReader-search-form">
+                            <input class="flc-epubReader-search-field" type="text" value="Search..." onfocus="if (this.value == 'Search...') {this.value = '';}" onblur="if (this.value == '') {this.value = 'Search...';}" />
+                            <input class="flc-epubReader-search-button" type="button" value="Go" />
+                        </form>
+                    </li>
                 </ul>
-                <div id="tabg" class="fl-clearfix" >
-                    <ul class="fl-clearfix">
-                        <li class="fl-epubReader-tocContainer">
-                            <label for="toc">Table of Content</label>
-                            <select class="flc-epubReader-toc" id="toc">
-                            </select>
-                        </li>
-                        <li>
-                            <button type="button" class="flc-epubReader-previousChapterButton fl-rounded-corners" >Previous<br/> Chapter</button>
-                        </li>
-                        <li>
-                            <button type="button" class="flc-epubReader-previousButton fl-rounded-corners" >Previous</button>
-                        </li>
-                        <li>
-                            <button type="button" class="flc-epubReader-nextButton fl-rounded-corners" >Next</button>
-                        </li>
-                        <li>
-                            <button type="button" class="flc-epubReader-nextChapterButton fl-rounded-corners" >Next<br/> Chapter</button>
-                        </li>
+            </div>
+            <div id="tabb" class="fl-clearfix">
 
-                        <li>
-                            <form class="fl-epubReader-search-form">
-                                <input class="flc-epubReader-search-field" type="text" value="Search..." onfocus="if (this.value == 'Search...') {this.value = '';}" onblur="if (this.value == '') {this.value = 'Search...';}" />
-                                <input class="flc-epubReader-search-button" type="button" value="Go" />
-                            </form>
-                        </li>
-                    </ul>
-                </div>
-                <div id="tabb" class="fl-clearfix">
+                <button type="button" class="flc-epubReader-addBookmark fl-rounded-corners" >Add<br/> Bookmark</button>
 
-                    <button type="button" class="flc-epubReader-addBookmark fl-rounded-corners" >Add<br/> Bookmark</button>
+                <table class="fl-epubReader-bookmarkContainer" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <th>Bookmark Identifier</th>
+                        <th>Chapter</th>
+                        <th colspan="3">Manage</th>
+                    </tr>
+                    <tr class="flc-epubReader-bookmark-tableRow">
+                        <td class="flc-epubReader-bookmark-title"></td>
+                        <td class="flc-epubReader-bookmark-chapter">
+                        </td>
+                        <td>
+                            <a  class="flc-epubReader-bookmark-edit"></a>
+                        </td>
+                        <td>
+                            <a  class="flc-epubReader-bookmark-delete"></a>
+                        </td>
+                        <td>
+                            <a  class="flc-epubReader-bookmark-goTo"></a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="tabn" class="fl-clearfix" >
+                <button type="button" class="flc-epubReader-addNote fl-rounded-corners" >Add<br/> Note</button>
 
-                    <table class="fl-epubReader-bookmarkContainer" border="0" cellspacing="0" cellpadding="0">
-                        <tr>
-                            <th>Bookmark Identifier</th>
-                            <th>Chapter</th>
-                            <th colspan="3">Manage</th>
-                        </tr>
-                        <tr class="flc-epubReader-bookmark-tableRow">
-                            <td class="flc-epubReader-bookmark-title"></td>
-                            <td class="flc-epubReader-bookmark-chapter">
-                            </td>
-                            <td>
-                                <a  class="flc-epubReader-bookmark-edit"></a>
-                            </td>
-                            <td>
-                                <a  class="flc-epubReader-bookmark-delete"></a>
-                            </td>
-                            <td>
-                                <a  class="flc-epubReader-bookmark-goTo"></a>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div id="tabn" class="fl-clearfix" >
-                    <button type="button" class="flc-epubReader-addNote fl-rounded-corners" >Add<br/> Note</button>
-
-                    <table class="fl-epubReader-notesContainer" border="0" cellspacing="0" cellpadding="0">
-                        <tr>
-                            <th>Note Identifier</th>
-                            <th>Chapter</th>
-                            <th colspan="2">Manage</th>
-                        </tr>
-                        <tr class="flc-epubReader-note-tableRow">
-                            <td class="flc-epubReader-note-id"></td>
-                            <td class="flc-epubReader-note-chapter">
-                            </td>
-                            <td>
-                                <a  class="flc-epubReader-note-edit"></a>
-                            </td>
-                            <td>
-                                <a  class="flc-epubReader-note-delete"></a>
-                            </td>
-                        </tr>
-                    </table></div>
+                <table class="fl-epubReader-notesContainer" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <th>Note Identifier</th>
+                        <th>Chapter</th>
+                        <th colspan="2">Manage</th>
+                    </tr>
+                    <tr class="flc-epubReader-note-tableRow">
+                        <td class="flc-epubReader-note-id"></td>
+                        <td class="flc-epubReader-note-chapter">
+                        </td>
+                        <td>
+                            <a  class="flc-epubReader-note-edit"></a>
+                        </td>
+                        <td>
+                            <a  class="flc-epubReader-note-delete"></a>
+                        </td>
+                    </tr>
+                </table></div>
             <div id="tabe" class="fl-clearfix" >
                 <ul class="fl-clearfix">
                     <li>
@@ -165,42 +166,5 @@
         </div>
     </div>
 </div>
-
-
-<script type="text/javascript">
-
-    // extended to include my custom UI option i.e. pageMode
-    fluid.staticEnvironment.uiEnhancer = fluid.uiEnhancer(".fl-epubReader-bookContainer", {
-        components: {
-            pageMode: {
-                type: "fluid.uiEnhancer.classSwapper",
-                container: "{uiEnhancer}.container",
-                options: {
-                    classes: "{uiEnhancer}.options.classnameMap.pageMode"
-                }
-            },
-            settingsStore: {
-                options:{
-                    defaultSiteSettings: {
-                        pageMode: "split"
-                    }
-                }
-            }
-        },
-        classnameMap: {
-            "pageMode": {
-                "split": "fl-font-uio-times",
-                "scroll": "fl-font-uio-times"
-            }
-        }
-    });
-
-    fluid.epubReader(".fl-epubReader-container",{
-        book:{
-            epubPath : "../tests/epubs/the_hound_of_the_baskervilles_igp_epub3_sir_arthur.epub"
-        }
-    });
-</script>
-
 </body>
 </html>
