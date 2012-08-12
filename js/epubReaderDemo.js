@@ -28,7 +28,7 @@ jQuery(document).ready(function () {
         }
     });
 
-    fluid.epubReader(".fl-epubReader-container", {
+    var epubReader = fluid.epubReader(".fl-epubReader-container", {
         book: {
             epubPath : "../tests/epubs/the_hound_of_the_baskervilles_igp_epub3_sir_arthur.epub"
         }
