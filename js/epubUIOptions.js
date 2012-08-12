@@ -78,7 +78,7 @@ var fluid_1_4 = fluid_1_4 || {};
                     components: {
                         templatePath: {
                             options: {
-                                value: '../html/uiOptions/'
+                                value: '{epubReader}.options.uiOptionsTemplatePath'
                             }
                         }
                     },

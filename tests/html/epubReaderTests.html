@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+
+    <link rel="stylesheet" type="text/css" href="../../lib/infusion/framework/fss/css/fss-reset-global.css"/>
+    <link rel="stylesheet" type="text/css" href="../../lib/infusion/framework/fss/css/fss-base-global.css"/>
+    <link rel="stylesheet" type="text/css" href="../../lib/infusion/framework/fss/css/fss-text.css"/>
+    <link rel="stylesheet" type="text/css" href="../../lib/infusion/framework/fss/css/fss-layout.css"/>
+    <link rel="stylesheet" type="text/css" href="../../lib/infusion/components/uiOptions/css/fss/fss-theme-bw-uio.css" />
+    <link rel="stylesheet" type="text/css" href="../../lib/infusion/components/uiOptions/css/fss/fss-theme-wb-uio.css" />
+    <link rel="stylesheet" type="text/css" href="../../lib/infusion/components/uiOptions/css/fss/fss-theme-by-uio.css" />
+    <link rel="stylesheet" type="text/css" href="../../lib/infusion/components/uiOptions/css/fss/fss-theme-yb-uio.css" />
+    <link rel="stylesheet" type="text/css" href="../../lib/infusion/components/uiOptions/css/fss/fss-text-uio.css" />
+    <link rel="stylesheet" type="text/css" href="../../lib/infusion/components/uiOptions/css/UIOptions.css" />
+    <link rel="stylesheet" type="text/css" href="../../lib/infusion/components/uiOptions/css/FullUIOptions.css" />
+
+    <!-- epubReader dependencies -->
+
+    <link rel="stylesheet" href="../../css/epubReaderUIOptions.css"/>
+    <link rel="stylesheet" href="../../css/epubReader.css"/>
+
+
+    <script type="text/javascript" src="../../lib/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>
+    <script type="text/javascript" src="../../lib/infusion/InfusionAll.js"></script>
+
+    <script type="text/javascript" src="../../lib/jquery.waitforimages.js"></script>
+    <script type="text/javascript" src="../../lib/jquery.qtip-1.0.0-rc3.custom/jquery.qtip-1.0.0-rc3.min.js"></script>
+    <script type="text/javascript" src="../../lib/JSZip/jszip.js"></script>
+    <script type="text/javascript" src="../../lib/JSZip/jszip-load.js"></script>
+    <script type="text/javascript" src="../../lib/JSZip/jszip-deflate.js"></script>
+    <script type="text/javascript" src="../../lib/JSZip/jszip-inflate.js"></script>
+
+    <script type="text/javascript" src="../../js/epubReaderUtils.js"></script>
+    <script type="text/javascript" src="../../js/epubUIOptions.js"></script>
+    <script type="text/javascript" src="../../js/epubReaderFileFacilitator.js"></script>
+    <script type="text/javascript" src="../../js/epubReaderNavigatorChilds.js"></script>
+    <script type="text/javascript" src="../../js/epubReaderNavigator.js"></script>
+    <script type="text/javascript" src="../../js/epubReader.js"></script>
+
+    <!-- For Test suite -->
+    <link rel="stylesheet" media="screen" href="../../lib/infusion/tests/lib/qunit/css/qunit.css" />
+    <script type="text/javascript" src="../../lib/infusion/tests/lib/qunit/js/qunit.js"></script>
+    <script type="text/javascript" src="../../lib/infusion/tests/test-core/jqUnit/js/jqUnit.js"></script>
+    <script type="text/javascript" src="../js/epubReaderTests.js"></script>
+
+</head>
+<body>
+<h1 id="qunit-header">epubReader Test Suite</h1>
+<h2 id="qunit-banner"></h2>
+<div id="qunit-testrunner-toolbar"></div>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"><li></li></ol>
+
+<!-- Test HTML -->
+<div id="main">
+
+    <div class='fl-epubReader-container fl-container-auto' align="center">
+        <div class="flc-uiOptions-optionPanel fl-uiOptions-optionPanel">
+
+            <div class="flc-epubReader-uiOptions-container flc-slidingPanel-panel"></div>
+
+
+            <div class="fl-epubReader-navigationContaniner  fl-epubReader-tabsPanel">
+                <ul class="fl-tabs fl-tabs-left fl-clearfix fl-inverted-color">
+                    <li><a href="#tabg" class="fl-tab-general">General</a></li>
+                    <li><a href="#tabb" class="fl-tab-bookmarks">Bookmarks</a></li>
+                    <li><a href="#tabn" class="fl-tab-notes" >Notes</a></li>
+                    <li><a href="#tabe" class="fl-tab-edit" >Edit</a></li>
+                </ul>
+                <div id="tabg" class="fl-clearfix" >
+                    <ul class="fl-clearfix">
+                        <li class="fl-epubReader-tocContainer">
+                            <label for="toc">Table of Content</label>
+                            <select class="flc-epubReader-toc" id="toc">
+                            </select>
+                        </li>
+                        <li>
+                            <button type="button" class="flc-epubReader-previousChapterButton fl-rounded-corners" >Previous<br/> Chapter</button>
+                        </li>
+                        <li>
+                            <button type="button" class="flc-epubReader-previousButton fl-rounded-corners" >Previous</button>
+                        </li>
+                        <li>
+                            <button type="button" class="flc-epubReader-nextButton fl-rounded-corners" >Next</button>
+                        </li>
+                        <li>
+                            <button type="button" class="flc-epubReader-nextChapterButton fl-rounded-corners" >Next<br/> Chapter</button>
+                        </li>
+
+                        <li>
+                            <form class="fl-epubReader-search-form">
+                                <input class="flc-epubReader-search-field" type="text" value="Search..." onfocus="if (this.value == 'Search...') {this.value = '';}" onblur="if (this.value == '') {this.value = 'Search...';}" />
+                                <input class="flc-epubReader-search-button" type="button" value="Go" />
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+                <div id="tabb" class="fl-clearfix">
+
+                    <button type="button" class="flc-epubReader-addBookmark fl-rounded-corners" >Add<br/> Bookmark</button>
+
+                    <table class="fl-epubReader-bookmarkContainer" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <th>Bookmark Identifier</th>
+                            <th>Chapter</th>
+                            <th colspan="3">Manage</th>
+                        </tr>
+                        <tr class="flc-epubReader-bookmark-tableRow">
+                            <td class="flc-epubReader-bookmark-title"></td>
+                            <td class="flc-epubReader-bookmark-chapter">
+                            </td>
+                            <td>
+                                <a  class="flc-epubReader-bookmark-edit"></a>
+                            </td>
+                            <td>
+                                <a  class="flc-epubReader-bookmark-delete"></a>
+                            </td>
+                            <td>
+                                <a  class="flc-epubReader-bookmark-goTo"></a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="tabn" class="fl-clearfix" >
+                    <button type="button" class="flc-epubReader-addNote fl-rounded-corners" >Add<br/> Note</button>
+
+                    <table class="fl-epubReader-notesContainer" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <th>Note Identifier</th>
+                            <th>Chapter</th>
+                            <th colspan="2">Manage</th>
+                        </tr>
+                        <tr class="flc-epubReader-note-tableRow">
+                            <td class="flc-epubReader-note-id"></td>
+                            <td class="flc-epubReader-note-chapter">
+                            </td>
+                            <td>
+                                <a  class="flc-epubReader-note-edit"></a>
+                            </td>
+                            <td>
+                                <a  class="flc-epubReader-note-delete"></a>
+                            </td>
+                        </tr>
+                    </table></div>
+                <div id="tabe" class="fl-clearfix" >
+                    <ul class="fl-clearfix">
+                        <li>
+                            <button type="button" class="flc-epubReader-editor-activateButton fl-rounded-corners">Edit
+                                Page
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="flc-epubReader-downloadButton fl-rounded-corners">
+                                Download Book
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="fl-panelBar">
+                <button class="fl-epubReader-uiOptions-button flc-slidingPanel-toggleButton fl-toggleButton"></button>
+                <button class="fl-epubReader-navigation-button flc-slidingPanel-toggleButton fl-toggleButton" ></button>
+            </div>
+        </div>
+
+        <h1 class="flc-epubReader-chapter-title"></h1>
+
+        <div class="fl-epubReader-bookContainer fl-container-800 fl-rounded-corners">
+            <div class="fl-epubReader-progressIndicator" align="left">
+                <div class="flc-epubReader-progressIndicator-completed"></div>
+            </div>
+            <div class="flc-epubReader-chapter-styles"></div>
+            <div class="flc-epubReader-chapter-content flc-inlineEdit-text flc-epubReader-chapter-StyleElement" ></div>
+            <div class="flc-inlineEdit-editContainer">
+                <button class="flc-inlineEdit-saveButton">Save</button> <button class="flc-inlineEdit-cancelButton">Cancel</button>
+                <textarea></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

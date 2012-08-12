@@ -46,7 +46,7 @@ var fluid_1_4 = fluid_1_4 || {};
                     theme_advanced_toolbar_location : 'top'
                 },
                 strings: {
-                    // TODO - to hide edit button placed just above the editing region
+                    // To hide edit button placed just above the editing region
                     textEditButton: ''
                 },
                 defaultViewText: '',
@@ -551,6 +551,10 @@ var fluid_1_4 = fluid_1_4 || {};
             searchResult: '.flc-epubReader-highlighted',
             currentSearchResult: '.flc-epubReader-highlighted-current'
         },
+        uiOptionsTemplatePath: '../html/uiOptions/',
+        events: {
+            onReaderReady: null
+        },
         strings: {
             uiOptionShowText: '+ Personalize',
             uiOptionHideText: '- Personalize',
@@ -576,6 +580,7 @@ var fluid_1_4 = fluid_1_4 || {};
             that.bookhandle.navigator.toc.setModel(that.bookhandle.parser.getTOC(that.filefacilitator.getDataFromEpub(ncx_file)));
             that.bookhandle.navigator.bookmarks.setModel(that.filefacilitator.getDataFromEpub('bookmark.json'));
             that.bookhandle.navigator.notes.setModel(that.filefacilitator.getDataFromEpub('notes.json'));
+            that.events.onReaderReady.fire();
         };
 
         that.loadContent = function (page) {

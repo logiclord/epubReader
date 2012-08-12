@@ -392,7 +392,7 @@ var fluid_1_4 = fluid_1_4 || {};
                 }
             } else if (that.options.pageMode === 'scroll') {
                 that.locate('bookContainer').scrollTop(that.locate('bookContainer').scrollTop() - that.options.scrollSpeed);
-                // continous scroll till the beginning  of book
+                // continuous scroll till the beginning  of book
                 if (that.locate('bookContainer').scrollTop() <= 0) {
                     currentSelection = {};
                     ret = that.previous_chapter();
