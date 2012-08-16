@@ -4,7 +4,8 @@
     $(document).ready(function () {
 
         var epubReaderTests = new jqUnit.TestCase('epubReader Component Tests'),
-            epubReader;
+            epubReader,
+            epubReaderTester;
 
 
         // extended to include my custom UI option i.e. pageMode
@@ -33,21 +34,59 @@
             }
         });
 
-        var epubReaderTester = function (callback) {
+        epubReaderTester = function (callback) {
             epubReader = fluid.epubReader('.fl-epubReader-container', {
                 book: {
                     epubPath : '../epubs/the_hound_of_the_baskervilles_igp_epub3_sir_arthur.epub'
                 },
                 listeners: {
                     onReaderReady: function () {
-                        start();
                         callback();
+                        start();
                     }
                 },
                 uiOptionsTemplatePath: '../../html/uiOptions/'
             });
         };
 
+        epubReaderTests.asyncTest('Personalize', function () {
+            epubReader = fluid.epubReader('.fl-epubReader-container', {
+                book: {
+                    epubPath : '../epubs/the_hound_of_the_baskervilles_igp_epub3_sir_arthur.epub'
+                },
+                components: {
+                    bookhandle: {
+                        options : {
+                            listeners: {
+                                onUIOptionsUpdate: {
+                                    listener : function (selection) {
+                                        console.log(selection);
+                                        jqUnit.assertEquals("Text size saved", 1.3, selection.textSize);
+                                        jqUnit.assertEquals("Line spacing saved", 1.2, selection.lineSpacing);
+                                        jqUnit.assertEquals("Page mode saved", "scroll", selection.pageMode);
+                                        jqUnit.assertEquals("Theme saved", "yb", selection.theme);
+                                        jqUnit.assertEquals("Font saved", "times", selection.textFont);
+                                        start();
+                                    },
+                                    priority: 'last'
+                                }
+                            }
+                        }
+                    }
+                },
+                listeners: {
+                    onReaderReady: function () {
+                        $('#min-text-size').val(1.3).change();
+                        $('.flc-uiOptions-text-font').val("times").change();
+                        $('#line-spacing').val(1.2).change();
+                        $('.flc-uiOptions-theme').val("yb").change();
+                        $('.flc-uiOptions-page-mode').val("scroll").change();
+                        $('.flc-uiOptions-save').click();
+                    }
+                },
+                uiOptionsTemplatePath: '../../html/uiOptions/'
+            });
+        });
 
         epubReaderTests.asyncTest('Initialization', function () {
             epubReaderTester(function () {
@@ -137,22 +176,6 @@
             });
         });
 
-
-        epubReaderTests.asyncTest('Personalize', function () {
-            epubReaderTester(function () {
-                jqUnit.assertTrue('Bookmark Added', function () {
-                    $('#min-text-size').val(1.2);
-                    $('.flc-uiOptions-text-font').val("times");
-                    $('#line-spacing').val(1.2);
-                    $('.flc-uiOptions-theme').val("bw");
-                    $('.flc-uiOptions-page-mode').val("scroll");
-                    $('.flc-uiOptions-save').click();
-                    return true;
-                }());
-            });
-        });
-
-
         epubReaderTests.asyncTest('Notes', function () {
             epubReaderTester(function () {
                 jqUnit.assertTrue('Note Added', function () {
@@ -169,6 +192,7 @@
                 }());
             });
         });
+
     });
 
 })(jQuery);
