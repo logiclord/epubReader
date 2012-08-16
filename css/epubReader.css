@@ -1,3 +1,7 @@
+body {
+ background-color: #000;
+}
+
 .fl-epubReader-container {
     background-color: rgb(245, 245, 245);
     padding: 0;
@@ -9,9 +13,10 @@
 
 .fl-epubReader-bookContainer {
     position: relative;
-    top: 0;
+    margin-top: 20px;
+    top: 10px;
     border: 1px dotted rgb(210, 210, 210);
-    height: 600px;
+    height: 625px;
     background-color: #FFFFFF;
     padding: 0;
     overflow: hidden;
@@ -34,10 +39,10 @@
 }
 
 .flc-epubReader-chapter-title {
-    margin-top: 30px;
+    margin-top: 20px;
     font-weight: bold;
     font-size: medium;
-    margin-bottom: 10px
+    margin-bottom: 10px;
 }
 
 .fl-epubReader-container .indent {
@@ -45,7 +50,7 @@
 }
 
 .flc-epubReader-chapter-StyleElement {
-    top: 30px;
+    top: 50px;
     width: 750px;
     /*height: 500px;*/
     min-height: 500px;
@@ -58,6 +63,7 @@
     margin-left: auto;
     margin-right: auto;
     margin-top: 10px;
+    margin-bottom: 10px;
     width: 500px;
     height: 5px;
     border: 1px solid rgb(200, 200, 200);
