@@ -247,6 +247,15 @@ var fluid_1_4 = fluid_1_4 || {};
             onPageModeRestore: null,
             onDownloadRequest: null
         },
+		keyboardShortcut: {
+			bookmarkKey: '{epubReader}.options.keyboardShortcut.bookmarkKey',
+			noteKey: '{epubReader}.options.keyboardShortcut.noteKey',
+			nextNavigationKey: '{epubReader}.options.keyboardShortcut.nextNavigationKey',
+			previousNavigationKey: '{epubReader}.options.keyboardShortcut.previousNavigationKey',
+			nextChapterNavigationKey: '{epubReader}.options.keyboardShortcut.nextChapterNavigationKey',
+			previousChapterNavigationKey: '{epubReader}.options.keyboardShortcut.previousChapterNavigationKey',
+			editKey: '{epubReader}.options.keyboardShortcut.editKey'
+		},
         listeners: {
             onDownloadRequest: '{filefacilitator}.downloadEpubFile'
         },
@@ -257,7 +266,7 @@ var fluid_1_4 = fluid_1_4 || {};
 
         var bookmarkKeyboardHandler =  function (e) {
             var code = e.keyCode || e.which;
-            if (code  === 66 && e.shiftKey) {
+            if (code  === that.options.keyboardShortcut.bookmarkKey && e.shiftKey) {
                 // prevent input texbox to be filled with B
                 e.preventDefault();
                 that.addBookmarkHandler();
@@ -265,7 +274,7 @@ var fluid_1_4 = fluid_1_4 || {};
         },
             notesKeyboardHandler =  function (e) {
                 var code = e.keyCode || e.which;
-                if (code  === 78 && e.shiftKey) {
+                if (code  ===  that.options.keyboardShortcut.noteKey  && e.shiftKey) {
                     // prevent input texbox to be filled with N
                     e.preventDefault();
                     that.addNoteHandler();
@@ -325,19 +334,19 @@ var fluid_1_4 = fluid_1_4 || {};
         // shift + keys for navigation and edit
         that.locate('bookContainer').bind('keydown', function (e) {
             var code = e.keyCode || e.which;
-            if (code  === 40 && e.shiftKey) {
+            if (code  === that.options.keyboardShortcut.nextNavigationKey  && e.shiftKey) {
                 that.navigator.next();
             }
-            if (code  === 38 && e.shiftKey) {
+            if (code  === that.options.keyboardShortcut.previousNavigationKey  && e.shiftKey) {
                 that.navigator.previous();
             }
-            if (code  === 39 && e.shiftKey) {
+            if (code  === that.options.keyboardShortcut.nextChapterNavigationKey  && e.shiftKey) {
                 that.navigator.next_chapter();
             }
-            if (code  === 37 && e.shiftKey) {
+            if (code  === that.options.keyboardShortcut.previousChapterNavigationKey  && e.shiftKey) {
                 that.navigator.previous_chapter();
             }
-            if (code  === 69 && e.shiftKey) {
+            if (code  === that.options.keyboardShortcut.editKey  && e.shiftKey) {
                 that.editor.attachEditor();
             }
         });
@@ -555,6 +564,15 @@ var fluid_1_4 = fluid_1_4 || {};
         events: {
             onReaderReady: null
         },
+		keyboardShortcut: {
+			bookmarkKey: 66,
+			noteKey: 78,
+			nextNavigationKey: 40,
+			previousNavigationKey: 38,
+			nextChapterNavigationKey: 39,
+			previousChapterNavigationKey: 37,
+			editKey: 69
+		},
         strings: {
             uiOptionShowText: '+ Personalize',
             uiOptionHideText: '- Personalize',
