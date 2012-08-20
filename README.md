@@ -25,9 +25,82 @@ Returns: A epubReader component object.
 ### Parameters
 
 ####container
+The container is a CSS-based selector, single-element jQuery object, or DOM element that identifies the
+root DOM node of the epubReader markup.
 
-The container is a CSS-based selector, single-element jQuery object, or DOM element that identifies the root DOM node of the Image Editor markup.
+####options
+The options object is an optional data structure that configures the epubReader, as described in the Options section below.
 
+### Options
+####uiOptionsTemplatePath - Relative path to UI options html template directory.
+####KeyboardShortcut    - Customizable shortcut keys for reader to be used with shift + key.
+#####bookmarkKey        - To add bookmark. Defaults to B (66).
+#####noteKey            - To add Note. Defaults to N (78).
+#####nextNavigationKey  - To navigate next. Defaults to Down Arrow (40).
+#####previousNavigationKey  - To navigate previous. Defaults to Up Arrow (38).
+#####nextChapterNavigationKey   - To navigate to next chapter. Defaults to Right Arrow (39).
+#####previousChapterNavigationKey   - To navigate to previous chapter. Defaults to Left Arrow (37).
+#####editKey            - To activate WYSIWYG editor. Defaults to E (69).
+####strings
+#####uiOptionShowText:  - Button string for Personalize tab when closed. Defaults to '+ Personalize'
+#####uiOptionHideText:  - Button string for Personalize tab when closed. Defaults to '- Personalize'
+#####navigationShowText - Button string for manage tab when open. Defaults to '+ Manage'
+#####navigationHideText - Button string for manage tab when closed. Defaults to '- Manage'
+####book
+#####epubPath           - Path to epub file.
+#####isBase64           - True if epub file is Base64 encrypted else False. Defaults to False.
+####constraints
+#####maxImageHeight     - Maximum allowed height of images contained in the book. Defaults to 400.
+#####maxImageWidth      - Maximum allowed width of images contained in the book. Defaults to 400.
+
+### Events
+####onReaderReady - Event fired at the end after initializing epubReader component and parsing ePub file.
+
+### Selectors
+####
+            contentTitle: '.flc-epubReader-chapter-title',
+            remaining: '.flc-epubReader-progressIndicator-completed',
+            remainingWrapper: '.fl-epubReader-progressIndicator',
+            chapterStyle: '.flc-epubReader-chapter-styles',
+            chapterStyleElement: '.flc-epubReader-chapter-StyleElement',
+            chapterContent: '.flc-epubReader-chapter-content',
+            tocSelector: '.flc-epubReader-toc',
+            tocContainer: '.fl-epubReader-tocContainer',
+            bookmarkContainer: '.fl-epubReader-bookmarkContainer',
+            bookmarkRow: '.flc-epubReader-bookmark-tableRow',
+            bookmarkTitle : '.flc-epubReader-bookmark-title',
+            bookmarkChapter: '.flc-epubReader-bookmark-chapter',
+            bookmarkEdit: '.flc-epubReader-bookmark-edit',
+            bookmarkDelete: '.flc-epubReader-bookmark-delete',
+            bookmarkGoTO: '.flc-epubReader-bookmark-goTo',
+            addBookmarkButton: '.flc-epubReader-addBookmark',
+            notesContainer: '.fl-epubReader-notesContainer',
+            noteRow: '.flc-epubReader-note-tableRow',
+            noteId : '.flc-epubReader-note-id',
+            noteChapter: '.flc-epubReader-note-chapter',
+            noteEdit: '.flc-epubReader-note-edit',
+            noteDelete: '.flc-epubReader-note-delete',
+            addNoteButton: '.flc-epubReader-addNote',
+            bookContainer: '.fl-epubReader-bookContainer',
+            uiOptionsContainer: '.flc-epubReader-uiOptions-container',
+            uiOptionsButton: '.fl-epubReader-uiOptions-button',
+            navigationContainer: '.fl-epubReader-navigationContaniner',
+            navigationButton: '.fl-epubReader-navigation-button',
+            epubControls: '.flc-uiOptions-epub-controls',
+            slidingTabsSelector: '.fl-epubReader-tabsPanel',
+            nextButton: '.flc-epubReader-nextButton',
+            previousButton: '.flc-epubReader-previousButton',
+            nextChapterButton: '.flc-epubReader-nextChapterButton',
+            previousChapterButton: '.flc-epubReader-previousChapterButton',
+            editorSaveButton: '.flc-inlineEdit-saveButton',
+            editorCancelButton: '.flc-inlineEdit-cancelButton',
+            editActivationButton: '.flc-epubReader-editor-activateButton',
+            downloadButton: '.flc-epubReader-downloadButton',
+            searchForm: '.fl-epubReader-search-form',
+            searchField: '.flc-epubReader-search-field',
+            searchButton: '.flc-epubReader-search-button',
+            searchResult: '.flc-epubReader-highlighted',
+            currentSearchResult: '.flc-epubReader-highlighted-current'
 
 Deployment
 ==========
@@ -37,7 +110,6 @@ There are four basic steps to adding the Image Editor to your application:
     Step 1: Prepare your markup
     Step 2: Write the script
     Step 3: Add the script to your HTML
-    
     Step 1 - Prepare your HTML markup similar to epubReaderDemo.html and apply styles.
 
 ```
