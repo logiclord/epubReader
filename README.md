@@ -35,7 +35,7 @@ The options object is an optional data structure that configures the epubReader,
 ```
 uiOptionsTemplatePath - Relative path to UI options html template directory.
 KeyboardShortcut    - Customizable shortcut keys for reader to be used with shift + key.
-            bookmarkKey        - To add bookmark. Defaults to B (66).
+	bookmarkKey        - To add bookmark. Defaults to B (66).
 	noteKey            - To add Note. Defaults to N (78).
 	nextNavigationKey  - To navigate next. Defaults to Down Arrow (40).
 	previousNavigationKey  - To navigate previous. Defaults to Up Arrow (38).
@@ -111,6 +111,7 @@ There are four basic steps to adding the Image Editor to your application:
     Step 1: Prepare your markup
     Step 2: Write the script
     Step 3: Add the script to your HTML
+
     Step 1 - Prepare your HTML markup similar to epubReaderDemo.html and apply styles.
 
 ```
@@ -233,6 +234,7 @@ There are four basic steps to adding the Image Editor to your application:
     </div>
 </div>
 ```
+
     Step 2 - Write script to add custom UI options parameters and instantiate epubReader component
 ```
     fluid.staticEnvironment.uiEnhancer = fluid.uiEnhancer(".fl-epubReader-bookContainer", {
@@ -266,8 +268,8 @@ There are four basic steps to adding the Image Editor to your application:
         }
     });
 ```
-    Step 3 - Include all dependencies and script created in step 2 in HTML markup.
 
+    Step 3 - Include all dependencies and script created in step 2 in HTML markup.
 ### Dependencies
 
 * UI Options Component stylesheets
