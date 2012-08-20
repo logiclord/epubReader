@@ -270,6 +270,7 @@ There are four basic steps to adding the Image Editor to your application:
 ```
 
     Step 3 - Include all dependencies and script created in step 2 in HTML markup.
+
 ### Dependencies
 
 * UI Options Component stylesheets
