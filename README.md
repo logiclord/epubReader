@@ -30,7 +30,7 @@ root DOM node of the epubReader markup.
 
 ####options
 The options object is an optional data structure that configures the epubReader, as described in the Options section below.
-
+```
 ### Options
 ####uiOptionsTemplatePath - Relative path to UI options html template directory.
 ####KeyboardShortcut    - Customizable shortcut keys for reader to be used with shift + key.
@@ -52,7 +52,7 @@ The options object is an optional data structure that configures the epubReader,
 ####constraints
 #####maxImageHeight     - Maximum allowed height of images contained in the book. Defaults to 400.
 #####maxImageWidth      - Maximum allowed width of images contained in the book. Defaults to 400.
-
+```
 ### Events
 ####onReaderReady - Event fired at the end after initializing epubReader component and parsing ePub file.
 
