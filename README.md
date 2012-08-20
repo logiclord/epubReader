@@ -30,78 +30,79 @@ root DOM node of the epubReader markup.
 
 ####options
 The options object is an optional data structure that configures the epubReader, as described in the Options section below.
-```
+
 ### Options
-####uiOptionsTemplatePath - Relative path to UI options html template directory.
-####KeyboardShortcut    - Customizable shortcut keys for reader to be used with shift + key.
-#####bookmarkKey        - To add bookmark. Defaults to B (66).
-#####noteKey            - To add Note. Defaults to N (78).
-#####nextNavigationKey  - To navigate next. Defaults to Down Arrow (40).
-#####previousNavigationKey  - To navigate previous. Defaults to Up Arrow (38).
-#####nextChapterNavigationKey   - To navigate to next chapter. Defaults to Right Arrow (39).
-#####previousChapterNavigationKey   - To navigate to previous chapter. Defaults to Left Arrow (37).
-#####editKey            - To activate WYSIWYG editor. Defaults to E (69).
-####strings
-#####uiOptionShowText:  - Button string for Personalize tab when closed. Defaults to '+ Personalize'
-#####uiOptionHideText:  - Button string for Personalize tab when closed. Defaults to '- Personalize'
-#####navigationShowText - Button string for manage tab when open. Defaults to '+ Manage'
-#####navigationHideText - Button string for manage tab when closed. Defaults to '- Manage'
-####book
-#####epubPath           - Path to epub file.
-#####isBase64           - True if epub file is Base64 encrypted else False. Defaults to False.
-####constraints
-#####maxImageHeight     - Maximum allowed height of images contained in the book. Defaults to 400.
-#####maxImageWidth      - Maximum allowed width of images contained in the book. Defaults to 400.
+```
+uiOptionsTemplatePath - Relative path to UI options html template directory.
+KeyboardShortcut    - Customizable shortcut keys for reader to be used with shift + key.
+            bookmarkKey        - To add bookmark. Defaults to B (66).
+	noteKey            - To add Note. Defaults to N (78).
+	nextNavigationKey  - To navigate next. Defaults to Down Arrow (40).
+	previousNavigationKey  - To navigate previous. Defaults to Up Arrow (38).
+	nextChapterNavigationKey   - To navigate to next chapter. Defaults to Right Arrow (39).
+	previousChapterNavigationKey   - To navigate to previous chapter. Defaults to Left Arrow (37).
+	editKey            - To activate WYSIWYG editor. Defaults to E (69).
+strings
+	uiOptionShowText:  - Button string for Personalize tab when closed. Defaults to '+ Personalize'
+	uiOptionHideText:  - Button string for Personalize tab when closed. Defaults to '- Personalize'
+	navigationShowText - Button string for manage tab when open. Defaults to '+ Manage'
+	navigationHideText - Button string for manage tab when closed. Defaults to '- Manage'
+book
+	epubPath           - Path to epub file.
+	isBase64           - True if epub file is Base64 encrypted else False. Defaults to False.
+constraints
+	maxImageHeight     - Maximum allowed height of images contained in the book. Defaults to 400.
+	maxImageWidth      - Maximum allowed width of images contained in the book. Defaults to 400.
 ```
 ### Events
-####onReaderReady - Event fired at the end after initializing epubReader component and parsing ePub file.
-
+```onReaderReady - Event fired at the end after initializing epubReader component and parsing ePub file.
+```
 ### Selectors
-####
-            contentTitle: '.flc-epubReader-chapter-title',
-            remaining: '.flc-epubReader-progressIndicator-completed',
-            remainingWrapper: '.fl-epubReader-progressIndicator',
-            chapterStyle: '.flc-epubReader-chapter-styles',
-            chapterStyleElement: '.flc-epubReader-chapter-StyleElement',
-            chapterContent: '.flc-epubReader-chapter-content',
-            tocSelector: '.flc-epubReader-toc',
-            tocContainer: '.fl-epubReader-tocContainer',
-            bookmarkContainer: '.fl-epubReader-bookmarkContainer',
-            bookmarkRow: '.flc-epubReader-bookmark-tableRow',
-            bookmarkTitle : '.flc-epubReader-bookmark-title',
-            bookmarkChapter: '.flc-epubReader-bookmark-chapter',
-            bookmarkEdit: '.flc-epubReader-bookmark-edit',
-            bookmarkDelete: '.flc-epubReader-bookmark-delete',
-            bookmarkGoTO: '.flc-epubReader-bookmark-goTo',
-            addBookmarkButton: '.flc-epubReader-addBookmark',
-            notesContainer: '.fl-epubReader-notesContainer',
-            noteRow: '.flc-epubReader-note-tableRow',
-            noteId : '.flc-epubReader-note-id',
-            noteChapter: '.flc-epubReader-note-chapter',
-            noteEdit: '.flc-epubReader-note-edit',
-            noteDelete: '.flc-epubReader-note-delete',
-            addNoteButton: '.flc-epubReader-addNote',
-            bookContainer: '.fl-epubReader-bookContainer',
-            uiOptionsContainer: '.flc-epubReader-uiOptions-container',
-            uiOptionsButton: '.fl-epubReader-uiOptions-button',
-            navigationContainer: '.fl-epubReader-navigationContaniner',
-            navigationButton: '.fl-epubReader-navigation-button',
-            epubControls: '.flc-uiOptions-epub-controls',
-            slidingTabsSelector: '.fl-epubReader-tabsPanel',
-            nextButton: '.flc-epubReader-nextButton',
-            previousButton: '.flc-epubReader-previousButton',
-            nextChapterButton: '.flc-epubReader-nextChapterButton',
-            previousChapterButton: '.flc-epubReader-previousChapterButton',
-            editorSaveButton: '.flc-inlineEdit-saveButton',
-            editorCancelButton: '.flc-inlineEdit-cancelButton',
-            editActivationButton: '.flc-epubReader-editor-activateButton',
-            downloadButton: '.flc-epubReader-downloadButton',
-            searchForm: '.fl-epubReader-search-form',
-            searchField: '.flc-epubReader-search-field',
-            searchButton: '.flc-epubReader-search-button',
-            searchResult: '.flc-epubReader-highlighted',
-            currentSearchResult: '.flc-epubReader-highlighted-current'
-
+```
+contentTitle    - The book title. Defaults to '.flc-epubReader-chapter-title',
+remaining       - The split mode chapter progress indicator. Defaults to '.flc-epubReader-progressIndicator-completed',
+remainingWrapper- The split mode chapter progress indicator background Defaults to '.fl-epubReader-progressIndicator',
+chapterStyle    - Element to contain parsed styles from ebook. Defaults to '.flc-epubReader-chapter-styles',
+chapterStyleElement- The styles to be applied to reading region. Defaults to '.flc-epubReader-chapter-StyleElement',
+chapterContent  - Element to contain book text and images. Defaults to '.flc-epubReader-chapter-content',
+tocSelector     - The table of content input. Defaults to '.flc-epubReader-toc',
+tocContainer    - The container for table of content input. Defaults to '.fl-epubReader-tocContainer',
+bookmarkContainer-The container for bookmark component. Defaults to '.fl-epubReader-bookmarkContainer',
+bookmarkRow     - Element to be used with each bookmark. Defaults to '.flc-epubReader-bookmark-tableRow',
+bookmarkTitle   - The bookmark title. Defaults to '.flc-epubReader-bookmark-title',
+bookmarkChapter - The bookmark chapter. Defaults to '.flc-epubReader-bookmark-chapter',
+bookmarkEdit    - The bookmark edit button. Defaults to '.flc-epubReader-bookmark-edit',
+bookmarkDelete  - The bookmark delete button. Defaults to '.flc-epubReader-bookmark-delete',
+bookmarkGoTO    -  The bookmark navigation button. Defaults to '.flc-epubReader-bookmark-goTo',
+addBookmarkButton- The bookmark add button. Defaults to '.flc-epubReader-addBookmark',
+notesContainer  - The container for notes component. Defaults to '.fl-epubReader-notesContainer',
+noteRow         - Element to be used with each note. Defaults to '.flc-epubReader-note-tableRow',
+noteId          - The note identifying title. Defaults to '.flc-epubReader-note-id',
+noteChapter     - Th note chapter. Defaults to '.flc-epubReader-note-chapter',
+noteEdit        - The note edit button. Defaults to '.flc-epubReader-note-edit',
+noteDelete      - The note delete button. Defaults to '.flc-epubReader-note-delete',
+addNoteButton   - The note add button. Defaults to '.flc-epubReader-addNote',
+bookContainer   - The container for bookhandler component. Defaults to '.fl-epubReader-bookContainer',
+uiOptionsContainer- The container for integrated UI Options component. Defaults to '.flc-epubReader-uiOptions-container',
+uiOptionsButton - The personalize tab toggle button. Defaults to '.fl-epubReader-uiOptions-button',
+navigationContainer - The manage tab container. Defaults to '.fl-epubReader-navigationContaniner',
+navigationButton    - The manage tab toggle button. Defaults to '.fl-epubReader-navigation-button',
+epubControls        - Element which contains epub personalization options. Defaults to '.flc-uiOptions-epub-controls',
+slidingTabsSelector - Element which contain all section buttons for personalize tab. Defaults to '.fl-epubReader-tabsPanel',
+nextButton          - The next navigation button. Defaults to '.flc-epubReader-nextButton',
+previousButton      - The previous navigation button. Defaults to '.flc-epubReader-previousButton',
+nextChapterButton   - The next chapter navigation button. Defaults to '.flc-epubReader-nextChapterButton',
+previousChapterButton  - The previous chapter navigation button. Defaults to '.flc-epubReader-previousChapterButton',
+editorSaveButton    - The save button for WYSIWYG editor. Defaults to '.flc-inlineEdit-saveButton',
+editorCancelButton  - The cancel button for WYSIWYG editor. Defaults to '.flc-inlineEdit-cancelButton',
+editActivationButton- The activation button for WYSIWYG editor. Defaults to '.flc-epubReader-editor-activateButton',
+downloadButton      - Button to download current ebook including bookmarks and notes. Defaults to '.flc-epubReader-downloadButton',
+searchForm          - The search form container. Defaults to '.fl-epubReader-search-form',
+searchField         - The search text box. Defaults to '.flc-epubReader-search-field',
+searchButton        - The search button. Defaults to '.flc-epubReader-search-button',
+searchResult        - Style applied to highlight search result. Defaults to '.flc-epubReader-highlighted',
+currentSearchResult - Style applied to highlight current search result. Defaults to '.flc-epubReader-highlighted-current'
+```
 Deployment
 ==========
 
@@ -115,10 +116,7 @@ There are four basic steps to adding the Image Editor to your application:
 ```
 <div class='fl-epubReader-container fl-container-auto' align="center">
     <div class="flc-uiOptions-optionPanel fl-uiOptions-optionPanel">
-
         <div class="flc-epubReader-uiOptions-container flc-slidingPanel-panel"></div>
-
-
         <div class="fl-epubReader-navigationContaniner  fl-epubReader-tabsPanel">
             <ul class="fl-tabs fl-tabs-left fl-clearfix fl-inverted-color">
                 <li><a href="#tabg" class="fl-tab-general">General</a></li>
@@ -216,15 +214,11 @@ There are four basic steps to adding the Image Editor to your application:
                 </ul>
             </div>
         </div>
-
         <div class="fl-panelBar">
             <button class="fl-epubReader-uiOptions-button flc-slidingPanel-toggleButton fl-toggleButton"></button>
             <button class="fl-epubReader-navigation-button flc-slidingPanel-toggleButton fl-toggleButton" ></button>
         </div>
     </div>
-
-
-
     <div class="fl-epubReader-bookContainer fl-container-800 fl-rounded-corners">
         <h1 class="flc-epubReader-chapter-title"></h1>
         <div class="fl-epubReader-progressIndicator" align="left">
@@ -239,7 +233,6 @@ There are four basic steps to adding the Image Editor to your application:
     </div>
 </div>
 ```
-
     Step 2 - Write script to add custom UI options parameters and instantiate epubReader component
 ```
     fluid.staticEnvironment.uiEnhancer = fluid.uiEnhancer(".fl-epubReader-bookContainer", {
@@ -273,9 +266,7 @@ There are four basic steps to adding the Image Editor to your application:
         }
     });
 ```
-
     Step 3 - Include all dependencies and script created in step 2 in HTML markup.
-
 
 ### Dependencies
 
