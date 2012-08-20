@@ -24,7 +24,7 @@ Returns: A epubReader component object.
 
 ### Parameters
 
-container
+####container
 
 The container is a CSS-based selector, single-element jQuery object, or DOM element that identifies the root DOM node of the Image Editor markup.
 
