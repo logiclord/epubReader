@@ -1,6 +1,6 @@
 // Declare dependencies
 /*global fluid:true, jQuery*/
-var papu;
+
 jQuery(document).ready(function () {
     // extended to include my custom UI option i.e. pageMode
     fluid.staticEnvironment.uiEnhancer = fluid.uiEnhancer(".fl-epubReader-bookContainer", {
@@ -33,5 +33,4 @@ jQuery(document).ready(function () {
             epubPath : "../tests/epubs/the_hound_of_the_baskervilles_igp_epub3_sir_arthur.epub"
         }
     });
-    papu = epubReader;
 });

@@ -39,7 +39,7 @@ var fluid_1_4 = fluid_1_4 || {};
             }
         });
     };
-    
+
     fluid.epubReader.utils.setTitleToolTip = function (elm, content) {
         elm.qtip({
             content: content,
@@ -117,6 +117,66 @@ var fluid_1_4 = fluid_1_4 || {};
             }
         });
 
+    };
+
+    fluid.epubReader.utils.createNoteForm = function (idValue, textValue) {
+        var tempForm = $('<div/>'),
+            noteId = $('<input/>').attr('type', 'text'),
+            noteText = $('<textarea/>');
+
+        tempForm.attr('title', 'Enter Note Details');
+        tempForm.append(noteId);
+        tempForm.append('<br><br>');
+        if (idValue !== undefined) {
+            noteId.val(idValue);
+        }
+        if (textValue !== undefined) {
+            noteText.val(textValue);
+        }
+        fluid.epubReader.utils.setTitleToolTip(noteId, 'Note Title');
+        fluid.epubReader.utils.setTitleToolTip(noteText, 'Note Text');
+        tempForm.append(noteText);
+        return tempForm;
+    };
+
+    fluid.epubReader.utils.createBookmarkForm = function (value) {
+        var tempForm = $('<div/>'),
+            inputBox = $('<input/>');
+
+        tempForm.attr('title', 'Enter Bookmark Identifier');
+        inputBox.attr('type', 'text');
+        if (value !== undefined) {
+            inputBox.val(value);
+        }
+        tempForm.append(inputBox);
+        return tempForm;
+    };
+
+    fluid.epubReader.utils.attachForm = function (elm, extraOptions) {
+        var defaultOptions = {
+            autoOpen: true,
+            modal: false,
+            draggable: false,
+            resizable: false,
+            width: 'auto',
+            maxHeight: 400,
+            maxWidth: 500,
+            show: 'slide',
+            hide: 'slide',
+            buttons: {
+                Cancel: function () {
+                    $(this).dialog('close');
+                }
+            },
+            open: function (event, ui) {
+                $(this).parent().children().children('.ui-dialog-titlebar-close').hide();
+            },
+            close: function () {
+                elm.remove();
+            }
+        };
+
+        elm.dialog($.extend(true, defaultOptions, extraOptions));
     };
 
 })(jQuery, fluid_1_4);

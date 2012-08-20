@@ -270,25 +270,13 @@ var fluid_1_4 = fluid_1_4 || {};
                 var elm = $(this),
                     key = elm.attr('href'),
                     editPosition = that.findBookmarkPositionByKey(key),
-                    tempForm = $('<div/>'),
-                    inputBox = $('<input/>');
-
-                tempForm.attr('title', 'Edit Bookmark Identifier');
-                inputBox.attr('type', 'text');
-                inputBox.val(that.model.repeatingData[editPosition].bookmarkTitle);
-                tempForm.append(inputBox);
+                    tempForm = fluid.epubReader.utils.createBookmarkForm(that.model.repeatingData[editPosition].bookmarkTitle);
                 that.container.append(tempForm);
 
-                tempForm.dialog({
-                    autoOpen: true,
-                    modal: false,
+                fluid.epubReader.utils.attachForm(tempForm, {
                     height: 90,
                     width: 240,
-                    draggable: false,
-                    resizable: false,
                     position: [elm.offset().left, elm.offset().top + elm.height()],
-                    show: 'slide',
-                    hide: 'slide',
                     buttons: {
                         'Edit': function () {
                             var bookmarkTitle = $.trim($(this).find('input').val()),
@@ -301,13 +289,7 @@ var fluid_1_4 = fluid_1_4 || {};
                                 $(this).dialog('close');
                                 fluid.epubReader.utils.showNotification('Bookmark Edits Saved', 'success');
                             }
-                        },
-                        Cancel: function () {
-                            $(this).dialog('close');
                         }
-                    },
-                    open: function (event, ui) {
-                        $(this).parent().children().children('.ui-dialog-titlebar-close').hide();
                     },
                     close: function () {
                         tempForm.remove();
@@ -491,36 +473,17 @@ var fluid_1_4 = fluid_1_4 || {};
                 var elm = $(this),
                     key = elm.attr('href'),
                     editPosition = that.findNotePositionByKey(key),
-                    tempForm = $('<div/>'),
-                    noteId = $('<input/>').attr('type', 'text'),
-                    noteText = $('<textarea/>');
+                    tempForm = fluid.epubReader.utils.createNoteForm(that.model.repeatingData[editPosition].noteId, that.model.repeatingData[editPosition].notedText);
 
-                tempForm.attr('title', 'Enter Note Details');
-                tempForm.append(noteId);
-                tempForm.append('<br><br>');
-                fluid.epubReader.utils.setTitleToolTip(noteId, 'Note Title');
-                fluid.epubReader.utils.setTitleToolTip(noteText, 'Note Text');
-                tempForm.append(noteText);
                 that.container.append(tempForm);
-                noteId.val(that.model.repeatingData[editPosition].noteId);
-                noteText.val(that.model.repeatingData[editPosition].notedText);
 
-                tempForm.dialog({
-                    autoOpen: true,
-                    modal: false,
-                    draggable: false,
-                    width: 'auto',
-                    maxHeight: 400,
-                    maxWidth: 500,
+                fluid.epubReader.utils.attachForm(tempForm, {
                     resizable: true,
                     position: [elm.offset().left, elm.offset().top + elm.height()],
-                    show: 'slide',
-                    hide: 'slide',
                     buttons: {
                         'Edit': function () {
-                            var noteIdVal = $.trim(noteId.val()),
-                                noteTextVal = $.trim(noteText.val());
-
+                            var noteIdVal = $.trim(tempForm.find('input').val()),
+                                noteTextVal = $.trim(tempForm.find('textarea').val());
                             if (noteIdVal.length === 0 || noteTextVal.length === 0) {
                                 fluid.epubReader.utils.showNotification('Incomplete Form', 'error');
                             } else {
@@ -530,13 +493,7 @@ var fluid_1_4 = fluid_1_4 || {};
                                 $(this).dialog('close');
                                 fluid.epubReader.utils.showNotification('Note Edits Saved', 'success');
                             }
-                        },
-                        Cancel: function () {
-                            $(this).dialog('close');
                         }
-                    },
-                    open: function (event, ui) {
-                        $(this).parent().children().children('.ui-dialog-titlebar-close').hide();
                     },
                     close: function () {
                         tempForm.remove();

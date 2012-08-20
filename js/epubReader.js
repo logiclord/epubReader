@@ -372,9 +372,7 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.addNoteHandler = function () {
-            var tempForm = $('<div/>'),
-                noteId = $('<input/>').attr('type', 'text'),
-                noteText = $('<textarea/>'),
+            var tempForm,
                 currentSelectable,
                 dialogOffset;
             try {
@@ -387,29 +385,17 @@ var fluid_1_4 = fluid_1_4 || {};
                 return;
             }
             dialogOffset = currentSelectable.offset();
-            tempForm.attr('title', 'Enter Note Details');
-            tempForm.append(noteId);
-            tempForm.append('<br><br>');
-            fluid.epubReader.utils.setTitleToolTip(noteId, 'Note Title');
-            fluid.epubReader.utils.setTitleToolTip(noteText, 'Note Text');
-            tempForm.append(noteText);
+            tempForm =  fluid.epubReader.utils.createNoteForm();
             that.container.append(tempForm);
 
-            tempForm.dialog({
-                autoOpen: true,
-                modal: false,
-                draggable: false,
-                width: 'auto',
-                maxHeight: 400,
-                maxWidth: 500,
+            fluid.epubReader.utils.attachForm(tempForm, {
                 resizable: true,
                 position: [dialogOffset.left, dialogOffset.top + currentSelectable.height()],
-                show: 'slide',
-                hide: 'slide',
                 buttons: {
                     'Create': function () {
-                        var noteIdVal = $.trim(noteId.val()),
-                            noteTextVal = $.trim(noteText.val());
+                        var noteIdVal = $.trim(tempForm.find('input').val()),
+                            noteTextVal = $.trim(tempForm.find('textarea').val());
+                        console.log(noteIdVal +  " " + noteTextVal);
                         if (noteIdVal.length === 0 || noteTextVal.length === 0) {
                             fluid.epubReader.utils.showNotification('Incomplete Form', 'error');
                         } else {
@@ -420,13 +406,7 @@ var fluid_1_4 = fluid_1_4 || {};
                                 fluid.epubReader.utils.showNotification('Note already exist', 'error');
                             }
                         }
-                    },
-                    Cancel: function () {
-                        $(this).dialog('close');
                     }
-                },
-                open: function (event, ui) {
-                    $(this).parent().children().children('.ui-dialog-titlebar-close').hide();
                 },
                 close: function () {
                     //restore focus back to selection
@@ -437,8 +417,7 @@ var fluid_1_4 = fluid_1_4 || {};
         };
 
         that.addBookmarkHandler = function () {
-            var tempForm = $('<div/>'),
-                inputBox = $('<input/>'),
+            var tempForm,
                 currentSelectable,
                 dialogOffset;
             try {
@@ -451,21 +430,13 @@ var fluid_1_4 = fluid_1_4 || {};
                 return;
             }
             dialogOffset = currentSelectable.offset();
-            tempForm.attr('title', 'Enter Bookmark Identifier');
-            inputBox.attr('type', 'text');
-            tempForm.append(inputBox);
+            tempForm = fluid.epubReader.utils.createBookmarkForm();
             that.container.append(tempForm);
 
-            tempForm.dialog({
-                autoOpen: true,
-                modal: false,
+            fluid.epubReader.utils.attachForm(tempForm, {
                 height: 90,
                 width: 240,
-                draggable: false,
-                resizable: false,
                 position: [dialogOffset.left, dialogOffset.top + currentSelectable.height()],
-                show: 'slide',
-                hide: 'slide',
                 buttons: {
                     'Create': function () {
                         var bookmarkTitle = $.trim($(this).find('input').val());
@@ -479,13 +450,7 @@ var fluid_1_4 = fluid_1_4 || {};
                                 fluid.epubReader.utils.showNotification('This Bookmark already exist', 'error');
                             }
                         }
-                    },
-                    Cancel: function () {
-                        $(this).dialog('close');
                     }
-                },
-                open: function (event, ui) {
-                    $(this).parent().children().children('.ui-dialog-titlebar-close').hide();
                 },
                 close: function () {
                     //restore focus back to selection
