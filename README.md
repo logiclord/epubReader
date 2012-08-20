@@ -33,12 +33,11 @@ Deployment
 ==========
 
 There are four basic steps to adding the Image Editor to your application:
-
     Setup: Download epubReader standalone component
     Step 1: Prepare your markup
     Step 2: Write the script
     Step 3: Add the script to your HTML
-
+    
     Step 1 - Prepare your HTML markup similar to epubReaderDemo.html and apply styles.
 
 ```
