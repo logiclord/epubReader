@@ -35,7 +35,7 @@ The options object is an optional data structure that configures the epubReader,
     
     uiOptionsTemplatePath - Relative path to UI options html template directory.
     KeyboardShortcut    - Customizable shortcut keys for reader to be used with shift + key.
-        bookmarkKey        - To add bookmark. Defaults to B (66).
+    	bookmarkKey        - To add bookmark. Defaults to B (66).
     	noteKey            - To add Note. Defaults to N (78).
     	nextNavigationKey  - To navigate next. Defaults to Down Arrow (40).
     	previousNavigationKey  - To navigate previous. Defaults to Up Arrow (38).

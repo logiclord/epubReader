@@ -1,3 +1,14 @@
+/*
+ Copyright 2012 OCAD University
+ Copyright 2012 OCAD Gaurav Aggarwal
+
+ Licensed under the Educational Community License (ECL), Version 2.0 or the New
+ BSD license. You may not use this file except in compliance with one these
+ Licenses.
+
+ You may obtain a copy of the ECL 2.0 License and BSD License at
+ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
+ */
 // Declare dependencies
 /*global fluid_1_4:true, jQuery*/
 
@@ -95,11 +106,12 @@ var fluid_1_4 = fluid_1_4 || {};
             tocSelector: '{epubReader}.options.selectors.tocSelector'
         },
         model: { /*
+            // sample structure of model
             table: {
-                names: ['Waiting..'],
-                values: ['wait']
+                names: ['chapter1', 'chapter2'],
+                values: ['chapter1Path', 'chapter2Path']
             },
-            currentSelection: 'wait'
+            currentSelection: 'chapter2Path'
             */
         },
         events: {
@@ -188,16 +200,18 @@ var fluid_1_4 = fluid_1_4 || {};
             onBookmarkDelete: null
         },
         model: {
+            // sample structure of model
             repeatingData: [/*
-             {
-             bookmarkTitle: 'Row 1 string',
-             bookmarkChapter: {
-             name : 'http://domain1.com/page1.html',
-             value : 'Link 1 Label'
-             },
-             bookmarkedItemHTML: 'gibberish',
-             bookmarkedItemKey: 400
-             }*/
+                 {
+                     "bookmarkTitle": "mytitle",
+                     "bookmarkChapter": {
+                         "value": "OPS/s001-BookTitlePage-01.xhtml",
+                         "name": "The Hound of the Baskervilles"
+                     },
+                     "bookmarkedItemHTML": "<span>Sir Arthur Conan Doyle's</span>",
+                     "bookmarkedItemKey": "1345474804758-8eb6e0a4-754e-4e76-8adc-2ce677314901"
+                 }
+             */
             ]
         },
         produceTree: 'fluid.epubReader.bookHandler.navigator.Bookmarks.produceTree',
@@ -375,16 +389,18 @@ var fluid_1_4 = fluid_1_4 || {};
         },
         repeatingSelectors: ['noteRow'],
         model: {
+            // sample structure of model
             repeatingData: [ /*
-                {
-                    noteId: 'Row 1 string',
-                    noteChapter: {
-                        name : 'http://domain1.com/page1.html',
-                        value : 'Link 1 Label'
-                    },
-                    notedText: 'gibberish',
-                    notedItemKey: 400
-                }*/
+                 {
+                     "noteId": "my notes",
+                     "noteChapter": {
+                         "value": "OPS/s003-Introduction-01.xhtml",
+                         "name": "Introduction"
+                     },
+                     "notedText": "my important notes text",
+                     "notedItemKey": "1345475088549-544cea88-8068-4f14-8e41-8b05bf2eaa70"
+                 }
+             */
             ]
         },
         events: {
