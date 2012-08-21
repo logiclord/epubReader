@@ -1,8 +1,8 @@
 epubReader
 ==========
 epubReader is a standalone fluid infusion component. This project is about implementing a 
-web based ePub reader component based on open web technologies for infusion framework. Final ePub
-reader developed will be screen reader accessible utilizing tools for customizing user experience.
+web based ePub reader component based on open web technologies for infusion framework. Current version of
+ePub reader developed is a accessible screen reader  utilizing tools for customizing user experience.
 Having a highly customizable reading experience on the web will contribute to a growing number
 of new learning tools in the educational domain. It is finalized version of Google Summer of Code
 2012 Project for Inclusive Design Institute.
